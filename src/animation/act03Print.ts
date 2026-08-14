@@ -22,7 +22,7 @@
 
 import gsap from 'gsap';
 import { GLOSSES, UNDERLINES } from '../data/text';
-import { LEAF, lineY, printLineX, printLineY, PRINT_TEXT, SEED, TEXT } from '../scene/markup';
+import { ADMITTED_LEAF, LEAF, lineY, printLineX, printLineY, PRINT_TEXT, SEED, TEXT } from '../scene/markup';
 import { wobblyLine, wobblyRect } from '../scene/geometry';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
@@ -42,17 +42,25 @@ export function actPrint(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   // -------------------------------------------------------------------------
 
   // The leaf edge stops being drawn and becomes trimmed.
-  const leafState = { w: 1 };
+  const leafState = { ...ADMITTED_LEAF, wobble: 1 };
   tl.to(
     leafState,
     {
-      w: 0,
+      x: LEAF.x,
+      y: LEAF.y,
+      w: LEAF.w,
+      h: LEAF.h,
+      wobble: 0,
       duration: 1.6,
       ease: 'power2.inOut',
       onUpdate: () => {
-        const d = wobblyRect(LEAF.x, LEAF.y, LEAF.w, LEAF.h, leafState.w, SEED);
+        const d = wobblyRect(leafState.x, leafState.y, leafState.w, leafState.h, leafState.wobble, SEED);
         refs.leaf.setAttribute('d', d);
         refs.leafEdge.setAttribute('d', d);
+        refs.leafVerso.setAttribute(
+          'd',
+          wobblyRect(leafState.x - 26, leafState.y + 14, leafState.w, leafState.h - 22, leafState.wobble, SEED + 400),
+        );
       },
     },
     0,

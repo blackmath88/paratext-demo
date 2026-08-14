@@ -2,16 +2,15 @@
 
 A scroll-driven editorial animation about paratext, interfaces and language.
 
-One page of text persists through the whole piece. It is never replaced — it
-acquires marginal notes, then those notes regularize into printed apparatus,
-and (in later milestones) into terminal, browser and adaptive interfaces. The
-argument is not that text became UI. It is that text repeatedly acquired
-frames, annotations, navigation and interaction apparatus.
+One body of text persists through the whole piece. It is never replaced: its
+presentation discloses a page boundary, outside annotations force that boundary
+to expand, and those notes regularize into printed apparatus. Later slices carry
+the same context through software, fragmentation and multiple live projections.
 
 > Language may become the universal input. It does not have to become the
 > universal interface.
 
-**Status: Milestone 1 — Acts 1 to 3.** Acts 4–8 are named in the navigator but
+**Status: Slice A — Acts 00 to 03.** Acts 04–08 are named in the navigator but
 not yet built.
 
 ## Develop
@@ -71,6 +70,6 @@ model and the responsive strategy. In short:
 The argument lives in HTML, not in SVG. Every act has a real section with a
 heading and prose; the scene carries `<title>`/`<desc>`; the navigator is a
 list of real anchors that works from the keyboard and leaves a usable URL
-(`#bare`, `#glosses`, `#print`). Under `prefers-reduced-motion: reduce` the
+  (`#bare`, `#page`, `#glosses`, `#print`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
 and held rather than played.

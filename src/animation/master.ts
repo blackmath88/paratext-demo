@@ -16,6 +16,7 @@ import { acts } from '../data/acts';
 import { resetScene, type SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { actBare } from './act01Bare';
+import { actPage } from './act01Page';
 import { actGlosses } from './act02Glosses';
 import { actPrint } from './act03Print';
 
@@ -26,6 +27,7 @@ const TOTAL = 14;
 
 const BUILDERS = {
   bare: actBare,
+  page: actPage,
   glosses: actGlosses,
   print: actPrint,
 } as const;
@@ -45,7 +47,7 @@ export function buildMaster(
   onProgress: (progress: number) => void,
 ): Master {
   resetScene(refs);
-  gsap.set(refs.page, { transformOrigin: '50% 46%' });
+  gsap.set(refs.page, { x: 0, y: 0, scale: 1, transformOrigin: '50% 46%' });
 
   const timeline = gsap.timeline({ paused: mode === 'static' });
 

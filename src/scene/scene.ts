@@ -8,6 +8,7 @@
  */
 
 import { BODY_PROSE } from '../data/text';
+import { wobblyRect } from './geometry';
 import {
   buildBody,
   buildDefs,
@@ -19,6 +20,8 @@ import {
   buildRules,
   el,
   VIEW,
+  LEAF,
+  SEED,
 } from './markup';
 
 export type SceneRefs = {
@@ -67,12 +70,12 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   }) as SVGSVGElement;
 
   const title = el('title', { id: 'scene-title' });
-  title.textContent = 'A page of text, acquiring apparatus';
+  title.textContent = 'One body of text, acquiring and changing frames';
   const desc = el('desc', { id: 'scene-desc' });
   desc.textContent =
-    `An illustrated manuscript leaf carrying the passage: "${BODY_PROSE}" ` +
-    'Across the piece the same leaf gains marginal notes, underlines and reference marks, ' +
-    'which then regularize into printed apparatus: a title, a rule, line numbers and footnotes.';
+    `The passage "${BODY_PROSE}" begins without a visible paper boundary. ` +
+    'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
+    'Their irregular marks finally regularize into a title, rule, line numbers and footnotes.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -127,6 +130,13 @@ export function buildScene(mount: HTMLElement): SceneRefs {
  * mode change, so a resize cannot leave a half-played act on screen.
  */
 export function resetScene(refs: SceneRefs): void {
+  const leafPath = wobblyRect(LEAF.x, LEAF.y, LEAF.w, LEAF.h, 1, SEED);
+  refs.leaf.setAttribute('d', leafPath);
+  refs.leafEdge.setAttribute('d', leafPath);
+  refs.leafVerso.setAttribute(
+    'd',
+    wobblyRect(LEAF.x - 26, LEAF.y + 14, LEAF.w, LEAF.h - 22, 1, SEED + 400),
+  );
   for (const p of [...refs.rulePaths, ...refs.markPaths]) {
     const len = p.getTotalLength();
     p.style.strokeDasharray = `${len}`;

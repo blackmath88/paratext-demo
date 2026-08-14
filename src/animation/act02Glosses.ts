@@ -15,6 +15,8 @@
 
 import gsap from 'gsap';
 import { GLOSSES, INTERLINEAR, UNDERLINES } from '../data/text';
+import { wobblyRect } from '../scene/geometry';
+import { ADMITTED_LEAF, LEAF, SEED } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 
@@ -23,10 +25,6 @@ const SPAN = 4;
 
 export function actGlosses(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
-
-  // The page yields a little: it shrinks and lifts because its margins now
-  // have to hold something. The text did not ask for this.
-  tl.to(refs.page, { scale: 0.94, y: -8, duration: SPAN * 0.7, ease: 'power1.inOut', transformOrigin: '50% 46%' }, 0);
 
   // --- underlines: drawn, then re-drawn, as readers do ---------------------
   UNDERLINES.forEach((u, i) => {
@@ -93,6 +91,27 @@ export function actGlosses(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
       il.at * SPAN,
     );
   });
+
+  // Only after the outside voices accumulate does the object answer them.
+  // Notes stay fixed while the material boundary travels outward to admit them.
+  const frame = { ...LEAF };
+  tl.to(
+    frame,
+    {
+      ...ADMITTED_LEAF,
+      duration: SPAN * 0.3,
+      ease: 'power3.inOut',
+      onUpdate: () => {
+        refs.leaf.setAttribute('d', wobblyRect(frame.x, frame.y, frame.w, frame.h, 1, SEED));
+        refs.leafEdge.setAttribute('d', wobblyRect(frame.x, frame.y, frame.w, frame.h, 1, SEED));
+        refs.leafVerso.setAttribute(
+          'd',
+          wobblyRect(frame.x - 26, frame.y + 14, frame.w, frame.h - 22, 1, SEED + 400),
+        );
+      },
+    },
+    SPAN * 0.68,
+  );
 
   // --- semantic parallax ----------------------------------------------------
   if (mode === 'cinematic') {

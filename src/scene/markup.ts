@@ -17,6 +17,9 @@ export const VIEW = { w: 1440, h: 900 };
 /** The manuscript leaf in its Act 1 position. */
 export const LEAF = { x: 470, y: 100, w: 500, h: 700 };
 
+/** The leaf after reception has forced its frame outward. */
+export const ADMITTED_LEAF = { x: 320, y: 82, w: 800, h: 736 };
+
 /** Body text metrics. `lh` is the manuscript leading; print will tighten it. */
 export const TEXT = { x: 506, top: 172, lh: 38, width: 428 };
 
