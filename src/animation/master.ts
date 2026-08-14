@@ -12,7 +12,7 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { acts } from '../data/acts';
+import { acts, settlePoints } from '../data/acts';
 import { resetScene, type SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { actBare } from './act01Bare';
@@ -29,6 +29,21 @@ gsap.registerPlugin(ScrollTrigger);
 
 /** Arbitrary internal time units; act spans are scaled into this. */
 const TOTAL = 14;
+const CHOREOGRAPHY_RATIO = 0.7;
+
+function nearest(points: number[], value: number): number {
+  // Preserve the true ends of the pinned range so snap can never pull a user
+  // back into the piece while they are trying to leave it.
+  if (value <= 0.002 || value >= 0.998 || points.length === 0) return value;
+  return points.reduce((closest, point) =>
+    Math.abs(point - value) < Math.abs(closest - value) ? point : closest,
+  );
+}
+
+function fitWithPlateau(child: gsap.core.Timeline, duration: number): void {
+  child.duration(duration * CHOREOGRAPHY_RATIO);
+  child.to({ held: 0 }, { held: 1, duration: duration * (1 - CHOREOGRAPHY_RATIO), ease: 'none' });
+}
 
 const BUILDERS = {
   bare: actBare,
@@ -67,7 +82,7 @@ export function buildMaster(
     if (!build) continue;
     const child = build(refs, mode);
     // Conform the act to its declared span; acts.ts owns all pacing.
-    child.duration((act.end - act.start) * TOTAL);
+    fitWithPlateau(child, (act.end - act.start) * TOTAL);
     timeline.add(child, act.start * TOTAL);
   }
 
@@ -104,6 +119,13 @@ export function buildMaster(
     pin: mode === 'cinematic' ? stage : false,
     pinSpacing: mode === 'cinematic',
     scrub: mode === 'cinematic' ? 1 : 0.6,
+    snap: {
+      snapTo: (value) => nearest(settlePoints, value),
+      duration: { min: 0.15, max: 0.5 },
+      delay: 0.06,
+      ease: 'power2.inOut',
+      inertia: false,
+    },
     invalidateOnRefresh: true,
     onUpdate: (self) => onProgress(self.progress),
   });

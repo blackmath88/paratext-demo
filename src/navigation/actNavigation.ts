@@ -8,7 +8,7 @@
  * with the keyboard, and leaves a usable URL behind.
  */
 
-import { acts, actAt, actById, plannedActs } from '../data/acts';
+import { acts, actAt, actById, plannedActs, settlePoints } from '../data/acts';
 import type { Master } from '../animation/master';
 
 export type Navigation = {
@@ -26,7 +26,7 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
 
   const entries = new Map<string, HTMLAnchorElement>();
 
-  for (const act of acts) {
+  for (const [index, act] of acts.entries()) {
     const item = document.createElement('li');
     item.className = 'actnav__item';
 
@@ -40,9 +40,8 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
 
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      // Seek just inside the act so the arriving state is legible immediately
-      // rather than landing on the seam between two acts.
-      const target = act.start + (act.end - act.start) * 0.12;
+      // Land on the same stable argument state used by scroll snapping.
+      const target = settlePoints[index] ?? act.start;
       master.seek(target, true);
       history.replaceState(null, '', `#${act.id}`);
     });
@@ -88,7 +87,8 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
     const id = location.hash.replace('#', '');
     const act = actById(id);
     if (!act) return;
-    master.seek(act.start + (act.end - act.start) * 0.12, false);
+    const index = acts.indexOf(act);
+    master.seek(settlePoints[index] ?? act.start, false);
   };
 
   const onHashChange = () => applyHash();

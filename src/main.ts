@@ -19,7 +19,7 @@ import './styles/scene.css';
 
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { buildMaster, type Master } from './animation/master';
-import { acts } from './data/acts';
+import { acts, settlePoints } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
 import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
 import { buildScene, type SceneRefs } from './scene/scene';
@@ -98,7 +98,8 @@ function attachStaticObserver(current: Master): void {
       const id = visible.target.getAttribute('data-act');
       const act = acts.find((a) => a.id === id);
       if (!act) return;
-      current.seek(act.end - 0.001, false);
+      const index = acts.indexOf(act);
+      current.seek(settlePoints[index] ?? act.start, false);
     },
     { threshold: [0.25, 0.6] },
   );
