@@ -448,6 +448,33 @@ export const FRAGMENT_WINDOWS: WindowGeometry[] = [
   { id: 'files', title: 'FILES', x: 970, y: 502, w: 340, h: 210 },
 ];
 
+/** Semantic tool ownership for Act 06. Never derive this from array order. */
+export const FRAGMENT_ASSIGNMENTS: Record<string, { window: string; slot: number }> = {
+  'q-frame': { window: 'memo', slot: 0 },
+  'q-source': { window: 'memo', slot: 1 },
+  'src-dembeck': { window: 'research', slot: 0 },
+  'src-genette': { window: 'research', slot: 1 },
+  'artifact-print': { window: 'sources', slot: 0 },
+  'claim-outside': { window: 'sources', slot: 1 },
+  'claim-presentation': { window: 'draft', slot: 0 },
+  'artifact-essay': { window: 'draft', slot: 1 },
+  'decision-admit': { window: 'chat', slot: 0 },
+  'decision-grid': { window: 'chat', slot: 1 },
+  'decision-reason': { window: 'chat', slot: 2 },
+  'open-reason': { window: 'chat', slot: 3 },
+  'claim-schema': { window: 'files', slot: 0 },
+  'tool-records': { window: 'files', slot: 1 },
+  'superseded-history': { window: 'files', slot: 2 },
+  'claim-context': { window: 'files', slot: 3 },
+};
+
+export function fragmentPlacement(operationId: string): { x: number; y: number } {
+  const assignment = FRAGMENT_ASSIGNMENTS[operationId] ?? { window: 'files', slot: 0 };
+  const win = FRAGMENT_WINDOWS.find((candidate) => candidate.id === assignment.window) ?? FRAGMENT_WINDOWS[0];
+  if (!win) return { x: 130, y: 170 };
+  return { x: win.x + 20, y: win.y + 72 + assignment.slot * 43 };
+}
+
 export function framePath(x: number, y: number, w: number, h: number): string {
   return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`;
 }
@@ -469,9 +496,23 @@ export function buildFragments(): SVGGElement {
     g.appendChild(group);
   }
   const relations = el('g', { id: 'fragment-relations' });
-  relations.appendChild(el('path', { class: 'fragment-relation', d: 'M 410 250 C 520 330 480 510 252 568' }));
-  relations.appendChild(el('path', { class: 'fragment-relation', d: 'M 820 260 C 920 340 1030 430 1110 530' }));
-  relations.appendChild(el('path', { class: 'fragment-relation', d: 'M 730 280 C 720 350 718 398 720 474' }));
+  const relationPairs = [
+    ['q-frame', 'src-dembeck'],
+    ['claim-outside', 'decision-admit'],
+    ['decision-reason', 'artifact-essay'],
+    ['q-source', 'claim-context'],
+  ];
+  relationPairs.forEach(([fromId, toId]) => {
+    const from = fragmentPlacement(fromId ?? '');
+    const to = fragmentPlacement(toId ?? '');
+    const bend = (from.x + to.x) / 2;
+    relations.appendChild(el('path', {
+      class: 'fragment-relation',
+      'data-from': fromId ?? '',
+      'data-to': toId ?? '',
+      d: `M ${from.x + 4} ${from.y - 4} C ${bend} ${from.y - 4} ${bend} ${to.y - 4} ${to.x + 4} ${to.y - 4}`,
+    }));
+  });
   g.appendChild(relations);
   return g as SVGGElement;
 }

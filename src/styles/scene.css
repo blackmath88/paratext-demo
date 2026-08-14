@@ -264,7 +264,7 @@ text.gloss--ink {
    -------------------------------------------------------------------------- */
 
 .fragment-window-frame {
-  fill: rgba(233, 231, 223, 0.055);
+  fill: rgba(233, 231, 223, 0);
   stroke: #a8a59b;
   stroke-width: 1;
 }
