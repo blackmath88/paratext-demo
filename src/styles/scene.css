@@ -12,6 +12,13 @@
   display: block;
 }
 
+.screen-grid-line {
+  fill: none;
+  stroke: #83909c;
+  stroke-width: 0.35;
+  opacity: 0.18;
+}
+
 /* --------------------------------------------------------------------------
    The leaf
    -------------------------------------------------------------------------- */
@@ -374,6 +381,79 @@ text.gloss--ink {
 .frame-layout-label,
 .reframe-current {
   font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Part II — computational conversation and the tube
+   -------------------------------------------------------------------------- */
+
+.ai-screen-frame,
+.ai-screen-rule,
+.ai-input-line,
+.ai-scroll-track,
+.ai-scroll-thumb,
+.ai-tube-surface {
+  fill: none;
+  stroke: #66717c;
+  stroke-width: 0.9;
+}
+
+.ai-screen-frame {
+  fill: rgba(10, 13, 17, 0.78);
+  stroke: #8a949e;
+}
+
+.ai-screen-title,
+.ai-screen-status,
+.ai-input-text,
+.ai-continuation {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.ai-screen-title,
+.ai-screen-status {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  fill: #9ba6b0;
+}
+
+.ai-input-text {
+  font-size: 12px;
+  fill: #69737d;
+}
+
+.ai-scroll-track {
+  opacity: 0.28;
+}
+
+.ai-scroll-thumb {
+  stroke: #b1bac2;
+  stroke-width: 2;
+}
+
+.ai-tube-surface {
+  fill: rgba(8, 11, 15, 0.64);
+  stroke: #4e5862;
+  stroke-width: 0.8;
+}
+
+.ai-continuation {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  fill: #626d77;
+}
+
+.operation--role-user .operation-mark {
+  fill: #b5a879;
+}
+
+.operation--role-assistant .operation-mark {
+  fill: #719b92;
+}
+
+.operation--role-tool .operation-mark {
+  fill: #78828c;
 }
 
 .reframe-cluster-label,

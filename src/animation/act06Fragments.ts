@@ -5,6 +5,7 @@ import { FRAGMENT_WINDOWS, fragmentPlacement } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { tweenFrame } from './frames';
+import { tweenOperation } from './operations';
 
 export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
@@ -54,13 +55,8 @@ export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   refs.operationNodes.forEach((node, i) => {
     const operationId = node.dataset.operation;
     if (!operationId) return;
-    const originX = Number(node.dataset.originX);
-    const originY = Number(node.dataset.originY);
     const target = fragmentPlacement(operationId);
-    tl.fromTo(node, { opacity: 0 }, {
-      opacity: 1,
-      x: target.x - originX,
-      y: target.y - originY,
+    tweenOperation(tl, refs, i, { ...target, scale: 1, opacity: 1 }, {
       duration: 1.3,
       ease: 'power3.inOut',
     }, 0.45 + i * 0.025);

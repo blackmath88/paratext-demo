@@ -8,10 +8,12 @@
  */
 
 import { BODY_PROSE, GLOSSES, UNDERLINES } from '../data/text';
+import { OPERATIONS } from '../data/operations';
 import { noiseAt, wobblyLine, wobblyRect } from './geometry';
 import {
   buildBody,
   buildApplication,
+  buildAIConversation,
   buildDefs,
   buildEditorial,
   buildField,
@@ -43,6 +45,8 @@ export type SceneRefs = {
   /** Software/screen substrate. A sibling so codex transforms cannot leak in. */
   surface: SVGGElement;
   field: SVGGElement;
+  fieldBase: SVGRectElement;
+  screenGrid: SVGGElement;
   dust: SVGGElement;
   vignette: SVGElement;
   leafGroup: SVGGElement;
@@ -88,17 +92,36 @@ export type SceneRefs = {
   projectionPorts: SVGGElement[];
   frameFurniture: SVGGElement[];
   reframeCurrent: SVGTextElement;
+  aiConversation: SVGGElement;
+  aiScreenFrame: SVGPathElement;
+  aiInput: SVGGElement;
+  aiScrollbar: SVGGElement;
+  aiScrollThumb: SVGPathElement;
+  aiTube: SVGGElement;
+  chatClipRect: SVGRectElement;
+  materialState: MaterialState;
   /** Live geometry shared by every act that transforms the material leaf. */
   leafState: LeafFrameState;
   /** Live geometry for inherited rule paths. */
   ruleStates: LineState[];
   /** Live geometry for fragment frames; acts never keep private copies. */
   frameStates: FrameRect[];
+  /** Shared projection geometry for durable operation identities. */
+  operationStates: OperationPlacementState[];
 };
 
 export type FrameRect = { x: number; y: number; w: number; h: number };
 export type LeafFrameState = FrameRect & { wobble: number };
 export type LineState = { x1: number; y1: number; x2: number; y2: number; wobble: number };
+export type MaterialMode = 'paper' | 'transition' | 'screen';
+export type MaterialState = {
+  mode: MaterialMode;
+  fieldColor: string;
+  gridOpacity: number;
+  dustOpacity: number;
+  vignetteOpacity: number;
+};
+export type OperationPlacementState = { x: number; y: number; scale: number; opacity: number };
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
   const found = root.querySelector<T>(selector);
@@ -122,9 +145,9 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     `The passage "${BODY_PROSE}" begins without a visible paper boundary. ` +
     'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
     'Their irregular marks regularize into print, settle into editorial composition, and become ' +
-    'structured application records. That application separates into tool windows before the same ' +
-    'operations reunite as chronology beside an artifact. Finally the artifact and chronology yield ' +
-    'to durable context arranged as essay, thread, structure and specification.';
+    'structured application records. That application separates into specialized tool windows. ' +
+    'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
+    'is revealed as a small viewport onto a much longer chronological stream.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -146,6 +169,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   surface.appendChild(buildFragments());
   surface.appendChild(buildConversation());
   surface.appendChild(buildReframe());
+  surface.appendChild(buildAIConversation());
   surface.appendChild(buildOperations());
   svg.appendChild(surface);
 
@@ -156,6 +180,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     page,
     surface,
     field: must(svg, '#field'),
+    fieldBase: must(svg, '#field-base'),
+    screenGrid: must(svg, '#screen-grid'),
     dust: must(svg, '#dust'),
     vignette: must(svg, '#vignette'),
     leafGroup: must(svg, '#leaf-group'),
@@ -201,6 +227,20 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     projectionPorts: [...svg.querySelectorAll<SVGGElement>('.projection-port')],
     frameFurniture: [...svg.querySelectorAll<SVGGElement>('.frame-layout-furniture')],
     reframeCurrent: must(svg, '#reframe-current'),
+    aiConversation: must(svg, '#ai-conversation'),
+    aiScreenFrame: must(svg, '#ai-screen-frame'),
+    aiInput: must(svg, '#ai-input'),
+    aiScrollbar: must(svg, '#ai-scrollbar'),
+    aiScrollThumb: must(svg, '#ai-scroll-thumb'),
+    aiTube: must(svg, '#ai-tube'),
+    chatClipRect: must(svg, '#chat-clip-rect'),
+    materialState: {
+      mode: 'paper',
+      fieldColor: '#0b0d10',
+      gridOpacity: 0,
+      dustOpacity: 0.5,
+      vignetteOpacity: 1,
+    },
     leafState: { ...LEAF, wobble: 1 },
     ruleStates: UNDERLINES.map((underline) => {
       const y = lineY(underline.lineIndex) + 7;
@@ -213,6 +253,12 @@ export function buildScene(mount: HTMLElement): SceneRefs {
       };
     }),
     frameStates: FRAGMENT_WINDOWS.map(() => ({ ...APP_FRAME })),
+    operationStates: OPERATIONS.map((_, i) => ({
+      x: 474 + (i % 2) * 224,
+      y: 262 + Math.floor(i / 2) * 47,
+      scale: 1,
+      opacity: 0,
+    })),
   };
 }
 
@@ -296,6 +342,34 @@ export function resetScene(refs: SceneRefs): void {
   refs.operations.style.opacity = '0';
   refs.conversation.style.opacity = '0';
   refs.reframe.style.opacity = '0';
+  refs.aiConversation.style.opacity = '0';
+  refs.operations.removeAttribute('clip-path');
+  Object.assign(refs.materialState, {
+    mode: 'paper',
+    fieldColor: '#0b0d10',
+    gridOpacity: 0,
+    dustOpacity: 0.5,
+    vignetteOpacity: 1,
+  });
+  refs.fieldBase.setAttribute('fill', '#0b0d10');
+  refs.screenGrid.setAttribute('opacity', '0');
+  refs.screenGrid.style.opacity = '0';
+  refs.dust.style.opacity = '0.5';
+  refs.vignette.style.opacity = '1';
+  refs.chatClipRect.setAttribute('x', '390');
+  refs.chatClipRect.setAttribute('width', '660');
+  refs.aiScrollThumb.setAttribute('d', 'M 1058 172 V 310');
+  refs.operationNodes.forEach((node, i) => {
+    node.removeAttribute('transform');
+    node.style.opacity = '0';
+    const state = refs.operationStates[i];
+    if (state) Object.assign(state, {
+      x: 474 + (i % 2) * 224,
+      y: 262 + Math.floor(i / 2) * 47,
+      scale: 1,
+      opacity: 0,
+    });
+  });
   refs.printNotes.style.opacity = '0';
   for (const t of [
     refs.printTitle,

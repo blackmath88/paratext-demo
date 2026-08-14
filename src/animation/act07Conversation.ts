@@ -1,65 +1,66 @@
-/** Act 07 — Conversation + artifact. Proximity returns; provenance does not. */
+/** Part II / Act 07 — AI conversation. Specialized frames collapse into language. */
 
 import gsap from 'gsap';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
-import { tweenFrame, tweenLeafFrame } from './frames';
+import { tweenFrame } from './frames';
+import { tweenMaterial } from './material';
+import { tweenOperation } from './operations';
+
+const CHAT_FRAME = { x: 360, y: 88, w: 720, h: 724 };
 
 export function actConversation(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
 
-  // Six local frames contract into the now-familiar two-region answer.
   refs.fragmentFrames.forEach((_, i) => {
-    const left = i < 4;
-    const target = left
-      ? { x: 160, y: 70, w: 520, h: 768 }
-      : { x: 680, y: 70, w: 600, h: 768 };
-    tweenFrame(tl, refs, i, target, { duration: 1.25, ease: 'power3.inOut' }, i * 0.035);
+    tweenFrame(tl, refs, i, CHAT_FRAME, { duration: 1.35, ease: 'power4.inOut' }, i * 0.035);
   });
-  tl.to(refs.fragmentWindows, { opacity: 0, duration: 0.55, stagger: 0.025 }, 0.85);
-  tl.to(refs.fragmentRelations, { opacity: 0, duration: 0.45 }, 0.15);
+  tl.to(refs.fragments.querySelectorAll('.fragment-window-title, .fragment-window-rule'), {
+    opacity: 0, duration: 0.55, stagger: 0.025,
+  }, 0.12);
+  tl.to(refs.fragmentRelations, { opacity: 0, duration: 0.45 }, 0.08);
+  tl.to(refs.fragmentWindows.slice(1), { opacity: 0, duration: 0.45, stagger: 0.03 }, 0.92);
 
-  // The original application surface returns as the shared split frame.
-  tweenLeafFrame(tl, refs, { x: 160, y: 70, w: 1120, h: 768, wobble: 0 }, {
-    duration: 1.25,
-    ease: 'power3.inOut',
-  }, 0.2);
-  tl.to(refs.leaf, { opacity: 0.96, fill: '#e9e7df', duration: 0.9 }, 0.45);
-  tl.to(refs.leafEdge, { opacity: 0.45, duration: 0.8 }, 0.45);
-  tl.set(refs.conversation, { opacity: 1 }, 0.55);
-  tl.from(refs.conversation.querySelectorAll('.conversation-rule, .conversation-heading'), {
-    opacity: 0, duration: 0.55, stagger: 0.08,
-  }, 0.55);
+  tweenMaterial(tl, refs, {
+    mode: 'screen',
+    fieldColor: '#07090c',
+    gridOpacity: 0.16,
+    dustOpacity: 0,
+    vignetteOpacity: 0.34,
+  }, { duration: 1.45, ease: 'power2.inOut' }, 0.1);
 
+  tl.to([refs.body, refs.printTitle, refs.printCaput, refs.printNotes], {
+    x: 150, y: 120, scale: 0.28, opacity: 0, duration: 1.15, ease: 'power3.inOut',
+  }, 0.18);
+  tl.to([refs.leaf, refs.leafEdge], { opacity: 0, duration: 0.7 }, 0.55);
+
+  tl.set(refs.aiConversation, { opacity: 1 }, 0.88);
+  tl.from(refs.aiConversation.querySelectorAll('.ai-screen-rule, .ai-screen-title, .ai-screen-status'), {
+    opacity: 0, duration: 0.45, stagger: 0.06,
+  }, 0.92);
+  tl.to(refs.fragmentWindows[0] ?? {}, { opacity: 0, duration: 0.35 }, 1.02);
+  tl.from(refs.aiInput, { opacity: 0, y: 8, duration: 0.55, ease: 'power2.out' }, 1.05);
+  tl.from(refs.aiScrollbar, { opacity: 0, duration: 0.4 }, 1.08);
+
+  tl.set(refs.operations, { attr: { 'clip-path': 'url(#clip-chat)' } }, 0.82);
   refs.operationNodes.forEach((node, i) => {
-    const originX = Number(node.dataset.originX);
-    const originY = Number(node.dataset.originY);
-    const isArtifact = node.dataset.kind === 'artifact';
-    const targetX = isArtifact ? 730 : 190;
-    const artifactSlot = node.dataset.operation === 'artifact-print' ? 0 : 1;
-    const targetY = isArtifact ? 650 + artifactSlot * 42 : 158 + i * 38;
-    tl.to(node, {
-      x: targetX - originX,
-      y: targetY - originY,
-      scale: isArtifact ? 0.92 : 0.88,
-      transformOrigin: `${originX}px ${originY}px`,
-      duration: 1.3,
+    const visible = i < 4;
+    const targetX = node.dataset.role === 'user' ? 470 : 410;
+    const targetY = 220 + i * 128;
+    tweenOperation(tl, refs, i, {
+      x: targetX,
+      y: targetY,
+      scale: 1,
+      opacity: visible ? 1 : 0,
+    }, {
+      duration: 1.0,
       ease: 'power3.inOut',
-    }, 0.25 + i * 0.018);
+    }, 0.72 + i * 0.025);
   });
-  tl.to(refs.operations.querySelectorAll('.operation-label'), { fill: '#393b37', duration: 0.75 }, 0.55);
-  tl.to(refs.operations.querySelectorAll('.operation-kind'), { fill: '#777a74', duration: 0.75 }, 0.55);
+  tl.to(refs.operations.querySelectorAll('.operation-label'), { fill: '#d8dde3', duration: 0.6 }, 0.85);
+  tl.to(refs.operations.querySelectorAll('.operation-kind'), { fill: '#727b85', duration: 0.6 }, 0.85);
+  tl.to(refs.operations.querySelectorAll('.operation-mark'), { opacity: 0.72, duration: 0.5 }, 0.85);
 
-  // The same text leaves the draft window and becomes the artifact pane.
-  tl.to(refs.body, { x: 275, y: -80, scale: 0.86, transformOrigin: '466px 264px', duration: 1.35, ease: 'power3.inOut' }, 0.3);
-  tl.to(refs.printTitle, { x: 275, y: -48, scale: 0.9, transformOrigin: '466px 206px', duration: 1.3, ease: 'power3.inOut' }, 0.3);
-  tl.to(refs.printCaput, { opacity: 0.5, x: 275, y: -42, scale: 0.82, transformOrigin: '466px 234px', duration: 1.2 }, 0.34);
-  tl.to(refs.printNotes, { opacity: 0.3, x: -210, y: 210, duration: 1.15, ease: 'power2.inOut' }, 0.4);
-  tl.to(refs.application, { opacity: 0, duration: 0.65 }, 0.25);
-
-  // Relief first; only then do the two unresolved failures assert themselves.
-  tl.fromTo(refs.conversationSupersession, { opacity: 0 }, { opacity: 1, duration: 0.7 }, 1.65);
-  tl.fromTo(refs.conversationOrphan, { opacity: 0 }, { opacity: 1, duration: 0.7 }, 1.9);
-  if (mode === 'cinematic') tl.to(refs.dust, { opacity: 0.05, duration: 1.6, ease: 'none' }, 0);
+  if (mode === 'static') tl.set(refs.screenGrid, { opacity: 0.16 }, 1.55);
   return tl;
 }

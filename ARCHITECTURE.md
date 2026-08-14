@@ -9,12 +9,13 @@ animation code happened to need.
 
 ## 1. The governing constraint
 
-There is exactly **one protagonist**: a page of text. It is created once, on
-load, and is never destroyed, replaced or hidden. Every act is a *transform* of
-that same DOM subtree.
+There is exactly **one continuous field of material and operations**. The page
+is its first carrier; the software surface is its second. Both are created once
+on load, and acts transform the same scene nodes rather than replacing them
+with act-specific scenes.
 
 This is the whole architectural argument. If any act were allowed to create its
-own scene, the piece would become eight slides with transitions, which is the
+own scene, the piece would become slides with transitions, which is the
 one thing the brief forbids. So the codebase enforces continuity structurally:
 
 - `scene/` may create elements. It runs **once**.
@@ -47,6 +48,7 @@ svg#scene
 └── g#surface      ← software/screen carrier; sibling of #page
     ├── g#application
     ├── g#fragments
+    ├── g#ai-conversation
     ├── g#conversation
     ├── g#reframe
     └── g#operations
@@ -56,6 +58,12 @@ svg#scene
 in the 1440×900 viewBox and cannot inherit transforms used to settle the codex.
 Page-owned text and rules remain continuous through the transition; Editorial
 returns their carrier to identity before the software surface takes over.
+
+The scene also owns two explicit mutable models. `materialState` is the source
+for the field colour, grid, dust and vignette; only `tweenMaterial()` writes its
+transition. `operationStates` gives every semantic operation one durable
+position, scale and opacity; only `tweenOperation()` moves those identities
+between application records, fragment windows, conversation turns and tube.
 
 Layers exist **for parallax planes and z-order**, not for show/hide. A layer is
 never `display:none`; it is either not yet drawn (path length 0, opacity 0) or
@@ -100,9 +108,9 @@ Rules that keep this honest:
 - **Transitions belong to the act that is arriving**, not to a separate
   "transition" module. `act03Print` opens by regularizing Act 2's marginalia —
   it owns the 2→3 move, because that move *is* the argument of Act 3.
-- **Overlap is mandatory.** Acts are added with negative offsets so the tail of
-  one and the head of the next coexist. Nothing reaches a static endpoint state
-  and waits.
+- Each authored act occupies 70% of its declared range. The remaining 30% is a
+  real hold tail, giving scroll snapping, review links and reduced-motion seeks
+  a stable endpoint rather than a frame inside active choreography.
 - Act boundaries are declared once, as normalized progress, in `data/acts.ts`.
   Navigation and the timeline read the same numbers, so the navigator cannot
   drift out of sync with the animation.
@@ -161,8 +169,8 @@ debounced resize:
 with a different pin/scrub configuration and acts read `mode` to drop layers
 they cannot afford. The narrative order and the protagonist are identical.
 
-`static` reuses the exact same act timelines — it just calls
-`master.progress(act.end)` and never plays. This is why act modules must be
+`static` reuses the exact same act timelines — it seeks to each act's declared
+settle point and never plays. This is why act modules must be
 pure timeline factories: the reduced-motion fallback is not a second
 implementation, it is the same one held still.
 
@@ -216,8 +224,8 @@ src/
 ```
 
 Acts 4–8 add one module each under `animation/` and one entry in `acts.ts`.
-No other file needs to change to accommodate them — which is the test of
-whether this layout is right.
+Shared path, material and operation writers live beside those act factories so
+later acts cannot accidentally introduce competing geometry ownership.
 
 ---
 
@@ -225,12 +233,10 @@ whether this layout is right.
 
 Recorded so later milestones do not have to re-litigate them:
 
-- **Act 7 overflow** will need many DOM nodes. The plan is HTML overlaid on the
-  SVG in a positioned layer rather than SVG `foreignObject`, because text
-  reflow, scrollbars and collision are what the act is *about* and the browser
-  does that natively. The SVG stays the illustrated substrate.
-- **Act 8 interactivity** is why the view switcher is authored as real
-  `<button>`s from the start, disabled during the animation. The handoff to a
-  live demo should be removing a `disabled`, not rebuilding the UI.
+- Part II currently uses 16 durable semantic operation nodes. Later scale must
+  remain implied or virtualized; it must not manufacture hundreds of SVG nodes.
+- The old projection furniture remains latent but is not mounted as an
+  interactive selector. Apparatus return, addressability and supersession are
+  later feature slices and must build on the shared operation model.
 - **Canvas/WebGL** stays out. If Act 7 cannot hit frame rate with DOM, the
   answer is fewer elements, not a renderer change.

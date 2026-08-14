@@ -5,13 +5,15 @@ A scroll-driven editorial animation about paratext, interfaces and language.
 One body of text persists through the whole piece. It is never replaced: its
 presentation discloses a page boundary, outside annotations force that boundary
 to expand, and those notes regularize into printed apparatus. The same context
-then passes through software, fragmentation and four live projections.
+then passes through software and fragmentation before Part II introduces AI
+conversation and reveals its long chronological stream.
 
 > Language may become the universal input. It does not have to become the
 > universal interface.
 
-**Status: Complete sequence — Acts 00 to 08.** The final Read, Thread,
-Structure and Spec frames are interactive after the scroll settles.
+**Status: Part II foundation complete.** AI enters as a calm conversational
+surface, then grows into a scroll-like chronological tube. Apparatus returning
+to that stream is intentionally deferred.
 
 ## Develop
 
@@ -75,5 +77,4 @@ list of real anchors that works from the keyboard and leaves a usable URL
   (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#application`,
   `#fragments`, `#conversation`, `#reframe`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
-and held rather than played. The final frame selector remains keyboard-operable
-and switches layouts immediately in reduced-motion mode.
+and held rather than played.

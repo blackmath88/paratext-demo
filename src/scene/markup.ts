@@ -114,7 +114,10 @@ export function buildDefs(): SVGDefsElement {
   vignette.appendChild(el('stop', { offset: '68%', 'stop-color': '#08090b', 'stop-opacity': '0.45' }));
   vignette.appendChild(el('stop', { offset: '100%', 'stop-color': '#050607', 'stop-opacity': '0.92' }));
 
-  return el('defs', {}, [grain, ink, vignette]) as SVGDefsElement;
+  const chatClip = el('clipPath', { id: 'clip-chat' });
+  chatClip.appendChild(el('rect', { id: 'chat-clip-rect', x: 390, y: 150, width: 660, height: 590 }));
+
+  return el('defs', {}, [grain, ink, vignette, chatClip]) as SVGDefsElement;
 }
 
 // ---------------------------------------------------------------------------
@@ -123,7 +126,16 @@ export function buildDefs(): SVGDefsElement {
 
 export function buildField(): SVGGElement {
   const g = el('g', { id: 'field' });
-  g.appendChild(el('rect', { x: 0, y: 0, width: VIEW.w, height: VIEW.h, fill: '#0b0d10' }));
+  g.appendChild(el('rect', { id: 'field-base', x: 0, y: 0, width: VIEW.w, height: VIEW.h, fill: '#0b0d10' }));
+
+  const screenGrid = el('g', { id: 'screen-grid', opacity: '0' });
+  for (let x = 0; x <= VIEW.w; x += 48) {
+    screenGrid.appendChild(el('path', { class: 'screen-grid-line', d: `M ${x} 0 V ${VIEW.h}` }));
+  }
+  for (let y = 0; y <= VIEW.h; y += 48) {
+    screenGrid.appendChild(el('path', { class: 'screen-grid-line', d: `M 0 ${y} H ${VIEW.w}` }));
+  }
+  g.appendChild(screenGrid);
 
   // Sparse dust. Deterministic, so it does not shimmer on re-render.
   const dust = el('g', { id: 'dust', opacity: '0.5' });
@@ -525,9 +537,10 @@ export function buildOperations(): SVGGElement {
     const y = 262 + Math.floor(i / 2) * 47;
     const item = el('g', {
       id: `operation-${operation.id}`,
-      class: `operation operation--${operation.kind}`,
+      class: `operation operation--${operation.kind} operation--role-${operation.role ?? 'assistant'}`,
       'data-operation': operation.id,
       'data-kind': operation.kind,
+      'data-role': operation.role ?? 'assistant',
       'data-origin-x': x,
       'data-origin-y': y,
     });
@@ -634,5 +647,41 @@ export function buildReframe(): SVGGElement {
   const current = el('text', { id: 'reframe-current', class: 'reframe-current', x: 1220, y: 92, 'text-anchor': 'end' });
   current.textContent = 'FRAME / READ';
   g.appendChild(current);
+  return g as SVGGElement;
+}
+
+/** Part II screen furniture. Operations remain the actual conversation turns. */
+export function buildAIConversation(): SVGGElement {
+  const g = el('g', { id: 'ai-conversation', opacity: '0' });
+  g.appendChild(el('path', { id: 'ai-screen-frame', class: 'ai-screen-frame', d: framePath(360, 88, 720, 724) }));
+  g.appendChild(el('path', { class: 'ai-screen-rule', d: 'M 360 142 H 1080' }));
+  const title = el('text', { class: 'ai-screen-title', x: 390, y: 122 });
+  title.textContent = 'CONVERSATION';
+  const status = el('text', { class: 'ai-screen-status', x: 1050, y: 122, 'text-anchor': 'end' });
+  status.textContent = 'READY';
+  g.appendChild(title);
+  g.appendChild(status);
+
+  const input = el('g', { id: 'ai-input' });
+  input.appendChild(el('path', { class: 'ai-input-line', d: 'M 390 758 H 1050' }));
+  const prompt = el('text', { class: 'ai-input-text', x: 410, y: 786 });
+  prompt.textContent = 'Describe the change you want…';
+  input.appendChild(prompt);
+  g.appendChild(input);
+
+  const scrollbar = el('g', { id: 'ai-scrollbar' });
+  scrollbar.appendChild(el('path', { class: 'ai-scroll-track', d: 'M 1058 164 V 730' }));
+  scrollbar.appendChild(el('path', { id: 'ai-scroll-thumb', class: 'ai-scroll-thumb', d: 'M 1058 172 V 310' }));
+  g.appendChild(scrollbar);
+
+  const tube = el('g', { id: 'ai-tube', opacity: '0' });
+  tube.appendChild(el('path', { class: 'ai-tube-surface', d: framePath(390, -420, 660, 1740) }));
+  const top = el('text', { class: 'ai-continuation', x: 720, y: 42, 'text-anchor': 'middle' });
+  top.textContent = 'EARLIER CONTEXT CONTINUES ABOVE';
+  const bottom = el('text', { class: 'ai-continuation', x: 720, y: 866, 'text-anchor': 'middle' });
+  bottom.textContent = 'CONVERSATION CONTINUES BELOW';
+  tube.appendChild(top);
+  tube.appendChild(bottom);
+  g.appendChild(tube);
   return g as SVGGElement;
 }
