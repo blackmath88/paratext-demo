@@ -22,10 +22,10 @@
 
 import gsap from 'gsap';
 import { GLOSSES, UNDERLINES } from '../data/text';
-import { ADMITTED_LEAF, LEAF, lineY, printLineX, printLineY, PRINT_TEXT, SEED, TEXT } from '../scene/markup';
-import { wobblyLine, wobblyRect } from '../scene/geometry';
+import { LEAF, printLineX, printLineY, PRINT_TEXT, SEED } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
+import { tweenLeafFrame, tweenRule } from './frames';
 
 // Timings below are authoring seconds. The master scales this timeline to the
 // span declared for the act in data/acts.ts, so these are ratios in practice.
@@ -42,29 +42,10 @@ export function actPrint(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   // -------------------------------------------------------------------------
 
   // The leaf edge stops being drawn and becomes trimmed.
-  const leafState = { ...ADMITTED_LEAF, wobble: 1 };
-  tl.to(
-    leafState,
-    {
-      x: LEAF.x,
-      y: LEAF.y,
-      w: LEAF.w,
-      h: LEAF.h,
-      wobble: 0,
-      duration: 1.6,
-      ease: 'power2.inOut',
-      onUpdate: () => {
-        const d = wobblyRect(leafState.x, leafState.y, leafState.w, leafState.h, leafState.wobble, SEED);
-        refs.leaf.setAttribute('d', d);
-        refs.leafEdge.setAttribute('d', d);
-        refs.leafVerso.setAttribute(
-          'd',
-          wobblyRect(leafState.x - 26, leafState.y + 14, leafState.w, leafState.h - 22, leafState.wobble, SEED + 400),
-        );
-      },
-    },
-    0,
-  );
+  tweenLeafFrame(tl, refs, { ...LEAF, wobble: 0 }, {
+    duration: 1.6,
+    ease: 'power2.inOut',
+  }, 0);
   tl.to(refs.leafEdge, { opacity: 0.16, strokeWidth: 0.7, duration: 1.6, ease: 'power2.inOut' }, 0);
 
   // A printed page is a single leaf. The codex withdraws.
@@ -75,22 +56,14 @@ export function actPrint(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const rule0 = refs.rulePaths[0];
   const u0 = UNDERLINES[0];
   if (rule0 && u0) {
-    const y = lineY(u0.lineIndex) + 7;
     const targetY = printLineY(u0.lineIndex) + 6;
-    const s = { w: 1, y, x1: TEXT.x + TEXT.width * u0.from, x2: TEXT.x + TEXT.width * u0.to };
-    tl.to(
-      s,
-      {
-        w: 0,
-        y: targetY,
-        x1: printLineX(u0.lineIndex),
-        x2: PRINT_TEXT.x + PRINT_TEXT.width,
-        duration: 1.5,
-        ease: 'power2.inOut',
-        onUpdate: () => rule0.setAttribute('d', wobblyLine(s.x1, s.y, s.x2, s.y, s.w, SEED + u0.lineIndex)),
-      },
-      0.1,
-    );
+    tweenRule(tl, refs, 0, {
+      wobble: 0,
+      y1: targetY,
+      y2: targetY,
+      x1: printLineX(u0.lineIndex),
+      x2: PRINT_TEXT.x + PRINT_TEXT.width,
+    }, { duration: 1.5, ease: 'power2.inOut' }, 0.1, SEED + u0.lineIndex);
     tl.to(rule0, { opacity: 0.34, strokeWidth: 0.9, duration: 1.5, ease: 'power2.inOut' }, 0.1);
   }
 
@@ -98,25 +71,13 @@ export function actPrint(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const rule1 = refs.rulePaths[1];
   const u1 = UNDERLINES[1];
   if (rule1 && u1) {
-    const s = {
-      w: 1,
-      y: lineY(u1.lineIndex) + 7,
-      x1: TEXT.x + TEXT.width * u1.from,
-      x2: TEXT.x + TEXT.width * u1.to,
-    };
-    tl.to(
-      s,
-      {
-        w: 0,
-        y: 702,
-        x1: PRINT_TEXT.x,
-        x2: PRINT_TEXT.x + 190,
-        duration: 1.9,
-        ease: 'power3.inOut',
-        onUpdate: () => rule1.setAttribute('d', wobblyLine(s.x1, s.y, s.x2, s.y, s.w, SEED + u1.lineIndex)),
-      },
-      0.55,
-    );
+    tweenRule(tl, refs, 1, {
+      wobble: 0,
+      y1: 702,
+      y2: 702,
+      x1: PRINT_TEXT.x,
+      x2: PRINT_TEXT.x + 190,
+    }, { duration: 1.9, ease: 'power3.inOut' }, 0.55, SEED + u1.lineIndex);
     tl.to(rule1, { opacity: 0.5, strokeWidth: 0.9, duration: 1.9, ease: 'power3.inOut' }, 0.55);
   }
 

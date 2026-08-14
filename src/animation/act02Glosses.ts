@@ -15,10 +15,10 @@
 
 import gsap from 'gsap';
 import { GLOSSES, INTERLINEAR, UNDERLINES } from '../data/text';
-import { wobblyRect } from '../scene/geometry';
-import { ADMITTED_LEAF, LEAF, SEED } from '../scene/markup';
+import { ADMITTED_LEAF } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
+import { tweenLeafFrame } from './frames';
 
 /** Act 2 occupies this many timeline seconds; `at` values in data are 0..1. */
 const SPAN = 4;
@@ -94,24 +94,10 @@ export function actGlosses(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
 
   // Only after the outside voices accumulate does the object answer them.
   // Notes stay fixed while the material boundary travels outward to admit them.
-  const frame = { ...LEAF };
-  tl.to(
-    frame,
-    {
-      ...ADMITTED_LEAF,
-      duration: SPAN * 0.3,
-      ease: 'power3.inOut',
-      onUpdate: () => {
-        refs.leaf.setAttribute('d', wobblyRect(frame.x, frame.y, frame.w, frame.h, 1, SEED));
-        refs.leafEdge.setAttribute('d', wobblyRect(frame.x, frame.y, frame.w, frame.h, 1, SEED));
-        refs.leafVerso.setAttribute(
-          'd',
-          wobblyRect(frame.x - 26, frame.y + 14, frame.w, frame.h - 22, 1, SEED + 400),
-        );
-      },
-    },
-    SPAN * 0.68,
-  );
+  tweenLeafFrame(tl, refs, { ...ADMITTED_LEAF, wobble: 1 }, {
+    duration: SPAN * 0.3,
+    ease: 'power3.inOut',
+  }, SPAN * 0.68);
 
   // --- semantic parallax ----------------------------------------------------
   if (mode === 'cinematic') {

@@ -1,14 +1,13 @@
 /** Act 04 — Editorial composition. Apparatus becomes an engineered reading environment. */
 
 import gsap from 'gsap';
-import { wobblyRect, wobblyLine } from '../scene/geometry';
-import { COMPOSED_LEAF, LEAF, PRINT_TEXT, SEED, printLineY } from '../scene/markup';
+import { COMPOSED_LEAF, SEED } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
+import { tweenLeafFrame, tweenRule } from './frames';
 
 export function actEditorial(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
-  const leaf = { ...LEAF };
 
   // Print's small codex-only carrier transform has done its work. Resolve it
   // before the software sibling becomes authoritative so both coordinate
@@ -26,15 +25,9 @@ export function actEditorial(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
     );
   });
 
-  tl.to(leaf, {
-    ...COMPOSED_LEAF,
+  tweenLeafFrame(tl, refs, { ...COMPOSED_LEAF, wobble: 0 }, {
     duration: 1.8,
     ease: 'power2.inOut',
-    onUpdate: () => {
-      const d = wobblyRect(leaf.x, leaf.y, leaf.w, leaf.h, 0, SEED);
-      refs.leaf.setAttribute('d', d);
-      refs.leafEdge.setAttribute('d', d);
-    },
   }, 0.15);
 
   // The body becomes a deliberate reading column rather than a fitted block.
@@ -65,21 +58,17 @@ export function actEditorial(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   // argument and its source zone: composition is a relationship, not polish.
   const separator = refs.rulePaths[1];
   if (separator) {
-    const s = { x1: PRINT_TEXT.x, y1: 702, x2: PRINT_TEXT.x + 190, y2: 702 };
-    tl.to(s, {
-      x1: 790, y1: 258, x2: 790, y2: 680, duration: 1.5, ease: 'power3.inOut',
-      onUpdate: () => separator.setAttribute('d', wobblyLine(s.x1, s.y1, s.x2, s.y2, 0, SEED + 12)),
-    }, 0.52);
+    tweenRule(tl, refs, 1, {
+      x1: 790, y1: 258, x2: 790, y2: 680,
+    }, { duration: 1.5, ease: 'power3.inOut' }, 0.52, SEED + 12);
     tl.to(separator, { opacity: 0.3, duration: 1.2 }, 0.52);
   }
 
   const headingRule = refs.rulePaths[0];
   if (headingRule) {
-    const s = { x1: PRINT_TEXT.x, y1: printLineY(8) + 6, x2: PRINT_TEXT.x + PRINT_TEXT.width, y2: printLineY(8) + 6 };
-    tl.to(s, {
-      x1: 430, y1: 222, x2: 760, y2: 222, duration: 1.35, ease: 'power2.inOut',
-      onUpdate: () => headingRule.setAttribute('d', wobblyLine(s.x1, s.y1, s.x2, s.y2, 0, SEED + 8)),
-    }, 0.45);
+    tweenRule(tl, refs, 0, {
+      x1: 430, y1: 222, x2: 760, y2: 222,
+    }, { duration: 1.35, ease: 'power2.inOut' }, 0.45, SEED + 8);
   }
 
   tl.to(refs.editorialGrid, { opacity: 0, duration: 0.9, ease: 'power1.out' }, 1.65);

@@ -27,6 +27,7 @@ import {
   el,
   VIEW,
   APP_FRAME,
+  FRAGMENT_WINDOWS,
   LEAF,
   PRINT_TEXT,
   SEED,
@@ -87,7 +88,17 @@ export type SceneRefs = {
   projectionPorts: SVGGElement[];
   frameFurniture: SVGGElement[];
   reframeCurrent: SVGTextElement;
+  /** Live geometry shared by every act that transforms the material leaf. */
+  leafState: LeafFrameState;
+  /** Live geometry for inherited rule paths. */
+  ruleStates: LineState[];
+  /** Live geometry for fragment frames; acts never keep private copies. */
+  frameStates: FrameRect[];
 };
+
+export type FrameRect = { x: number; y: number; w: number; h: number };
+export type LeafFrameState = FrameRect & { wobble: number };
+export type LineState = { x1: number; y1: number; x2: number; y2: number; wobble: number };
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
   const found = root.querySelector<T>(selector);
@@ -190,6 +201,18 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     projectionPorts: [...svg.querySelectorAll<SVGGElement>('.projection-port')],
     frameFurniture: [...svg.querySelectorAll<SVGGElement>('.frame-layout-furniture')],
     reframeCurrent: must(svg, '#reframe-current'),
+    leafState: { ...LEAF, wobble: 1 },
+    ruleStates: UNDERLINES.map((underline) => {
+      const y = lineY(underline.lineIndex) + 7;
+      return {
+        x1: TEXT.x + TEXT.width * underline.from,
+        y1: y,
+        x2: TEXT.x + TEXT.width * underline.to,
+        y2: y,
+        wobble: 1,
+      };
+    }),
+    frameStates: FRAGMENT_WINDOWS.map(() => ({ ...APP_FRAME })),
   };
 }
 
@@ -213,6 +236,7 @@ export function resetScene(refs: SceneRefs): void {
     'd',
     wobblyRect(LEAF.x - 26, LEAF.y + 14, LEAF.w, LEAF.h - 22, 1, SEED + 400),
   );
+  Object.assign(refs.leafState, { ...LEAF, wobble: 1 });
   refs.initial.setAttribute('x', String(TEXT.x));
   refs.initial.setAttribute('y', String(lineY(0) + 4));
   refs.bodyLines.forEach((line, i) => {
@@ -233,6 +257,8 @@ export function resetScene(refs: SceneRefs): void {
     const x2 = TEXT.x + TEXT.width * underline.to;
     path.setAttribute('d', wobblyLine(x1, y, x2, y, 1, SEED + underline.lineIndex));
     path.setAttribute('stroke', '#2b2318');
+    const state = refs.ruleStates[i];
+    if (state) Object.assign(state, { x1, y1: y, x2, y2: y, wobble: 1 });
   });
   refs.printTitle.setAttribute('x', '720');
   refs.printTitle.setAttribute('y', '176');
@@ -246,7 +272,11 @@ export function resetScene(refs: SceneRefs): void {
     note.setAttribute('x', String(PRINT_TEXT.x));
     note.setAttribute('y', String(726 + i * 22));
   });
-  refs.fragmentFrames.forEach((frame) => frame.setAttribute('d', framePath(APP_FRAME.x, APP_FRAME.y, APP_FRAME.w, APP_FRAME.h)));
+  refs.fragmentFrames.forEach((frame, i) => {
+    frame.setAttribute('d', framePath(APP_FRAME.x, APP_FRAME.y, APP_FRAME.w, APP_FRAME.h));
+    const state = refs.frameStates[i];
+    if (state) Object.assign(state, APP_FRAME);
+  });
   for (const p of [...refs.rulePaths, ...refs.markPaths]) {
     const len = p.getTotalLength();
     p.style.strokeDasharray = `${len}`;
