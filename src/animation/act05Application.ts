@@ -1,24 +1,16 @@
 /** Act 05 — Application. Explicit, competent structure with one consequential absence. */
 
 import gsap from 'gsap';
-import { wobblyLine, wobblyRect } from '../scene/geometry';
-import { APP_FRAME, COMPOSED_LEAF, SEED } from '../scene/markup';
+import { APP_FRAME, SEED } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
+import { tweenLeafFrame, tweenRule } from './frames';
 
 export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
-  const frame = { ...COMPOSED_LEAF };
-
-  tl.to(frame, {
-    ...APP_FRAME,
+  tweenLeafFrame(tl, refs, { ...APP_FRAME, wobble: 0 }, {
     duration: 1.7,
     ease: 'power3.inOut',
-    onUpdate: () => {
-      const d = wobblyRect(frame.x, frame.y, frame.w, frame.h, 0, SEED);
-      refs.leaf.setAttribute('d', d);
-      refs.leafEdge.setAttribute('d', d);
-    },
   }, 0);
   tl.to(refs.leaf, { fill: '#e9e7df', duration: 1.5, ease: 'power1.inOut' }, 0);
   tl.to(refs.leafEdge, { stroke: '#62645f', opacity: 0.5, duration: 1.5 }, 0);
@@ -51,20 +43,16 @@ export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline 
 
   const inspectorRule = refs.rulePaths[1];
   if (inspectorRule) {
-    const s = { x1: 790, y1: 258, x2: 790, y2: 680 };
-    tl.to(s, {
-      x1: 932, y1: 132, x2: 932, y2: 838, duration: 1.45, ease: 'power3.inOut',
-      onUpdate: () => inspectorRule.setAttribute('d', wobblyLine(s.x1, s.y1, s.x2, s.y2, 0, SEED + 12)),
-    }, 0.28);
+    tweenRule(tl, refs, 1, {
+      x1: 932, y1: 132, x2: 932, y2: 838,
+    }, { duration: 1.45, ease: 'power3.inOut' }, 0.28, SEED + 12);
     tl.to(inspectorRule, { opacity: 0.28, stroke: '#62645f', duration: 1.2 }, 0.28);
   }
   const recordRule = refs.rulePaths[0];
   if (recordRule) {
-    const s = { x1: 430, y1: 222, x2: 760, y2: 222 };
-    tl.to(s, {
-      x1: 466, y1: 336, x2: 916, y2: 336, duration: 1.25, ease: 'power2.inOut',
-      onUpdate: () => recordRule.setAttribute('d', wobblyLine(s.x1, s.y1, s.x2, s.y2, 0, SEED + 8)),
-    }, 0.4);
+    tweenRule(tl, refs, 0, {
+      x1: 466, y1: 336, x2: 916, y2: 336,
+    }, { duration: 1.25, ease: 'power2.inOut' }, 0.4, SEED + 8);
     tl.to(recordRule, { stroke: '#747872', opacity: 0.22, duration: 1 }, 0.4);
   }
 

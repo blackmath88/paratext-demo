@@ -1,41 +1,28 @@
 /** Act 07 — Conversation + artifact. Proximity returns; provenance does not. */
 
 import gsap from 'gsap';
-import { APP_FRAME, FRAGMENT_WINDOWS, framePath } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
+import { tweenFrame, tweenLeafFrame } from './frames';
 
 export function actConversation(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
 
   // Six local frames contract into the now-familiar two-region answer.
-  refs.fragmentFrames.forEach((path, i) => {
-    const start = FRAGMENT_WINDOWS[i];
-    if (!start) return;
-    const state = { ...start };
+  refs.fragmentFrames.forEach((_, i) => {
     const left = i < 4;
     const target = left
       ? { x: 160, y: 70, w: 520, h: 768 }
       : { x: 680, y: 70, w: 600, h: 768 };
-    tl.to(state, {
-      ...target,
-      duration: 1.25,
-      ease: 'power3.inOut',
-      onUpdate: () => path.setAttribute('d', framePath(state.x, state.y, state.w, state.h)),
-    }, i * 0.035);
+    tweenFrame(tl, refs, i, target, { duration: 1.25, ease: 'power3.inOut' }, i * 0.035);
   });
   tl.to(refs.fragmentWindows, { opacity: 0, duration: 0.55, stagger: 0.025 }, 0.85);
   tl.to(refs.fragmentRelations, { opacity: 0, duration: 0.45 }, 0.15);
 
   // The original application surface returns as the shared split frame.
-  const frame = { ...APP_FRAME };
-  tl.to(frame, {
-    x: 160, y: 70, w: 1120, h: 768, duration: 1.25, ease: 'power3.inOut',
-    onUpdate: () => {
-      const d = framePath(frame.x, frame.y, frame.w, frame.h);
-      refs.leaf.setAttribute('d', d);
-      refs.leafEdge.setAttribute('d', d);
-    },
+  tweenLeafFrame(tl, refs, { x: 160, y: 70, w: 1120, h: 768, wobble: 0 }, {
+    duration: 1.25,
+    ease: 'power3.inOut',
   }, 0.2);
   tl.to(refs.leaf, { opacity: 0.96, fill: '#e9e7df', duration: 0.9 }, 0.45);
   tl.to(refs.leafEdge, { opacity: 0.45, duration: 0.8 }, 0.45);

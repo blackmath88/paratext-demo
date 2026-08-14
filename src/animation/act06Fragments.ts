@@ -1,24 +1,19 @@
 /** Act 06 — Fragmented frames. Each tool is coherent; their relationships are not. */
 
 import gsap from 'gsap';
-import { APP_FRAME, FRAGMENT_WINDOWS, fragmentPlacement, framePath } from '../scene/markup';
+import { FRAGMENT_WINDOWS, fragmentPlacement } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
+import { tweenFrame } from './frames';
 
 export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
 
   tl.set(refs.fragments, { opacity: 1 }, 0);
-  refs.fragmentFrames.forEach((path, i) => {
+  refs.fragmentFrames.forEach((_, i) => {
     const target = FRAGMENT_WINDOWS[i];
     if (!target) return;
-    const state = { ...APP_FRAME };
-    tl.to(state, {
-      x: target.x, y: target.y, w: target.w, h: target.h,
-      duration: 1.55,
-      ease: 'power3.inOut',
-      onUpdate: () => path.setAttribute('d', framePath(state.x, state.y, state.w, state.h)),
-    }, i * 0.07);
+    tweenFrame(tl, refs, i, target, { duration: 1.55, ease: 'power3.inOut' }, i * 0.07);
   });
   // Coincident frames begin transparent; otherwise six stacked fills flash as
   // a false new surface before separation has occurred.

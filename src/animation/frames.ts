@@ -1,4 +1,3 @@
-import gsap from 'gsap';
 import { framePath, SEED } from '../scene/markup';
 import { wobblyLine, wobblyRect } from '../scene/geometry';
 import type { FrameRect, LeafFrameState, LineState, SceneRefs } from '../scene/scene';
