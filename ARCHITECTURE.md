@@ -1,0 +1,223 @@
+# Architecture — A History of Framing
+
+This document describes the scene graph, the timeline model and the responsive
+strategy. It is written before implementation so the acts have something to
+conform to, rather than the architecture being back-formed from whatever the
+animation code happened to need.
+
+---
+
+## 1. The governing constraint
+
+There is exactly **one protagonist**: a page of text. It is created once, on
+load, and is never destroyed, replaced or hidden. Every act is a *transform* of
+that same DOM subtree.
+
+This is the whole architectural argument. If any act were allowed to create its
+own scene, the piece would become eight slides with transitions, which is the
+one thing the brief forbids. So the codebase enforces continuity structurally:
+
+- `scene/` may create elements. It runs **once**.
+- `animation/` may only **animate elements that already exist**. Act modules
+  receive a typed `SceneRefs` object and have no access to the document.
+
+An act module physically cannot mint a new page. That is deliberate.
+
+---
+
+## 2. Scene graph
+
+One inline `<svg>` with a fixed `viewBox="0 0 1440 900"`, so all act
+choreography is authored in a stable coordinate space and the responsive work
+is confined to how that box is fitted into the viewport.
+
+```
+svg#scene
+├── defs           filters (paper grain, ink bleed), clip paths
+├── g#field        the dark ground; vignette; drifting dust
+└── g#page         ← THE PROTAGONIST. Transform target for every act.
+    ├── g#leaf-verso    faint second leaf (codex feel, Act 1–2)
+    ├── g#leaf          the paper itself — hand-drawn path, not a rect
+    ├── g#body          the Latin text block (tspans)
+    ├── g#rules         underlines → typographic rules   (Act 2 → 3)
+    ├── g#glosses       marginalia, written not faded    (Act 2)
+    ├── g#marks         reference marks, arrows, manicules
+    └── g#print         title, caput, folio, footnotes   (Act 3)
+```
+
+Layers exist **for parallax planes and z-order**, not for show/hide. A layer is
+never `display:none`; it is either not yet drawn (path length 0, opacity 0) or
+it is part of the composition.
+
+`#page` is the single transform target that carries the object through the
+whole piece: Act 1 centres it, Act 3 lifts and tightens it, Act 5 will turn its
+frame into a window chrome. Because scale/position live on one node, continuity
+is free and cannot drift out of sync between layers.
+
+---
+
+## 3. Timeline model
+
+One GSAP master timeline, scrubbed by one ScrollTrigger. No act owns a
+ScrollTrigger of its own.
+
+```
+scroll position
+      ↓
+  ScrollTrigger (pin, scrub 1, end "+=800%")
+      ↓
+  master progress 0.0 ─────────────────────── 1.0
+      ↓
+  act timelines, added at labels
+```
+
+```ts
+master
+  .add(actBare(refs),     'bare')
+  .add(actGlosses(refs),  'glosses')
+  .add(actPrint(refs),    'print')
+```
+
+Rules that keep this honest:
+
+- **Each act module returns a detached `gsap.timeline()`.** It never touches
+  the master, never sets a ScrollTrigger, never reads `window`. This makes acts
+  independently testable and re-orderable, and it is what lets reduced-motion
+  mode reuse them by seeking instead of scrubbing.
+- **Transitions belong to the act that is arriving**, not to a separate
+  "transition" module. `act03Print` opens by regularizing Act 2's marginalia —
+  it owns the 2→3 move, because that move *is* the argument of Act 3.
+- **Overlap is mandatory.** Acts are added with negative offsets so the tail of
+  one and the head of the next coexist. Nothing reaches a static endpoint state
+  and waits.
+- Act boundaries are declared once, as normalized progress, in `data/acts.ts`.
+  Navigation and the timeline read the same numbers, so the navigator cannot
+  drift out of sync with the animation.
+
+### Morphing without paid plugins
+
+MorphSVG is a Club GSAP plugin. Instead, path geometry is **generated** from a
+parameter, and the parameter is tweened:
+
+```ts
+const state = { wobble: 1 };
+tl.to(state, {
+  wobble: 0,
+  onUpdate: () => rule.setAttribute('d', wobblyLine(x1, y1, x2, y2, state.wobble, seed)),
+});
+```
+
+`wobble: 1` is a hand-drawn underline. `wobble: 0` is a typographic rule. Same
+element, same seed, so the line visibly *straightens* rather than crossfading.
+This single mechanism carries the entire 2→3 transition and is the reason the
+imperfection is parametric rather than decorative.
+
+### Handwriting that is written, not faded
+
+Marginalia uses `stroke-dasharray`/`stroke-dashoffset` on stroked paths for
+drawn marks, and a per-word clip reveal for gloss text, so notes accumulate at
+a writing rhythm with slight overshoot and uneven timing. No opacity fades for
+anything that is supposed to have been *written by a hand*.
+
+---
+
+## 4. Deliberate imperfection
+
+`scene/geometry.ts` owns a seeded PRNG (mulberry32). All wobble, all jitter,
+all irregular geometry derives from it.
+
+Seeded, not random, because: the same page must be identical across reloads,
+across reduced-motion snapshots and across resize re-renders. Imperfection is
+authored, so it has to be reproducible. A fresh `Math.random()` per frame would
+read as noise; a fixed seed reads as a drawn object.
+
+---
+
+## 5. Responsive strategy
+
+Three modes, decided once at boot in `utils/env.ts` and re-evaluated on a
+debounced resize:
+
+| Mode | Trigger | Behaviour |
+|---|---|---|
+| `cinematic` | `≥ 900px` and fine pointer and motion allowed | Full pinned scene, 800vh scrub, parallax planes, margin navigator |
+| `compact` | `< 900px` | Scene sticky at the top ~55vh, act text flows beneath it, shorter scrub per act, parallax reduced to two planes, navigator collapses to a horizontal rule of act ticks |
+| `static` | `prefers-reduced-motion: reduce` | No pin, no scrub. Each act renders as a stacked section; the scene is seeked to that act's end progress and held. Full text content, keyboard navigable |
+
+`compact` is not the desktop timeline squeezed. The master timeline is rebuilt
+with a different pin/scrub configuration and acts read `mode` to drop layers
+they cannot afford. The narrative order and the protagonist are identical.
+
+`static` reuses the exact same act timelines — it just calls
+`master.progress(act.end)` and never plays. This is why act modules must be
+pure timeline factories: the reduced-motion fallback is not a second
+implementation, it is the same one held still.
+
+---
+
+## 6. Content and accessibility
+
+`data/acts.ts` holds narrative metadata (id, number, title, thesis, start,
+end). `data/text.ts` holds the Latin, the glosses and the print apparatus.
+Animation code contains no copy.
+
+The meaning of the piece lives in HTML, not in SVG:
+
+- Each act has a real `<section>` with a heading and its thesis text. On
+  desktop these are the sparse foreground fragments; in `static` mode they are
+  the document.
+- The `<svg>` carries `role="img"` with `<title>`/`<desc>`, and is
+  `aria-hidden` where it merely restates the HTML.
+- The navigator is a `<nav>` of real links to `#bare`, `#glosses`, `#print`.
+  It works with the keyboard, works with JS-driven smooth scrolling, and works
+  as plain anchors if the timeline never boots.
+- Scroll is never trapped: the pin is a normal ScrollTrigger pin and the page
+  continues past the end of the piece.
+
+---
+
+## 7. Directory layout
+
+```
+src/
+  main.ts                 boot: env → scene → master → navigation
+  styles/
+    global.css            type scale, colour, layout, foreground copy
+    scene.css             svg-specific rules, layer paint, media queries
+  data/
+    acts.ts               act metadata + normalized timeline boundaries
+    text.ts               Latin body, glosses, print apparatus
+  scene/
+    geometry.ts           seeded PRNG, wobbly paths, jitter
+    markup.ts             SVG element builders (pure, no side effects)
+    scene.ts              builds the scene once, returns typed SceneRefs
+  animation/
+    master.ts             ScrollTrigger + master assembly per mode
+    act01Bare.ts
+    act02Glosses.ts
+    act03Print.ts
+  navigation/
+    actNavigation.ts      margin navigator, hash sync, click-to-seek
+  utils/
+    env.ts                mode detection, reduced motion, debounced resize
+```
+
+Acts 4–8 add one module each under `animation/` and one entry in `acts.ts`.
+No other file needs to change to accommodate them — which is the test of
+whether this layout is right.
+
+---
+
+## 8. Deferred decisions
+
+Recorded so later milestones do not have to re-litigate them:
+
+- **Act 7 overflow** will need many DOM nodes. The plan is HTML overlaid on the
+  SVG in a positioned layer rather than SVG `foreignObject`, because text
+  reflow, scrollbars and collision are what the act is *about* and the browser
+  does that natively. The SVG stays the illustrated substrate.
+- **Act 8 interactivity** is why the view switcher is authored as real
+  `<button>`s from the start, disabled during the animation. The handoff to a
+  live demo should be removing a `disabled`, not rebuilding the UI.
+- **Canvas/WebGL** stays out. If Act 7 cannot hit frame rate with DOM, the
+  answer is fewer elements, not a renderer change.

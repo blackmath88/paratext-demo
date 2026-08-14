@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>A History of Framing — how text learns to wear interfaces</title>
+    <meta
+      name="description"
+      content="A scroll-driven editorial animation tracing how text repeatedly acquired frames, annotations, navigation and interaction apparatus — from bare manuscript to adaptive interface."
+    />
+    <meta name="color-scheme" content="dark" />
+  </head>
+  <body>
+    <a class="skip" href="#acts">Skip the animation and read the text</a>
+
+    <header class="masthead">
+      <p class="masthead__eyebrow">A History of Framing</p>
+      <h1 class="masthead__title">How text learns to<br />wear interfaces</h1>
+      <p class="masthead__dek">
+        Text did not become an interface. It repeatedly acquired frames, annotations, navigation and
+        apparatus — and each layer was added by readers before it was standardized by machines.
+      </p>
+      <p class="masthead__hint" aria-hidden="true">Scroll</p>
+    </header>
+
+    <!-- The pinned scene. One page, transformed continuously across every act. -->
+    <div class="stage" id="stage">
+      <div class="stage__scene" id="scene-mount"></div>
+      <div class="stage__foreground" id="foreground"></div>
+      <div class="stage__nav" id="nav-mount"></div>
+    </div>
+
+    <!--
+      The argument in plain HTML. On desktop this is the accessible carrier of
+      the piece; under reduced motion it is the piece. The animation supports
+      it, never replaces it.
+    -->
+    <div class="acts" id="acts">
+      <h2 class="acts__heading">The acts</h2>
+
+      <section class="act" id="bare" data-act="bare">
+        <p class="act__number">01</p>
+        <h3 class="act__title">Bare text</h3>
+        <p class="act__thesis">Text begins as a stream.</p>
+        <p class="act__body">
+          A page. Just the words. No frame, no guide, no context. Continuous script with barely a
+          mark to tell a reader where anything begins or ends.
+        </p>
+      </section>
+
+      <section class="act" id="glosses" data-act="glosses">
+        <p class="act__number">02</p>
+        <h3 class="act__title">Glosses</h3>
+        <p class="act__thesis">Readers speak back.</p>
+        <p class="act__body">
+          Voices arrive in the margins. Underlines, reference marks, interlinear corrections, a hand
+          pointing at a line worth keeping. The text has not changed. It has acquired readers, and
+          their apparatus accumulates around it.
+        </p>
+      </section>
+
+      <section class="act" id="print" data-act="print">
+        <p class="act__number">03</p>
+        <h3 class="act__title">Print</h3>
+        <p class="act__thesis">Apparatus becomes standard.</p>
+        <p class="act__body">
+          What one reader improvised, the press makes systematic. The rough underline straightens
+          into a typographic rule. The marginal citation descends into a footnote. Spacing
+          regularizes, a title sets, a page number appears. The page becomes a thing with parts.
+        </p>
+      </section>
+
+      <section class="act act--planned">
+        <p class="act__number">04 — 08</p>
+        <h3 class="act__title">Editorial · Terminal · GUI · Overflow · Reframing</h3>
+        <p class="act__body">
+          The remaining acts follow the same object into columns, into the machine, into the browser,
+          into the flood of generated language, and out the other side into a frame that reorganizes
+          around the work. They are not built yet.
+        </p>
+      </section>
+    </div>
+
+    <footer class="colophon">
+      <p>
+        Milestone 1 — Acts 1 to 3. Built with Vite, TypeScript, SVG and GSAP ScrollTrigger. The Latin
+        is a pseudo-classical passage on inquiry, patience and judgment; it is the same text
+        throughout.
+      </p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

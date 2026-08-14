@@ -1,0 +1,347 @@
+/**
+ * SVG element builders.
+ *
+ * Pure construction only — these functions create nodes and return them. They
+ * never animate, never read layout, never touch the timeline. Everything the
+ * animation needs to grab later is given an id here.
+ */
+
+import { BODY_LINES, GLOSSES, INTERLINEAR, PRINT, UNDERLINES } from '../data/text';
+import { arrowPath, bracePath, noiseAt, wobblyLine, wobblyRect } from './geometry';
+
+export const NS = 'http://www.w3.org/2000/svg';
+
+/** Authoring coordinate space. All act choreography is written in this box. */
+export const VIEW = { w: 1440, h: 900 };
+
+/** The manuscript leaf in its Act 1 position. */
+export const LEAF = { x: 470, y: 100, w: 500, h: 700 };
+
+/** Body text metrics. `lh` is the manuscript leading; print will tighten it. */
+export const TEXT = { x: 506, top: 172, lh: 38, width: 428 };
+
+export const SEED = 20260814;
+
+export function el<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs: Record<string, string | number> = {},
+  children: SVGElement[] = [],
+): SVGElementTagNameMap[K] {
+  const node = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+  for (const c of children) node.appendChild(c);
+  return node;
+}
+
+/** Baseline y of a body line in the manuscript state. */
+export function lineY(i: number): number {
+  return TEXT.top + i * TEXT.lh;
+}
+
+/**
+ * The printed setting: tighter leading, a systematic measure, and paragraph
+ * breaks where the manuscript had none. Act 3 tweens between `lineY` and
+ * `printLineY` — the words never change, only their setting.
+ */
+export const PRINT_TEXT = { x: 512, top: 262, lh: 30, width: 416, paragraphs: [0, 5, 10] };
+
+export function printLineY(i: number): number {
+  let y = PRINT_TEXT.top + i * PRINT_TEXT.lh;
+  if (i >= 5) y += 12;
+  if (i >= 10) y += 12;
+  return y;
+}
+
+export function printLineX(i: number): number {
+  return PRINT_TEXT.x + (PRINT_TEXT.paragraphs.includes(i) ? 20 : 0);
+}
+
+// ---------------------------------------------------------------------------
+// defs
+// ---------------------------------------------------------------------------
+
+/**
+ * Two filters for the whole piece. Paper grain is applied once, to the leaf.
+ * Anything more would cost more than it is worth — the hand-drawn geometry,
+ * not the filter stack, is what makes this read as illustration.
+ */
+export function buildDefs(): SVGDefsElement {
+  const grain = el('filter', {
+    id: 'f-grain',
+    x: '-4%',
+    y: '-3%',
+    width: '108%',
+    height: '106%',
+    filterUnits: 'objectBoundingBox',
+  });
+  grain.appendChild(
+    el('feTurbulence', {
+      type: 'fractalNoise',
+      baseFrequency: '0.9',
+      numOctaves: '3',
+      seed: '7',
+      result: 'noise',
+    }),
+  );
+  grain.appendChild(
+    el('feColorMatrix', {
+      in: 'noise',
+      type: 'saturate',
+      values: '0',
+      result: 'desat',
+    }),
+  );
+  grain.appendChild(
+    el('feComponentTransfer', { in: 'desat', result: 'speckle' }, [
+      el('feFuncA', { type: 'linear', slope: '0.055' }),
+    ]),
+  );
+  grain.appendChild(el('feComposite', { in: 'speckle', in2: 'SourceGraphic', operator: 'atop' }));
+
+  // A very slight edge softening so ink does not look vector-crisp.
+  const ink = el('filter', { id: 'f-ink', x: '-8%', y: '-8%', width: '116%', height: '116%' });
+  ink.appendChild(el('feGaussianBlur', { stdDeviation: '0.28' }));
+
+  const vignette = el('radialGradient', { id: 'g-vignette', cx: '50%', cy: '46%', r: '72%' });
+  vignette.appendChild(el('stop', { offset: '0%', 'stop-color': '#0d0f12', 'stop-opacity': '0' }));
+  vignette.appendChild(el('stop', { offset: '68%', 'stop-color': '#08090b', 'stop-opacity': '0.45' }));
+  vignette.appendChild(el('stop', { offset: '100%', 'stop-color': '#050607', 'stop-opacity': '0.92' }));
+
+  return el('defs', {}, [grain, ink, vignette]) as SVGDefsElement;
+}
+
+// ---------------------------------------------------------------------------
+// field — the ground the page sits on
+// ---------------------------------------------------------------------------
+
+export function buildField(): SVGGElement {
+  const g = el('g', { id: 'field' });
+  g.appendChild(el('rect', { x: 0, y: 0, width: VIEW.w, height: VIEW.h, fill: '#0b0d10' }));
+
+  // Sparse dust. Deterministic, so it does not shimmer on re-render.
+  const dust = el('g', { id: 'dust', opacity: '0.5' });
+  for (let i = 0; i < 26; i++) {
+    const x = (noiseAt(SEED + 31, i) * 0.5 + 0.5) * VIEW.w;
+    const y = (noiseAt(SEED + 67, i) * 0.5 + 0.5) * VIEW.h;
+    const r = 0.5 + (noiseAt(SEED + 101, i) * 0.5 + 0.5) * 1.1;
+    dust.appendChild(el('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(2), fill: '#c9bda4', opacity: '0.16' }));
+  }
+  g.appendChild(dust);
+  g.appendChild(el('rect', { id: 'vignette', x: 0, y: 0, width: VIEW.w, height: VIEW.h, fill: 'url(#g-vignette)' }));
+  return g as SVGGElement;
+}
+
+// ---------------------------------------------------------------------------
+// the protagonist
+// ---------------------------------------------------------------------------
+
+export function buildLeaf(): SVGGElement {
+  const g = el('g', { id: 'leaf-group' });
+
+  // A faint second leaf behind, so Act 1 reads as a codex rather than a sheet.
+  // It withdraws during the move to print, where a page is a single leaf.
+  const verso = el('path', {
+    id: 'leaf-verso',
+    d: wobblyRect(LEAF.x - 26, LEAF.y + 14, LEAF.w, LEAF.h - 22, 1, SEED + 400),
+    fill: '#d9cdb4',
+    opacity: '0.34',
+  });
+
+  const leaf = el('path', {
+    id: 'leaf',
+    d: wobblyRect(LEAF.x, LEAF.y, LEAF.w, LEAF.h, 1, SEED),
+    fill: '#efe6d2',
+    filter: 'url(#f-grain)',
+  });
+
+  // The edge is drawn separately so it can thin into a printed trim later.
+  const edge = el('path', {
+    id: 'leaf-edge',
+    d: wobblyRect(LEAF.x, LEAF.y, LEAF.w, LEAF.h, 1, SEED),
+    fill: 'none',
+    stroke: '#2b2419',
+    'stroke-width': '1.1',
+    opacity: '0.28',
+  });
+
+  g.appendChild(verso);
+  g.appendChild(leaf);
+  g.appendChild(edge);
+  return g as SVGGElement;
+}
+
+export function buildBody(): SVGGElement {
+  const g = el('g', { id: 'body' });
+
+  // Rubricated initial, as the storyboard has it.
+  const initial = el('text', {
+    id: 'initial',
+    x: TEXT.x,
+    y: lineY(0) + 4,
+    class: 'ms-initial',
+  });
+  initial.textContent = 'Q';
+  g.appendChild(initial);
+
+  BODY_LINES.forEach((line, i) => {
+    // A scribe does not hit the same left edge twice. Act 3 tweens this jitter
+    // out, which is what makes "spacing becomes systematic" legible.
+    const jx = noiseAt(SEED + 313, i) * 2.4;
+    const jy = noiseAt(SEED + 719, i) * 1.3;
+    const t = el('text', {
+      class: 'ms-line',
+      'data-line': i,
+      x: (i === 0 ? TEXT.x + 34 : TEXT.x) + jx,
+      y: lineY(i) + jy,
+    });
+    // The first line loses its Q to the initial.
+    t.textContent = i === 0 ? line.slice(1) : line;
+    g.appendChild(t);
+  });
+
+  return g as SVGGElement;
+}
+
+export function buildRules(): SVGGElement {
+  const g = el('g', { id: 'rules' });
+  for (const u of UNDERLINES) {
+    const y = lineY(u.lineIndex) + 7;
+    const x1 = TEXT.x + TEXT.width * u.from;
+    const x2 = TEXT.x + TEXT.width * u.to;
+    const p = el('path', {
+      id: u.id,
+      class: 'ms-rule',
+      'data-x1': x1,
+      'data-x2': x2,
+      'data-y': y,
+      d: wobblyLine(x1, y, x2, y, 1, SEED + u.lineIndex),
+      fill: 'none',
+    });
+    g.appendChild(p);
+  }
+  return g as SVGGElement;
+}
+
+export function buildGlosses(): SVGGElement {
+  const g = el('g', { id: 'glosses' });
+  for (const gloss of GLOSSES) {
+    const wrap = el('g', {
+      id: `gloss-${gloss.id}`,
+      class: `gloss gloss--${gloss.accent}`,
+      'data-plane': gloss.plane,
+      transform: `rotate(${gloss.tilt} ${gloss.x} ${gloss.y})`,
+    });
+    gloss.text.forEach((line, i) => {
+      const t = el('text', {
+        class: 'gloss-line',
+        x: gloss.x + noiseAt(SEED + 13, i) * 1.8,
+        y: gloss.y + i * 26,
+        'text-anchor': gloss.anchor,
+      });
+      t.textContent = line;
+      wrap.appendChild(t);
+    });
+    g.appendChild(wrap);
+  }
+
+  for (const il of INTERLINEAR) {
+    const t = el('text', {
+      id: il.id,
+      class: `interlinear gloss--${il.accent}`,
+      x: TEXT.x + il.dx,
+      y: lineY(il.lineIndex) - 11,
+    });
+    t.textContent = il.text;
+    g.appendChild(t);
+  }
+
+  return g as SVGGElement;
+}
+
+/**
+ * Reference marks: the arrows, brace and asterisk that tie a note to a line.
+ * These are the most "hand" of the marks, so they carry the most wobble.
+ */
+export function buildMarks(): SVGGElement {
+  const g = el('g', { id: 'marks' });
+
+  const mark = (id: string, d: string, accent: string) =>
+    el('path', { id, class: `mark mark--${accent}`, d, fill: 'none' });
+
+  g.appendChild(mark('mark-cf', arrowPath(444, 268, 496, 288, 1, SEED + 5), 'rose'));
+  g.appendChild(mark('mark-huc', arrowPath(996, 392, 946, 372, 1, SEED + 6), 'amber'));
+  g.appendChild(mark('mark-idest', arrowPath(432, 556, 492, 540, 1, SEED + 7), 'purple'));
+  g.appendChild(mark('mark-bene', arrowPath(1000, 578, 952, 566, 1, SEED + 8), 'rose'));
+  g.appendChild(mark('mark-brace', bracePath(978, lineY(5) - 14, lineY(8) + 6, 14, SEED + 9), 'ink'));
+  g.appendChild(mark('mark-contra', arrowPath(440, 360, 494, 372, 1, SEED + 10), 'rose'));
+
+  // A drawn asterisk — six strokes from a centre, none of them even.
+  const cx = 1036;
+  const cy = 618;
+  let star = '';
+  for (let i = 0; i < 3; i++) {
+    const a = (i * Math.PI) / 3 + noiseAt(SEED + 21, i) * 0.2;
+    const r = 9 + noiseAt(SEED + 22, i) * 1.6;
+    star += ` M ${(cx - Math.cos(a) * r).toFixed(1)} ${(cy - Math.sin(a) * r).toFixed(1)} L ${(cx + Math.cos(a) * r).toFixed(1)} ${(cy + Math.sin(a) * r).toFixed(1)}`;
+  }
+  g.appendChild(mark('mark-star', star.trim(), 'rose'));
+
+  return g as SVGGElement;
+}
+
+/**
+ * Print apparatus. Built in place but not yet visible — Act 3 reveals it, and
+ * in several cases reveals it *by moving a handwritten element into it*.
+ */
+export function buildPrint(): SVGGElement {
+  const g = el('g', { id: 'print', opacity: '0' });
+
+  const title = el('text', { id: 'print-title', class: 'pr-title', x: 720, y: 176, 'text-anchor': 'middle' });
+  title.textContent = PRINT.title;
+
+  const caput = el('text', { id: 'print-caput', class: 'pr-caput', x: 720, y: 208, 'text-anchor': 'middle' });
+  const caputBold = el('tspan', { class: 'pr-caput-num' });
+  caputBold.textContent = `${PRINT.caput} `;
+  const caputRub = el('tspan', { class: 'pr-caput-rubric' });
+  caputRub.textContent = PRINT.caputRubric;
+  caput.appendChild(caputBold);
+  caput.appendChild(caputRub);
+
+  const folio = el('text', { id: 'print-folio', class: 'pr-folio', x: 934, y: 176, 'text-anchor': 'end' });
+  folio.textContent = PRINT.folio;
+
+  g.appendChild(title);
+  g.appendChild(caput);
+  g.appendChild(folio);
+
+  const nums = el('g', { id: 'print-linenumbers' });
+  for (const ln of PRINT.lineNumbers) {
+    const t = el('text', { class: 'pr-linenum', x: 486, y: 0, 'data-line': ln.lineIndex, 'text-anchor': 'end' });
+    t.textContent = ln.n;
+    nums.appendChild(t);
+  }
+  g.appendChild(nums);
+
+  // There is no separate footnote rule element on purpose: in Act 3 a reader's
+  // underline migrates down the page and becomes it.
+  const notes = el('g', { id: 'print-footnotes' });
+  PRINT.footnotes.forEach((fn, i) => {
+    const t = el('text', { class: 'pr-note', id: `print-note-${i}`, x: PRINT_TEXT.x, y: 726 + i * 22 });
+    const m = el('tspan', { class: 'pr-note-marker', dy: '-4' });
+    m.textContent = fn.marker;
+    const a = el('tspan', { dy: '4' });
+    a.textContent = ` ${fn.text}`;
+    const it = el('tspan', { 'font-style': 'italic' });
+    it.textContent = fn.italic;
+    const tail = el('tspan', {});
+    tail.textContent = fn.tail;
+    t.appendChild(m);
+    t.appendChild(a);
+    t.appendChild(it);
+    t.appendChild(tail);
+    notes.appendChild(t);
+  });
+  g.appendChild(notes);
+
+  return g as SVGGElement;
+}

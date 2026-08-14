@@ -1,0 +1,398 @@
+/*
+  Palette and page shell.
+
+  Cream paper against a very dark field, with four restrained accents that only
+  ever appear as ink — never as a surface, a glow or a gradient. If a colour is
+  filling a large area here, something has gone wrong.
+*/
+
+:root {
+  --field: #0b0d10;
+  --field-deep: #060709;
+  --paper: #efe6d2;
+  --paper-dim: #d9cdb4;
+  --ink: #221c12;
+  --ink-soft: rgba(34, 28, 18, 0.62);
+
+  --teal: #4a9d8e;
+  --purple: #9b8bc4;
+  --amber: #d9a441;
+  --rose: #c76b6b;
+
+  --on-field: #cdc4b2;
+  --on-field-dim: rgba(205, 196, 178, 0.5);
+  --hairline: rgba(205, 196, 178, 0.16);
+
+  --serif: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --hand: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
+
+  --measure: 34rem;
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--field);
+  /* No smooth-scroll here: the navigator drives scrolling itself, and native
+     smooth scrolling fights ScrollTrigger's scrub. */
+}
+
+body {
+  margin: 0;
+  background: var(--field);
+  color: var(--on-field);
+  font-family: var(--serif);
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.skip:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+:focus-visible {
+  outline: 1px solid var(--amber);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Masthead
+   -------------------------------------------------------------------------- */
+
+.masthead {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem var(--gutter) 3rem;
+  max-width: 62rem;
+}
+
+.masthead__eyebrow {
+  margin: 0 0 2.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--on-field-dim);
+}
+
+.masthead__title {
+  margin: 0 0 1.75rem;
+  font-size: clamp(2.75rem, 8vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+}
+
+.masthead__dek {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  color: var(--on-field);
+}
+
+.masthead__hint {
+  margin: 4rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--on-field-dim);
+}
+
+/* --------------------------------------------------------------------------
+   Stage
+   -------------------------------------------------------------------------- */
+
+.stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body[data-mode='compact'] .stage {
+  height: auto;
+  min-height: 520vh;
+  overflow: visible;
+}
+
+body[data-mode='compact'] .stage__scene {
+  position: sticky;
+  top: 0;
+  height: 58vh;
+}
+
+body[data-mode='static'] .stage {
+  height: auto;
+  min-height: 0;
+}
+
+body[data-mode='static'] .stage__scene {
+  position: sticky;
+  top: 2vh;
+  height: 70vh;
+}
+
+.stage__scene {
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   Foreground editorial fragments
+   -------------------------------------------------------------------------- */
+
+.stage__foreground {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fragment {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 12vh;
+  margin: 0;
+  max-width: 15rem;
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+  line-height: 1.18;
+  color: var(--paper);
+  opacity: 0;
+  transform: translateY(0.6rem);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.fragment.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body[data-mode='compact'] .fragment {
+  bottom: auto;
+  top: 60vh;
+  left: var(--gutter);
+  right: var(--gutter);
+  max-width: none;
+  font-size: 1.35rem;
+}
+
+body[data-mode='static'] .stage__foreground {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Margin navigator — an editorial annotation, not a stepper
+   -------------------------------------------------------------------------- */
+
+.stage__nav {
+  position: absolute;
+  right: var(--gutter);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.actnav__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.actnav__link {
+  display: grid;
+  grid-template-columns: 1.6rem 0.75rem auto;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--on-field-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: color 300ms ease;
+}
+
+.actnav__num {
+  font-variant-numeric: tabular-nums;
+}
+
+.actnav__dot {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.actnav__title {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.actnav__link:hover,
+.actnav__link:focus-visible {
+  color: var(--paper);
+}
+
+.actnav__link.is-current {
+  color: var(--paper);
+}
+
+.actnav__link.is-current .actnav__dot {
+  opacity: 1;
+  transform: scale(1.7);
+}
+
+.actnav__link.is-current .actnav__title {
+  opacity: 1;
+}
+
+.actnav__item--planned .actnav__link {
+  color: rgba(205, 196, 178, 0.22);
+  cursor: default;
+}
+
+body[data-mode='compact'] .stage__nav {
+  position: fixed;
+  right: auto;
+  left: 0;
+  bottom: 0;
+  top: auto;
+  transform: none;
+  width: 100%;
+  padding: 0.6rem var(--gutter);
+  background: linear-gradient(to top, var(--field), transparent);
+}
+
+body[data-mode='compact'] .actnav__list {
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 0.9rem;
+}
+
+body[data-mode='compact'] .actnav__title,
+body[data-mode='compact'] .actnav__dot {
+  display: none;
+}
+
+body[data-mode='static'] .stage__nav {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   The text
+   -------------------------------------------------------------------------- */
+
+.acts {
+  padding: 8rem var(--gutter) 4rem;
+  max-width: 62rem;
+}
+
+.acts__heading {
+  margin: 0 0 3rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--on-field-dim);
+}
+
+.act {
+  padding: 2.5rem 0;
+  border-top: 1px solid var(--hairline);
+  display: grid;
+  grid-template-columns: 5rem minmax(0, var(--measure));
+  gap: 0 2rem;
+  scroll-margin-top: 20vh;
+}
+
+.act__number {
+  grid-row: 1 / span 4;
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--on-field-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.act__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 400;
+  color: var(--paper);
+}
+
+.act__thesis {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--amber);
+}
+
+.act__body {
+  margin: 0;
+  color: var(--on-field);
+}
+
+.act--planned {
+  opacity: 0.45;
+}
+
+.colophon {
+  padding: 3rem var(--gutter) 6rem;
+  max-width: var(--measure);
+  font-size: 0.85rem;
+  color: var(--on-field-dim);
+  border-top: 1px solid var(--hairline);
+  margin: 0 var(--gutter);
+}
+
+.colophon p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .act {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .act__number {
+    grid-row: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

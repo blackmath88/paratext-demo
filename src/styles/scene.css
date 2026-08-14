@@ -1,0 +1,174 @@
+/*
+  Scene paint.
+
+  Everything here describes ink on paper. There are no surfaces, no glows and
+  no shadows beyond a single soft drop under the leaf — a page on a dark table
+  casts one, and that is the entire justification for its existence.
+*/
+
+#scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   The leaf
+   -------------------------------------------------------------------------- */
+
+#leaf {
+  /* One shadow, low and soft. Not a card elevation. */
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.55));
+}
+
+/* --------------------------------------------------------------------------
+   Manuscript text
+   -------------------------------------------------------------------------- */
+
+.ms-line {
+  font-family: var(--serif);
+  font-size: 21px;
+  fill: #2b2318;
+  letter-spacing: 0.004em;
+}
+
+.ms-initial {
+  font-family: var(--serif);
+  font-size: 46px;
+  font-weight: 600;
+  fill: #9d3f38;
+}
+
+/* --------------------------------------------------------------------------
+   Reader's marks
+   -------------------------------------------------------------------------- */
+
+.ms-rule {
+  stroke: #2b2318;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.72;
+}
+
+.gloss-line {
+  font-family: var(--hand);
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.interlinear {
+  font-family: var(--hand);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.mark {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* Accents are ink colours only. */
+.gloss--teal .gloss-line,
+text.gloss--teal {
+  fill: #2f6f63;
+}
+.gloss--purple .gloss-line,
+text.gloss--purple {
+  fill: #5f4f86;
+}
+.gloss--amber .gloss-line,
+text.gloss--amber {
+  fill: #9a6b16;
+}
+.gloss--rose .gloss-line,
+text.gloss--rose {
+  fill: #9d3f38;
+}
+.gloss--ink .gloss-line,
+text.gloss--ink {
+  fill: #2b2318;
+}
+
+.mark--teal {
+  stroke: #2f6f63;
+}
+.mark--purple {
+  stroke: #5f4f86;
+}
+.mark--amber {
+  stroke: #9a6b16;
+}
+.mark--rose {
+  stroke: #9d3f38;
+}
+.mark--ink {
+  stroke: #2b2318;
+}
+
+/* --------------------------------------------------------------------------
+   Print apparatus
+   -------------------------------------------------------------------------- */
+
+.pr-title {
+  font-family: var(--serif);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  fill: #2b2318;
+}
+
+.pr-caput {
+  font-family: var(--serif);
+  font-size: 19px;
+  fill: #2b2318;
+}
+
+.pr-caput-rubric {
+  font-style: italic;
+}
+
+.pr-folio {
+  font-family: var(--serif);
+  font-size: 18px;
+  fill: #2b2318;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-linenum {
+  font-family: var(--serif);
+  font-size: 13px;
+  fill: #2b2318;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-note {
+  font-family: var(--serif);
+  font-size: 14px;
+  fill: #2b2318;
+}
+
+.pr-note-marker {
+  font-size: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive framing of the scene
+   -------------------------------------------------------------------------- */
+
+body[data-mode='compact'] #scene {
+  /* Crop toward the page rather than shrinking the whole field to nothing. */
+  transform: scale(1.18);
+  transform-origin: 50% 42%;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion: the scene still renders, it simply never scrubs.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #dust {
+    display: none;
+  }
+}
