@@ -260,6 +260,111 @@ text.gloss--ink {
 }
 
 /* --------------------------------------------------------------------------
+   Fragmented tools and persistent operations
+   -------------------------------------------------------------------------- */
+
+.fragment-window-frame {
+  fill: rgba(233, 231, 223, 0.055);
+  stroke: #a8a59b;
+  stroke-width: 1;
+}
+
+.fragment-window-rule {
+  fill: none;
+  stroke: #777a74;
+  stroke-width: 0.7;
+}
+
+.fragment-window-title,
+.operation-kind,
+.operation-label,
+.conversation-heading,
+.conversation-problem-label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.fragment-window-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  fill: #bbb6aa;
+}
+
+.fragment-relation {
+  fill: none;
+  stroke: #b56f67;
+  stroke-width: 1;
+  stroke-dasharray: 4 7;
+}
+
+.operation-kind {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  fill: #8d8b84;
+}
+
+.operation-label {
+  font-size: 11px;
+  fill: #d0cabd;
+}
+
+.operation-mark {
+  fill: #777a74;
+}
+
+.operation--claim .operation-mark,
+.operation--decision .operation-mark {
+  fill: #4a9d8e;
+}
+
+.operation--source .operation-mark {
+  fill: #d9a441;
+}
+
+.operation--superseded .operation-mark {
+  fill: #c76b6b;
+}
+
+.operation--artifact .operation-mark {
+  fill: #9b8bc4;
+}
+
+/* --------------------------------------------------------------------------
+   Conversation beside artifact
+   -------------------------------------------------------------------------- */
+
+.conversation-rule {
+  fill: none;
+  stroke: #777a74;
+  stroke-width: 0.8;
+}
+
+.conversation-heading {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  fill: #5f625d;
+}
+
+.conversation-problem,
+.conversation-orphan-line {
+  fill: none;
+  stroke: #a65f58;
+  stroke-width: 1.1;
+}
+
+.conversation-orphan-line {
+  stroke-dasharray: 3 5;
+}
+
+.conversation-problem-label {
+  font-size: 10px;
+  font-style: italic;
+  fill: #915b55;
+}
+
+/* --------------------------------------------------------------------------
    Responsive framing of the scene
    -------------------------------------------------------------------------- */
 

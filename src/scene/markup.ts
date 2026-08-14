@@ -436,3 +436,96 @@ export function buildApplication(): SVGGElement {
   label('app-history-current', 'Current · 14 Aug', 952, 726, 'app-history-item');
   return g as SVGGElement;
 }
+
+export type WindowGeometry = { id: string; title: string; x: number; y: number; w: number; h: number };
+
+export const FRAGMENT_WINDOWS: WindowGeometry[] = [
+  { id: 'memo', title: 'VOICE MEMO', x: 110, y: 96, w: 350, h: 220 },
+  { id: 'research', title: 'RESEARCH', x: 545, y: 68, w: 350, h: 252 },
+  { id: 'draft', title: 'DRAFT', x: 980, y: 112, w: 330, h: 220 },
+  { id: 'sources', title: 'PDF / SOURCES', x: 146, y: 500, w: 326, h: 214 },
+  { id: 'chat', title: 'CHAT', x: 548, y: 438, w: 348, h: 264 },
+  { id: 'files', title: 'FILES', x: 970, y: 502, w: 340, h: 210 },
+];
+
+export function framePath(x: number, y: number, w: number, h: number): string {
+  return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`;
+}
+
+/** Six competent frames, initially coincident with the single application. */
+export function buildFragments(): SVGGElement {
+  const g = el('g', { id: 'fragments', opacity: '0' });
+  for (const win of FRAGMENT_WINDOWS) {
+    const group = el('g', { id: `fragment-${win.id}`, class: 'fragment-window', 'data-window': win.id });
+    group.appendChild(el('path', {
+      class: 'fragment-window-frame',
+      d: framePath(APP_FRAME.x, APP_FRAME.y, APP_FRAME.w, APP_FRAME.h),
+      'data-target': framePath(win.x, win.y, win.w, win.h),
+    }));
+    group.appendChild(el('path', { class: 'fragment-window-rule', d: `M ${win.x} ${win.y + 34} H ${win.x + win.w}` }));
+    const title = el('text', { class: 'fragment-window-title', x: win.x + 18, y: win.y + 23 });
+    title.textContent = win.title;
+    group.appendChild(title);
+    g.appendChild(group);
+  }
+  const relations = el('g', { id: 'fragment-relations' });
+  relations.appendChild(el('path', { class: 'fragment-relation', d: 'M 410 250 C 520 330 480 510 252 568' }));
+  relations.appendChild(el('path', { class: 'fragment-relation', d: 'M 820 260 C 920 340 1030 430 1110 530' }));
+  relations.appendChild(el('path', { class: 'fragment-relation', d: 'M 730 280 C 720 350 718 398 720 474' }));
+  g.appendChild(relations);
+  return g as SVGGElement;
+}
+
+/** Stable work identities. Later acts only change these groups' arrangements. */
+export function buildOperations(): SVGGElement {
+  const g = el('g', { id: 'operations', opacity: '0' });
+  OPERATIONS.forEach((operation, i) => {
+    const x = 474 + (i % 2) * 224;
+    const y = 262 + Math.floor(i / 2) * 47;
+    const item = el('g', {
+      id: `operation-${operation.id}`,
+      class: `operation operation--${operation.kind}`,
+      'data-operation': operation.id,
+      'data-kind': operation.kind,
+      'data-origin-x': x,
+      'data-origin-y': y,
+    });
+    item.appendChild(el('circle', { class: 'operation-mark', cx: x, cy: y - 4, r: 4 }));
+    const kind = el('text', { class: 'operation-kind', x: x + 13, y: y - 12 });
+    kind.textContent = operation.kind.toUpperCase();
+    const text = el('text', { class: 'operation-label', x: x + 13, y: y + 7 });
+    text.textContent = operation.label;
+    item.appendChild(kind);
+    item.appendChild(text);
+    g.appendChild(item);
+  });
+  return g as SVGGElement;
+}
+
+/** Furniture for the apparent relief of conversation beside its artifact. */
+export function buildConversation(): SVGGElement {
+  const g = el('g', { id: 'conversation', opacity: '0' });
+  g.appendChild(el('path', { id: 'conversation-top', class: 'conversation-rule', d: 'M 160 120 H 1280' }));
+  g.appendChild(el('path', { id: 'conversation-divider', class: 'conversation-rule', d: 'M 680 120 V 830' }));
+  const left = el('text', { class: 'conversation-heading', x: 190, y: 100 });
+  left.textContent = 'CONVERSATION / OPERATIONS';
+  const right = el('text', { class: 'conversation-heading', x: 720, y: 100 });
+  right.textContent = 'CURRENT ARTIFACT';
+  g.appendChild(left);
+  g.appendChild(right);
+
+  const supersession = el('g', { id: 'conversation-supersession' });
+  supersession.appendChild(el('path', { class: 'conversation-problem', d: 'M 630 516 h 18 v 70 h -18' }));
+  const superLabel = el('text', { class: 'conversation-problem-label', x: 620, y: 610, 'text-anchor': 'end' });
+  superLabel.textContent = 'same chronological weight';
+  supersession.appendChild(superLabel);
+  g.appendChild(supersession);
+
+  const orphan = el('g', { id: 'conversation-orphan' });
+  orphan.appendChild(el('path', { class: 'conversation-orphan-line', d: 'M 650 700 C 676 700 684 700 708 700' }));
+  const orphanLabel = el('text', { class: 'conversation-problem-label', x: 720, y: 724 });
+  orphanLabel.textContent = 'context stops at the boundary';
+  orphan.appendChild(orphanLabel);
+  g.appendChild(orphan);
+  return g as SVGGElement;
+}

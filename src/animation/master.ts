@@ -21,6 +21,8 @@ import { actGlosses } from './act02Glosses';
 import { actPrint } from './act03Print';
 import { actEditorial } from './act04Editorial';
 import { actApplication } from './act05Application';
+import { actFragments } from './act06Fragments';
+import { actConversation } from './act07Conversation';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,6 +36,8 @@ const BUILDERS = {
   print: actPrint,
   editorial: actEditorial,
   application: actApplication,
+  fragments: actFragments,
+  conversation: actConversation,
 } as const;
 
 export type Master = {

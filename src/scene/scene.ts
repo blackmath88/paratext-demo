@@ -16,17 +16,22 @@ import {
   buildEditorial,
   buildField,
   buildGlosses,
+  buildFragments,
   buildLeaf,
   buildMarks,
   buildPrint,
+  buildConversation,
+  buildOperations,
   buildRules,
   el,
   VIEW,
+  APP_FRAME,
   LEAF,
   PRINT_TEXT,
   SEED,
   TEXT,
   lineY,
+  framePath,
 } from './markup';
 
 export type SceneRefs = {
@@ -64,6 +69,15 @@ export type SceneRefs = {
   appRules: SVGPathElement[];
   appRecords: SVGGElement[];
   appMissingReason: SVGGElement;
+  fragments: SVGGElement;
+  fragmentWindows: SVGGElement[];
+  fragmentFrames: SVGPathElement[];
+  fragmentRelations: SVGGElement;
+  operations: SVGGElement;
+  operationNodes: SVGGElement[];
+  conversation: SVGGElement;
+  conversationSupersession: SVGGElement;
+  conversationOrphan: SVGGElement;
 };
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
@@ -88,7 +102,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     `The passage "${BODY_PROSE}" begins without a visible paper boundary. ` +
     'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
     'Their irregular marks regularize into print, settle into editorial composition, and become ' +
-    'structured application records whose missing reason and context relation remains visible.';
+    'structured application records. That application separates into tool windows before the same ' +
+    'operations reunite as chronology beside an artifact, still unable to carry its own reasons.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -104,6 +119,9 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   page.appendChild(buildPrint());
   page.appendChild(buildEditorial());
   page.appendChild(buildApplication());
+  page.appendChild(buildFragments());
+  page.appendChild(buildConversation());
+  page.appendChild(buildOperations());
   svg.appendChild(page);
 
   mount.appendChild(svg);
@@ -142,6 +160,15 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     appRules: [...svg.querySelectorAll<SVGPathElement>('.app-rule')],
     appRecords: [...svg.querySelectorAll<SVGGElement>('.app-record')],
     appMissingReason: must(svg, '#app-missing-reason'),
+    fragments: must(svg, '#fragments'),
+    fragmentWindows: [...svg.querySelectorAll<SVGGElement>('.fragment-window')],
+    fragmentFrames: [...svg.querySelectorAll<SVGPathElement>('.fragment-window-frame')],
+    fragmentRelations: must(svg, '#fragment-relations'),
+    operations: must(svg, '#operations'),
+    operationNodes: [...svg.querySelectorAll<SVGGElement>('.operation')],
+    conversation: must(svg, '#conversation'),
+    conversationSupersession: must(svg, '#conversation-supersession'),
+    conversationOrphan: must(svg, '#conversation-orphan'),
   };
 }
 
@@ -198,6 +225,7 @@ export function resetScene(refs: SceneRefs): void {
     note.setAttribute('x', String(PRINT_TEXT.x));
     note.setAttribute('y', String(726 + i * 22));
   });
+  refs.fragmentFrames.forEach((frame) => frame.setAttribute('d', framePath(APP_FRAME.x, APP_FRAME.y, APP_FRAME.w, APP_FRAME.h)));
   for (const p of [...refs.rulePaths, ...refs.markPaths]) {
     const len = p.getTotalLength();
     p.style.strokeDasharray = `${len}`;
@@ -213,6 +241,9 @@ export function resetScene(refs: SceneRefs): void {
   refs.print.style.opacity = '0';
   refs.editorial.style.opacity = '0';
   refs.application.style.opacity = '0';
+  refs.fragments.style.opacity = '0';
+  refs.operations.style.opacity = '0';
+  refs.conversation.style.opacity = '0';
   refs.printNotes.style.opacity = '0';
   for (const t of [
     refs.printTitle,
