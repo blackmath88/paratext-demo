@@ -7,11 +7,13 @@
  * rather than by convention.
  */
 
-import { BODY_PROSE } from '../data/text';
-import { wobblyRect } from './geometry';
+import { BODY_PROSE, GLOSSES, UNDERLINES } from '../data/text';
+import { noiseAt, wobblyLine, wobblyRect } from './geometry';
 import {
   buildBody,
+  buildApplication,
   buildDefs,
+  buildEditorial,
   buildField,
   buildGlosses,
   buildLeaf,
@@ -21,7 +23,10 @@ import {
   el,
   VIEW,
   LEAF,
+  PRINT_TEXT,
   SEED,
+  TEXT,
+  lineY,
 } from './markup';
 
 export type SceneRefs = {
@@ -52,6 +57,13 @@ export type SceneRefs = {
   printLineNums: SVGTextElement[];
   printNotes: SVGGElement;
   printNoteTexts: SVGTextElement[];
+  editorial: SVGGElement;
+  editorialGrid: SVGGElement;
+  editorialGridLines: SVGPathElement[];
+  application: SVGGElement;
+  appRules: SVGPathElement[];
+  appRecords: SVGGElement[];
+  appMissingReason: SVGGElement;
 };
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
@@ -75,7 +87,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   desc.textContent =
     `The passage "${BODY_PROSE}" begins without a visible paper boundary. ` +
     'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
-    'Their irregular marks finally regularize into a title, rule, line numbers and footnotes.';
+    'Their irregular marks regularize into print, settle into editorial composition, and become ' +
+    'structured application records whose missing reason and context relation remains visible.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -89,6 +102,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   page.appendChild(buildGlosses());
   page.appendChild(buildMarks());
   page.appendChild(buildPrint());
+  page.appendChild(buildEditorial());
+  page.appendChild(buildApplication());
   svg.appendChild(page);
 
   mount.appendChild(svg);
@@ -120,6 +135,13 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     printLineNums: [...svg.querySelectorAll<SVGTextElement>('.pr-linenum')],
     printNotes: must(svg, '#print-footnotes'),
     printNoteTexts: [...svg.querySelectorAll<SVGTextElement>('.pr-note')],
+    editorial: must(svg, '#editorial'),
+    editorialGrid: must(svg, '#editorial-grid'),
+    editorialGridLines: [...svg.querySelectorAll<SVGPathElement>('.editorial-grid-line')],
+    application: must(svg, '#application'),
+    appRules: [...svg.querySelectorAll<SVGPathElement>('.app-rule')],
+    appRecords: [...svg.querySelectorAll<SVGGElement>('.app-record')],
+    appMissingReason: must(svg, '#app-missing-reason'),
   };
 }
 
@@ -130,13 +152,52 @@ export function buildScene(mount: HTMLElement): SceneRefs {
  * mode change, so a resize cannot leave a half-played act on screen.
  */
 export function resetScene(refs: SceneRefs): void {
+  // GSAP may have left presentation properties on elements when a responsive
+  // mode rebuild occurs. The master clears inline styles before this reset;
+  // restore authored SVG attributes here as the deterministic source state.
   const leafPath = wobblyRect(LEAF.x, LEAF.y, LEAF.w, LEAF.h, 1, SEED);
   refs.leaf.setAttribute('d', leafPath);
+  refs.leaf.setAttribute('fill', '#efe6d2');
   refs.leafEdge.setAttribute('d', leafPath);
+  refs.leafEdge.setAttribute('stroke', '#2b2419');
+  refs.leafEdge.setAttribute('stroke-width', '1.1');
   refs.leafVerso.setAttribute(
     'd',
     wobblyRect(LEAF.x - 26, LEAF.y + 14, LEAF.w, LEAF.h - 22, 1, SEED + 400),
   );
+  refs.initial.setAttribute('x', String(TEXT.x));
+  refs.initial.setAttribute('y', String(lineY(0) + 4));
+  refs.bodyLines.forEach((line, i) => {
+    const jx = noiseAt(SEED + 313, i) * 2.4;
+    const jy = noiseAt(SEED + 719, i) * 1.3;
+    line.setAttribute('x', String((i === 0 ? TEXT.x + 34 : TEXT.x) + jx));
+    line.setAttribute('y', String(lineY(i) + jy));
+  });
+  refs.glossGroups.forEach((group, i) => {
+    const gloss = GLOSSES[i];
+    if (gloss) group.setAttribute('transform', `rotate(${gloss.tilt} ${gloss.x} ${gloss.y})`);
+  });
+  UNDERLINES.forEach((underline, i) => {
+    const path = refs.rulePaths[i];
+    if (!path) return;
+    const y = lineY(underline.lineIndex) + 7;
+    const x1 = TEXT.x + TEXT.width * underline.from;
+    const x2 = TEXT.x + TEXT.width * underline.to;
+    path.setAttribute('d', wobblyLine(x1, y, x2, y, 1, SEED + underline.lineIndex));
+    path.setAttribute('stroke', '#2b2318');
+  });
+  refs.printTitle.setAttribute('x', '720');
+  refs.printTitle.setAttribute('y', '176');
+  refs.printTitle.setAttribute('text-anchor', 'middle');
+  refs.printCaput.setAttribute('x', '720');
+  refs.printCaput.setAttribute('y', '208');
+  refs.printCaput.setAttribute('text-anchor', 'middle');
+  refs.printFolio.setAttribute('x', '934');
+  refs.printFolio.setAttribute('y', '176');
+  refs.printNoteTexts.forEach((note, i) => {
+    note.setAttribute('x', String(PRINT_TEXT.x));
+    note.setAttribute('y', String(726 + i * 22));
+  });
   for (const p of [...refs.rulePaths, ...refs.markPaths]) {
     const len = p.getTotalLength();
     p.style.strokeDasharray = `${len}`;
@@ -150,6 +211,8 @@ export function resetScene(refs: SceneRefs): void {
   // hides itself rather than relying on the parent — otherwise the whole
   // printed page would appear the moment the act starts.
   refs.print.style.opacity = '0';
+  refs.editorial.style.opacity = '0';
+  refs.application.style.opacity = '0';
   refs.printNotes.style.opacity = '0';
   for (const t of [
     refs.printTitle,

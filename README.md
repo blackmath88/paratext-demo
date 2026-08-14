@@ -10,7 +10,7 @@ the same context through software, fragmentation and multiple live projections.
 > Language may become the universal input. It does not have to become the
 > universal interface.
 
-**Status: Slice A — Acts 00 to 03.** Acts 04–08 are named in the navigator but
+**Status: Slice B — Acts 00 to 05.** Acts 06–08 are named in the navigator but
 not yet built.
 
 ## Develop
@@ -58,6 +58,8 @@ model and the responsive strategy. In short:
 - `src/data/acts.ts` owns act metadata and the normalized timeline boundaries.
   The master timeline and the navigator both read those numbers, so they cannot
   drift apart. Re-pace the piece by editing that file.
+- `src/data/operations.ts` defines stable work-unit identities for Acts 05–08;
+  later frames arrange these units rather than inventing replacement content.
 
 ## Reference
 
@@ -70,6 +72,6 @@ model and the responsive strategy. In short:
 The argument lives in HTML, not in SVG. Every act has a real section with a
 heading and prose; the scene carries `<title>`/`<desc>`; the navigator is a
 list of real anchors that works from the keyboard and leaves a usable URL
-  (`#bare`, `#page`, `#glosses`, `#print`). Under `prefers-reduced-motion: reduce` the
+  (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#application`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
 and held rather than played.

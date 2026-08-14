@@ -52,7 +52,7 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
     entries.set(act.id, link);
   }
 
-  // Acts 4–8 are named but not yet built. Showing them greyed is more honest
+  // Later acts are named but not yet built. Showing them greyed is more honest
   // than hiding them, and it tells the reader how long the piece will be.
   for (const act of plannedActs) {
     const item = document.createElement('li');

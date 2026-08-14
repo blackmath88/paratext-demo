@@ -7,6 +7,7 @@
  */
 
 import { BODY_LINES, GLOSSES, INTERLINEAR, PRINT, UNDERLINES } from '../data/text';
+import { OPERATIONS } from '../data/operations';
 import { arrowPath, bracePath, noiseAt, wobblyLine, wobblyRect } from './geometry';
 
 export const NS = 'http://www.w3.org/2000/svg';
@@ -19,6 +20,9 @@ export const LEAF = { x: 470, y: 100, w: 500, h: 700 };
 
 /** The leaf after reception has forced its frame outward. */
 export const ADMITTED_LEAF = { x: 320, y: 82, w: 800, h: 736 };
+
+export const COMPOSED_LEAF = { x: 350, y: 70, w: 740, h: 760 };
+export const APP_FRAME = { x: 250, y: 62, w: 940, h: 776 };
 
 /** Body text metrics. `lh` is the manuscript leading; print will tighten it. */
 export const TEXT = { x: 506, top: 172, lh: 38, width: 428 };
@@ -346,5 +350,89 @@ export function buildPrint(): SVGGElement {
   });
   g.appendChild(notes);
 
+  return g as SVGGElement;
+}
+
+/** Latent editorial construction marks. They explain composition, then recede. */
+export function buildEditorial(): SVGGElement {
+  const g = el('g', { id: 'editorial', opacity: '0' });
+  const grid = el('g', { id: 'editorial-grid' });
+  const lines = [
+    [410, 118, 410, 782], [790, 118, 790, 782], [1040, 118, 1040, 782],
+    [382, 142, 1058, 142], [382, 218, 1058, 218], [382, 690, 1058, 690],
+  ];
+  lines.forEach(([x1, y1, x2, y2], i) => {
+    grid.appendChild(el('path', { id: `editorial-grid-${i}`, class: 'editorial-grid-line', d: `M ${x1} ${y1} L ${x2} ${y2}` }));
+  });
+  g.appendChild(grid);
+
+  const sourceLabel = el('text', { id: 'editorial-source-label', class: 'editorial-label', x: 820, y: 244 });
+  sourceLabel.textContent = 'SOURCES / APPARATUS';
+  const bodyLabel = el('text', { id: 'editorial-body-label', class: 'editorial-label', x: 430, y: 244 });
+  bodyLabel.textContent = 'ARGUMENT';
+  g.appendChild(bodyLabel);
+  g.appendChild(sourceLabel);
+  return g as SVGGElement;
+}
+
+/** Restrained software furniture; the historical page remains visible within it. */
+export function buildApplication(): SVGGElement {
+  const g = el('g', { id: 'application', opacity: '0' });
+  g.appendChild(el('path', { id: 'app-top-rule', class: 'app-rule', d: 'M 250 132 L 1190 132' }));
+  g.appendChild(el('path', { id: 'app-nav-rule', class: 'app-rule', d: 'M 430 132 L 430 838' }));
+
+  const label = (id: string, text: string, x: number, y: number, className = 'app-label') => {
+    const node = el('text', { id, class: className, x, y });
+    node.textContent = text;
+    g.appendChild(node);
+  };
+
+  label('app-brand', 'PARATEXT / WORKSPACE', 278, 104, 'app-brand');
+  label('app-search', 'Search claims, sources, status…', 780, 104, 'app-search');
+  label('app-nav-section', 'ARGUMENT', 278, 174);
+  label('app-nav-claims', 'Claims', 296, 210, 'app-nav-item app-nav-item--active');
+  label('app-nav-sources', 'Sources', 296, 246, 'app-nav-item');
+  label('app-nav-decisions', 'Decisions', 296, 282, 'app-nav-item');
+  label('app-nav-open', 'Open questions', 296, 318, 'app-nav-item');
+  label('app-content-label', 'CLAIMS / CURRENT ORDER', 466, 174);
+  label('app-inspector-label', 'INSPECTOR', 952, 174);
+
+  const recordOps = OPERATIONS.filter((op) => op.kind === 'claim').slice(0, 3);
+  recordOps.forEach((op, i) => {
+    const y = 224 + i * 154;
+    const row = el('g', { class: 'app-record', id: `app-record-${op.id}` });
+    row.appendChild(el('path', { class: 'app-record-rule', d: `M 466 ${y + 112} L 916 ${y + 112}` }));
+    const kind = el('text', { class: 'app-record-kind', x: 466, y });
+    kind.textContent = `CLAIM 0${i + 1}`;
+    const status = el('text', { class: 'app-record-status', x: 916, y, 'text-anchor': 'end' });
+    status.textContent = i === 2 ? 'DRAFT' : 'CURRENT';
+    row.appendChild(kind);
+    row.appendChild(status);
+    g.appendChild(row);
+  });
+
+  label('app-meta-type', 'TYPE', 952, 224);
+  label('app-meta-type-value', 'Claim', 952, 248, 'app-meta-value');
+  label('app-meta-status', 'STATUS', 952, 294);
+  label('app-meta-status-value', 'Current', 952, 318, 'app-meta-value');
+  label('app-meta-source', 'SOURCE', 952, 364);
+  label('app-meta-source-value', 'Dembeck / Genette', 952, 388, 'app-meta-value');
+  label('app-meta-section', 'SECTION', 952, 434);
+  label('app-meta-section-value', 'Framing', 952, 458, 'app-meta-value');
+
+  const missing = el('g', { id: 'app-missing-reason' });
+  const missingLabel = el('text', { class: 'app-missing-label', x: 952, y: 536 });
+  missingLabel.textContent = 'REASON / CONTEXT';
+  const missingLine = el('path', { class: 'app-missing-line', d: 'M 952 566 L 1148 566' });
+  const missingValue = el('text', { class: 'app-missing-value', x: 952, y: 594 });
+  missingValue.textContent = 'No relation in schema';
+  missing.appendChild(missingLabel);
+  missing.appendChild(missingLine);
+  missing.appendChild(missingValue);
+  g.appendChild(missing);
+
+  label('app-history-label', 'HISTORY', 952, 664);
+  label('app-history-old', 'Superseded · 12 Aug', 952, 694, 'app-history-item');
+  label('app-history-current', 'Current · 14 Aug', 952, 726, 'app-history-item');
   return g as SVGGElement;
 }

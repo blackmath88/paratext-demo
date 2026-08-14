@@ -154,6 +154,112 @@ text.gloss--ink {
 }
 
 /* --------------------------------------------------------------------------
+   Editorial composition
+   -------------------------------------------------------------------------- */
+
+.editorial-grid-line {
+  fill: none;
+  stroke: #9d3f38;
+  stroke-width: 0.7;
+  stroke-dasharray: 4 5;
+}
+
+.editorial-label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  fill: #786f60;
+}
+
+/* --------------------------------------------------------------------------
+   Structured application
+   -------------------------------------------------------------------------- */
+
+.app-rule,
+.app-record-rule {
+  fill: none;
+  stroke: #878982;
+  stroke-width: 0.8;
+}
+
+.app-brand,
+.app-label,
+.app-nav-item,
+.app-search,
+.app-record-kind,
+.app-record-status,
+.app-meta-value,
+.app-missing-label,
+.app-missing-value,
+.app-history-item {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.app-brand {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  fill: #30332f;
+}
+
+.app-search {
+  font-size: 12px;
+  fill: #777a74;
+}
+
+.app-label,
+.app-record-kind,
+.app-record-status,
+.app-missing-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  fill: #777a74;
+}
+
+.app-nav-item {
+  font-size: 13px;
+  fill: #5f625d;
+}
+
+.app-nav-item--active {
+  font-weight: 650;
+  fill: #2f655c;
+}
+
+.app-record-status {
+  fill: #2f655c;
+}
+
+.app-meta-value {
+  font-size: 14px;
+  fill: #30332f;
+}
+
+.app-missing-label {
+  fill: #8b514b;
+}
+
+.app-missing-line {
+  fill: none;
+  stroke: #a86c65;
+  stroke-width: 0.9;
+  stroke-dasharray: 3 4;
+}
+
+.app-missing-value {
+  font-size: 12px;
+  font-style: italic;
+  fill: #8b6b66;
+}
+
+.app-history-item {
+  font-size: 12px;
+  fill: #61645f;
+}
+
+/* --------------------------------------------------------------------------
    Responsive framing of the scene
    -------------------------------------------------------------------------- */
 

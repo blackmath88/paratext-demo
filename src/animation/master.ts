@@ -19,6 +19,8 @@ import { actBare } from './act01Bare';
 import { actPage } from './act01Page';
 import { actGlosses } from './act02Glosses';
 import { actPrint } from './act03Print';
+import { actEditorial } from './act04Editorial';
+import { actApplication } from './act05Application';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,6 +32,8 @@ const BUILDERS = {
   page: actPage,
   glosses: actGlosses,
   print: actPrint,
+  editorial: actEditorial,
+  application: actApplication,
 } as const;
 
 export type Master = {
@@ -46,6 +50,7 @@ export function buildMaster(
   stage: HTMLElement,
   onProgress: (progress: number) => void,
 ): Master {
+  gsap.set(refs.svg.querySelectorAll('*'), { clearProps: 'all' });
   resetScene(refs);
   gsap.set(refs.page, { x: 0, y: 0, scale: 1, transformOrigin: '50% 46%' });
 
@@ -55,14 +60,13 @@ export function buildMaster(
     const build = BUILDERS[act.id as keyof typeof BUILDERS];
     if (!build) continue;
     const child = build(refs, mode);
-    // Conform the act to its declared span. Overlapping spans in acts.ts are
-    // what produce the overlap between acts here.
+    // Conform the act to its declared span; acts.ts owns all pacing.
     child.duration((act.end - act.start) * TOTAL);
     timeline.add(child, act.start * TOTAL);
   }
 
   // Guarantee the master spans the full declared range even if the last act's
-  // choreography finishes early — progress 1.0 must mean "end of Act 3".
+  // choreography finishes early — progress 1.0 means the latest stable state.
   timeline.to({ hold: 0 }, { hold: 1, duration: 0.001 }, TOTAL);
 
   if (mode === 'static') {
