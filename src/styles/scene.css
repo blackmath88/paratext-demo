@@ -365,6 +365,63 @@ text.gloss--ink {
 }
 
 /* --------------------------------------------------------------------------
+   Context as source / live frames
+   -------------------------------------------------------------------------- */
+
+.reframe-cluster-label,
+.projection-port-label,
+.projection-port-note,
+.frame-layout-label,
+.reframe-current {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.reframe-cluster-label,
+.frame-layout-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  fill: #8f8b82;
+}
+
+.reframe-relation,
+.projection-trunk,
+.projection-port-line {
+  fill: none;
+  stroke: #666b66;
+  stroke-width: 0.85;
+}
+
+.reframe-relation {
+  stroke-dasharray: 3 5;
+}
+
+.reframe-relation--supersedes {
+  stroke: #b76b63;
+  stroke-width: 1.25;
+  stroke-dasharray: none;
+}
+
+.projection-port-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  fill: #d0cabd;
+}
+
+.projection-port-note {
+  font-size: 10px;
+  fill: #777a74;
+}
+
+.reframe-current {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  fill: #d0cabd;
+}
+
+/* --------------------------------------------------------------------------
    Responsive framing of the scene
    -------------------------------------------------------------------------- */
 

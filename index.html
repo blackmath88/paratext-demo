@@ -28,6 +28,13 @@
       <div class="stage__scene" id="scene-mount"></div>
       <div class="stage__foreground" id="foreground"></div>
       <div class="stage__nav" id="nav-mount"></div>
+      <div class="frame-switcher" id="frame-switcher" hidden aria-label="Choose a frame">
+        <span class="frame-switcher__label">Frame</span>
+        <button type="button" data-frame="essay" disabled>Read</button>
+        <button type="button" data-frame="thread" disabled>Thread</button>
+        <button type="button" data-frame="structure" disabled>Structure</button>
+        <button type="button" data-frame="spec" disabled>Spec</button>
+      </div>
     </div>
 
     <!--
@@ -121,20 +128,21 @@
         </p>
       </section>
 
-      <section class="act act--planned">
+      <section class="act" id="reframe" data-act="reframe">
         <p class="act__number">08</p>
-        <h3 class="act__title">Reframing</h3>
+        <h3 class="act__title">Reframed context</h3>
+        <p class="act__thesis">The operations are the source.</p>
         <p class="act__body">
-          The remaining acts follow the same material through editorial composition, explicit
-          software structure, fragmented tools, conversation beside artifact, and finally multiple
-          live frames over one durable context. They are not built yet.
+          Question, source, claim, rejection, decision and artifact become durable identities with
+          explicit relations. Essay, thread, structure and specification are different coherent
+          arrangements of that same context. None is the canonical final presentation.
         </p>
       </section>
     </div>
 
     <footer class="colophon">
       <p>
-        Slice C — Acts 00 to 07. Built with Vite, TypeScript, SVG and GSAP ScrollTrigger. The Latin
+        Complete sequence — Acts 00 to 08. Built with Vite, TypeScript, SVG and GSAP ScrollTrigger. The Latin
         is a pseudo-classical passage on inquiry, patience and judgment; it is the same text
         throughout.
       </p>

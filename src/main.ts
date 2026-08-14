@@ -21,6 +21,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { buildMaster, type Master } from './animation/master';
 import { acts } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
+import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
 import { buildScene, type SceneRefs } from './scene/scene';
 import { detectMode, onModeChange, type Mode } from './utils/env';
 
@@ -28,8 +29,9 @@ const stage = document.querySelector<HTMLElement>('#stage');
 const sceneMount = document.querySelector<HTMLElement>('#scene-mount');
 const navMount = document.querySelector<HTMLElement>('#nav-mount');
 const foreground = document.querySelector<HTMLElement>('#foreground');
+const frameSwitcherMount = document.querySelector<HTMLElement>('#frame-switcher');
 
-if (!stage || !sceneMount || !navMount || !foreground) {
+if (!stage || !sceneMount || !navMount || !foreground || !frameSwitcherMount) {
   throw new Error('main: required mount points are missing from the document');
 }
 
@@ -71,11 +73,13 @@ function updateFragments(progress: number): void {
 
 let master: Master | undefined;
 let navigation: Navigation | undefined;
+let frameSwitcher: FrameSwitcher | undefined;
 let staticObserver: IntersectionObserver | undefined;
 
 function onProgress(progress: number): void {
   navigation?.update(progress);
   updateFragments(progress);
+  frameSwitcher?.setEnabled(progress >= 0.995);
 }
 
 /**
@@ -104,6 +108,7 @@ function attachStaticObserver(current: Master): void {
 function boot(): void {
   master = buildMaster(refs, mode, stage!, onProgress);
   navigation = buildNavigation(navMount!, master);
+  frameSwitcher = buildFrameSwitcher(frameSwitcherMount!, refs, mode);
   if (mode === 'static') attachStaticObserver(master);
   ScrollTrigger.refresh();
   onProgress(0);
@@ -114,6 +119,8 @@ function teardown(): void {
   staticObserver = undefined;
   navigation?.destroy();
   navigation = undefined;
+  frameSwitcher?.destroy();
+  frameSwitcher = undefined;
   master?.destroy();
   master = undefined;
 }

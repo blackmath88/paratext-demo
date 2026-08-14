@@ -4,14 +4,14 @@ A scroll-driven editorial animation about paratext, interfaces and language.
 
 One body of text persists through the whole piece. It is never replaced: its
 presentation discloses a page boundary, outside annotations force that boundary
-to expand, and those notes regularize into printed apparatus. Later slices carry
-the same context through software, fragmentation and multiple live projections.
+to expand, and those notes regularize into printed apparatus. The same context
+then passes through software, fragmentation and four live projections.
 
 > Language may become the universal input. It does not have to become the
 > universal interface.
 
-**Status: Slice C — Acts 00 to 07.** Act 08 is named in the navigator but
-not yet built.
+**Status: Complete sequence — Acts 00 to 08.** The final Read, Thread,
+Structure and Spec frames are interactive after the scroll settles.
 
 ## Develop
 
@@ -73,6 +73,7 @@ The argument lives in HTML, not in SVG. Every act has a real section with a
 heading and prose; the scene carries `<title>`/`<desc>`; the navigator is a
 list of real anchors that works from the keyboard and leaves a usable URL
   (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#application`,
-  `#fragments`, `#conversation`). Under `prefers-reduced-motion: reduce` the
+  `#fragments`, `#conversation`, `#reframe`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
-and held rather than played.
+and held rather than played. The final frame selector remains keyboard-operable
+and switches layouts immediately in reduced-motion mode.

@@ -529,3 +529,69 @@ export function buildConversation(): SVGGElement {
   g.appendChild(orphan);
   return g as SVGGElement;
 }
+
+/** Context field and projection furniture for the final inversion. */
+export function buildReframe(): SVGGElement {
+  const g = el('g', { id: 'reframe', opacity: '0' });
+  const overview = el('g', { id: 'reframe-overview' });
+  const clusterLabel = (text: string, x: number, y: number) => {
+    const label = el('text', { class: 'reframe-cluster-label', x, y });
+    label.textContent = text;
+    overview.appendChild(label);
+  };
+  clusterLabel('FRAME', 180, 158);
+  clusterLabel('PARATEXT', 180, 358);
+  clusterLabel('COMPOSITION', 500, 158);
+  clusterLabel('APPLICATION', 500, 358);
+  clusterLabel('CONTEXT', 790, 158);
+  clusterLabel('ARTIFACT', 790, 358);
+
+  const relations = el('g', { id: 'reframe-relations' });
+  relations.appendChild(el('path', { class: 'reframe-relation reframe-relation--supersedes', d: 'M 504 478 C 470 500 470 522 504 524' }));
+  relations.appendChild(el('path', { class: 'reframe-relation', d: 'M 184 232 C 340 152 420 152 504 186' }));
+  relations.appendChild(el('path', { class: 'reframe-relation', d: 'M 794 232 C 920 270 960 360 1032 410' }));
+  overview.appendChild(relations);
+
+  const projectionBranch = el('g', { id: 'projection-branches' });
+  projectionBranch.appendChild(el('path', { class: 'projection-trunk', d: 'M 930 470 H 1000 M 1000 202 V 622' }));
+  const projections = [
+    { id: 'essay', label: 'ESSAY', y: 202 },
+    { id: 'thread', label: 'THREAD', y: 342 },
+    { id: 'structure', label: 'STRUCTURE', y: 482 },
+    { id: 'spec', label: 'SPEC', y: 622 },
+  ];
+  projections.forEach((projection) => {
+    const port = el('g', { class: 'projection-port', 'data-frame': projection.id });
+    port.appendChild(el('path', { class: 'projection-port-line', d: `M 1000 ${projection.y} H 1220` }));
+    const name = el('text', { class: 'projection-port-label', x: 1030, y: projection.y - 12 });
+    name.textContent = projection.label;
+    const note = el('text', { class: 'projection-port-note', x: 1030, y: projection.y + 18 });
+    note.textContent = 'same operations / different unity';
+    port.appendChild(name);
+    port.appendChild(note);
+    projectionBranch.appendChild(port);
+  });
+  overview.appendChild(projectionBranch);
+  g.appendChild(overview);
+
+  const furniture = el('g', { id: 'frame-furniture' });
+  const frameGroup = (id: string, labels: Array<[string, number, number]>) => {
+    const group = el('g', { class: 'frame-layout-furniture', 'data-frame': id, opacity: '0' });
+    labels.forEach(([text, x, y]) => {
+      const label = el('text', { class: 'frame-layout-label', x, y });
+      label.textContent = text;
+      group.appendChild(label);
+    });
+    furniture.appendChild(group);
+  };
+  frameGroup('essay', [['INTENDED ORDER', 270, 118], ['HELD CONTEXT', 950, 178]]);
+  frameGroup('thread', [['CHRONOLOGICAL ORIGIN', 250, 112]]);
+  frameGroup('structure', [['QUESTIONS', 190, 140], ['CLAIMS', 470, 140], ['SOURCES / TOOLS', 750, 140], ['DECISIONS', 1010, 140]]);
+  frameGroup('spec', [['ENGINEERING-RELEVANT DECISIONS', 260, 138], ['HELD CONTEXT', 850, 158]]);
+  g.appendChild(furniture);
+
+  const current = el('text', { id: 'reframe-current', class: 'reframe-current', x: 1220, y: 92, 'text-anchor': 'end' });
+  current.textContent = 'FRAME / READ';
+  g.appendChild(current);
+  return g as SVGGElement;
+}

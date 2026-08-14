@@ -300,6 +300,66 @@ body[data-mode='static'] .stage__nav {
 }
 
 /* --------------------------------------------------------------------------
+   Final frame selector — unlocked only after the inversion settles
+   -------------------------------------------------------------------------- */
+
+.frame-switcher {
+  position: absolute;
+  left: 50%;
+  bottom: 2.25rem;
+  z-index: 4;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  background: rgba(11, 13, 16, 0.88);
+  border: 1px solid var(--hairline);
+}
+
+.frame-switcher[hidden] {
+  display: none;
+}
+
+.frame-switcher__label {
+  padding: 0 0.55rem;
+  color: var(--on-field-dim);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.frame-switcher button {
+  border: 0;
+  border-bottom: 1px solid transparent;
+  padding: 0.4rem 0.55rem;
+  background: transparent;
+  color: var(--on-field-dim);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.frame-switcher button:hover,
+.frame-switcher button:focus-visible,
+.frame-switcher button.is-current {
+  color: var(--paper);
+  border-bottom-color: var(--amber);
+}
+
+body[data-mode='compact'] .frame-switcher {
+  position: fixed;
+  bottom: 3.2rem;
+}
+
+body[data-mode='static'] .frame-switcher {
+  position: sticky;
+  bottom: 1rem;
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
    The text
    -------------------------------------------------------------------------- */
 

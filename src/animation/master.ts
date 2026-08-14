@@ -23,6 +23,7 @@ import { actEditorial } from './act04Editorial';
 import { actApplication } from './act05Application';
 import { actFragments } from './act06Fragments';
 import { actConversation } from './act07Conversation';
+import { actReframe } from './act08Reframe';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,6 +39,7 @@ const BUILDERS = {
   application: actApplication,
   fragments: actFragments,
   conversation: actConversation,
+  reframe: actReframe,
 } as const;
 
 export type Master = {

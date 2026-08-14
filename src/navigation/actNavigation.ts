@@ -52,8 +52,7 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
     entries.set(act.id, link);
   }
 
-  // Later acts are named but not yet built. Showing them greyed is more honest
-  // than hiding them, and it tells the reader how long the piece will be.
+  // During sliced development, future acts can remain visible but disabled.
   for (const act of plannedActs) {
     const item = document.createElement('li');
     item.className = 'actnav__item actnav__item--planned';

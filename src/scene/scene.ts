@@ -22,6 +22,7 @@ import {
   buildPrint,
   buildConversation,
   buildOperations,
+  buildReframe,
   buildRules,
   el,
   VIEW,
@@ -78,6 +79,12 @@ export type SceneRefs = {
   conversation: SVGGElement;
   conversationSupersession: SVGGElement;
   conversationOrphan: SVGGElement;
+  reframe: SVGGElement;
+  reframeOverview: SVGGElement;
+  reframeRelations: SVGGElement;
+  projectionPorts: SVGGElement[];
+  frameFurniture: SVGGElement[];
+  reframeCurrent: SVGTextElement;
 };
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
@@ -103,7 +110,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
     'Their irregular marks regularize into print, settle into editorial composition, and become ' +
     'structured application records. That application separates into tool windows before the same ' +
-    'operations reunite as chronology beside an artifact, still unable to carry its own reasons.';
+    'operations reunite as chronology beside an artifact. Finally the artifact and chronology yield ' +
+    'to durable context arranged as essay, thread, structure and specification.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -121,6 +129,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   page.appendChild(buildApplication());
   page.appendChild(buildFragments());
   page.appendChild(buildConversation());
+  page.appendChild(buildReframe());
   page.appendChild(buildOperations());
   svg.appendChild(page);
 
@@ -169,6 +178,12 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     conversation: must(svg, '#conversation'),
     conversationSupersession: must(svg, '#conversation-supersession'),
     conversationOrphan: must(svg, '#conversation-orphan'),
+    reframe: must(svg, '#reframe'),
+    reframeOverview: must(svg, '#reframe-overview'),
+    reframeRelations: must(svg, '#reframe-relations'),
+    projectionPorts: [...svg.querySelectorAll<SVGGElement>('.projection-port')],
+    frameFurniture: [...svg.querySelectorAll<SVGGElement>('.frame-layout-furniture')],
+    reframeCurrent: must(svg, '#reframe-current'),
   };
 }
 
@@ -244,6 +259,7 @@ export function resetScene(refs: SceneRefs): void {
   refs.fragments.style.opacity = '0';
   refs.operations.style.opacity = '0';
   refs.conversation.style.opacity = '0';
+  refs.reframe.style.opacity = '0';
   refs.printNotes.style.opacity = '0';
   for (const t of [
     refs.printTitle,
