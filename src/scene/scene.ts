@@ -37,8 +37,10 @@ import {
 
 export type SceneRefs = {
   svg: SVGSVGElement;
-  /** The single transform target that carries the object through every act. */
+  /** Material/codex carrier. Its transforms end before the software epoch. */
   page: SVGGElement;
+  /** Software/screen substrate. A sibling so codex transforms cannot leak in. */
+  surface: SVGGElement;
   field: SVGGElement;
   dust: SVGGElement;
   vignette: SVGElement;
@@ -126,18 +128,22 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   page.appendChild(buildMarks());
   page.appendChild(buildPrint());
   page.appendChild(buildEditorial());
-  page.appendChild(buildApplication());
-  page.appendChild(buildFragments());
-  page.appendChild(buildConversation());
-  page.appendChild(buildReframe());
-  page.appendChild(buildOperations());
   svg.appendChild(page);
+
+  const surface = el('g', { id: 'surface' }) as SVGGElement;
+  surface.appendChild(buildApplication());
+  surface.appendChild(buildFragments());
+  surface.appendChild(buildConversation());
+  surface.appendChild(buildReframe());
+  surface.appendChild(buildOperations());
+  svg.appendChild(surface);
 
   mount.appendChild(svg);
 
   return {
     svg,
     page,
+    surface,
     field: must(svg, '#field'),
     dust: must(svg, '#dust'),
     vignette: must(svg, '#vignette'),

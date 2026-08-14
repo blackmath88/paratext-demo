@@ -35,24 +35,37 @@ is confined to how that box is fitted into the viewport.
 svg#scene
 ├── defs           filters (paper grain, ink bleed), clip paths
 ├── g#field        the dark ground; vignette; drifting dust
-└── g#page         ← THE PROTAGONIST. Transform target for every act.
+├── g#page         ← material/codex carrier
     ├── g#leaf-verso    faint second leaf (codex feel, Act 1–2)
     ├── g#leaf          the paper itself — hand-drawn path, not a rect
     ├── g#body          the Latin text block (tspans)
     ├── g#rules         underlines → typographic rules   (Act 2 → 3)
     ├── g#glosses       marginalia, written not faded    (Act 2)
     ├── g#marks         reference marks, arrows, manicules
-    └── g#print         title, caput, folio, footnotes   (Act 3)
+    ├── g#print         title, caput, folio, footnotes   (Act 3)
+    └── g#editorial     construction grid and labels    (Act 4)
+└── g#surface      ← software/screen carrier; sibling of #page
+    ├── g#application
+    ├── g#fragments
+    ├── g#conversation
+    ├── g#reframe
+    └── g#operations
 ```
+
+`#surface` is a sibling of `#page` so software geometry is authored directly
+in the 1440×900 viewBox and cannot inherit transforms used to settle the codex.
+Page-owned text and rules remain continuous through the transition; Editorial
+returns their carrier to identity before the software surface takes over.
 
 Layers exist **for parallax planes and z-order**, not for show/hide. A layer is
 never `display:none`; it is either not yet drawn (path length 0, opacity 0) or
 it is part of the composition.
 
-`#page` is the single transform target that carries the object through the
-whole piece: Act 1 centres it, Act 3 lifts and tightens it, Act 5 will turn its
-frame into a window chrome. Because scale/position live on one node, continuity
-is free and cannot drift out of sync between layers.
+`#page` is the shared transform target for the material sequence. Act 1 centres
+it and Act 3 lifts and tightens it; Act 4 returns the carrier to identity.
+`#surface` then owns software geometry in viewBox coordinates. Continuity comes
+from page-owned text and rules travelling into alignment with the sibling
+surface, not from software inheriting codex transforms.
 
 ---
 

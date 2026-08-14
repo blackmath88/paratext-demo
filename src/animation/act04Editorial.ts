@@ -10,6 +10,11 @@ export function actEditorial(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
   const leaf = { ...LEAF };
 
+  // Print's small codex-only carrier transform has done its work. Resolve it
+  // before the software sibling becomes authoritative so both coordinate
+  // systems meet without a cut or inherited compensation.
+  tl.to(refs.page, { scale: 1, y: 0, duration: 1.1, ease: 'power2.inOut' }, 0);
+
   tl.set(refs.editorial, { opacity: 1 }, 0);
   refs.editorialGridLines.forEach((line, i) => {
     const length = line.getTotalLength();

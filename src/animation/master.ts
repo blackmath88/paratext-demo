@@ -74,6 +74,7 @@ export function buildMaster(
   gsap.set(refs.svg.querySelectorAll('*'), { clearProps: 'all' });
   resetScene(refs);
   gsap.set(refs.page, { x: 0, y: 0, scale: 1, transformOrigin: '50% 46%' });
+  gsap.set(refs.surface, { x: 0, y: 0, scale: 1 });
 
   const timeline = gsap.timeline({ paused: mode === 'static' });
 
