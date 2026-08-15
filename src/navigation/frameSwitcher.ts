@@ -1,3 +1,4 @@
+// Intentionally dormant until the projections act makes alternate frames available.
 import gsap from 'gsap';
 import { frameLayout, FRAME_LABELS, type FrameId } from '../animation/operationLayouts';
 import type { SceneRefs } from '../scene/scene';
