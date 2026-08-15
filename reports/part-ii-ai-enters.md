@@ -38,8 +38,11 @@ takes ownership of the composition.
 
 ## 5. Act ranges and settle points
 
-- `II·01` AI / Conversation: `.66–.84`, settle at 84% of the act
-- `II·02` The tube: `.84–1`, settle at 90% of the act
+- `II·01` AI / Conversation: `.52–.60`, settle at 60% of the act
+- `II·02` The tube: `.60–.68`, settle at 64% of the act
+
+The remaining `.68–1` is reserved in four equal slots for Recovery,
+Projections, Cost and Open.
 
 The master fits authored motion into 70% of every range and appends a 30% hold
 tail. ScrollTrigger snaps to the declared settle points with inertia disabled.
