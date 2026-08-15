@@ -19,7 +19,11 @@ export type ActId =
   | 'application'
   | 'fragments'
   | 'conversation'
-  | 'reframe';
+  | 'reframe'
+  | 'recovery'
+  | 'projections'
+  | 'cost'
+  | 'open';
 
 export type Act = {
   id: ActId;
@@ -153,7 +157,32 @@ export const acts: Act[] = [
   },
 ];
 
-export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [];
+export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
+  {
+    id: 'recovery',
+    number: 'II·03',
+    title: 'Recovery',
+    shortTitle: 'Recovery',
+  },
+  {
+    id: 'projections',
+    number: 'II·04',
+    title: 'Projections',
+    shortTitle: 'Projections',
+  },
+  {
+    id: 'cost',
+    number: 'II·05',
+    title: 'The cost',
+    shortTitle: 'Cost',
+  },
+  {
+    id: 'open',
+    number: 'II·06',
+    title: 'Which frame now?',
+    shortTitle: 'Open',
+  },
+];
 
 export const settlePoints: number[] = acts.map(
   (act) => act.start + (act.end - act.start) * act.settle,
