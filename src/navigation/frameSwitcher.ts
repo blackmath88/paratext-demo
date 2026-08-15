@@ -1,6 +1,7 @@
-// Intentionally dormant until the projections act makes alternate frames available.
+// Activated only after the projections act reaches its stable endpoint.
 import gsap from 'gsap';
 import { frameLayout, FRAME_LABELS, type FrameId } from '../animation/operationLayouts';
+import { tweenOperation } from '../animation/operations';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 
@@ -13,6 +14,7 @@ export function buildFrameSwitcher(mount: HTMLElement, refs: SceneRefs, mode: Mo
   const buttons = [...mount.querySelectorAll<HTMLButtonElement>('button[data-frame]')];
   let current: FrameId = 'essay';
   let enabled = false;
+  let transition: gsap.core.Timeline | undefined;
 
   const reflect = () => {
     buttons.forEach((button) => {
@@ -26,23 +28,16 @@ export function buildFrameSwitcher(mount: HTMLElement, refs: SceneRefs, mode: Mo
     if (!enabled || frame === current) return;
     current = frame;
     const layout = frameLayout(frame);
-    gsap.killTweensOf(refs.operationNodes);
-    refs.operationNodes.forEach((node) => {
+    transition?.kill();
+    transition = gsap.timeline();
+    refs.operationNodes.forEach((node, i) => {
       const id = node.dataset.operation;
       const placement = id ? layout[id] : undefined;
       if (!placement) return;
-      const originX = Number(node.dataset.originX);
-      const originY = Number(node.dataset.originY);
-      gsap.to(node, {
-        x: placement.x - originX,
-        y: placement.y - originY,
-        scale: placement.scale,
-        opacity: placement.opacity,
-        transformOrigin: `${originX}px ${originY}px`,
-        duration: mode === 'static' ? 0 : 0.72,
+      tweenOperation(transition!, refs, i, placement, {
+        duration: mode === 'static' ? 0.01 : 0.72,
         ease: 'power3.inOut',
-        overwrite: true,
-      });
+      }, i * 0.012);
     });
     refs.frameFurniture.forEach((group) => gsap.set(group, { opacity: group.dataset.frame === frame ? 1 : 0 }));
     refs.reframeCurrent.textContent = `FRAME / ${FRAME_LABELS[frame].toUpperCase()}`;
@@ -66,12 +61,13 @@ export function buildFrameSwitcher(mount: HTMLElement, refs: SceneRefs, mode: Mo
         current = 'essay';
         reflect();
       } else {
-        gsap.killTweensOf(refs.operationNodes);
+        transition?.kill();
+        transition = undefined;
       }
     },
     destroy() {
       listeners.forEach(({ button, handler }) => button.removeEventListener('click', handler));
-      gsap.killTweensOf(refs.operationNodes);
+      transition?.kill();
       mount.hidden = true;
     },
   };

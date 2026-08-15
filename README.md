@@ -11,9 +11,9 @@ conversation and reveals its long chronological stream.
 > Language may become the universal input. It does not have to become the
 > universal interface.
 
-**Status: Part II Recovery complete.** AI enters as a calm conversational
-surface, grows into a scroll-like chronological tube, then recovers segmentation,
-subordinate apparatus, stable addresses and explicit supersession.
+**Status: Part II Projections complete.** AI enters as a calm conversational
+surface, grows into a chronological tube, recovers apparatus, then recomposes
+the same operations into several live frames.
 
 ## Develop
 
@@ -75,6 +75,6 @@ The argument lives in HTML, not in SVG. Every act has a real section with a
 heading and prose; the scene carries `<title>`/`<desc>`; the navigator is a
 list of real anchors that works from the keyboard and leaves a usable URL
   (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#application`,
-  `#fragments`, `#conversation`, `#tube`, `#recovery`). Under `prefers-reduced-motion: reduce` the
+  `#fragments`, `#conversation`, `#tube`, `#recovery`, `#projections`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
 and held rather than played.

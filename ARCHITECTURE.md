@@ -235,8 +235,8 @@ Recorded so later milestones do not have to re-litigate them:
 
 - Part II currently uses 16 durable semantic operation nodes. Later scale must
   remain implied or virtualized; it must not manufacture hundreds of SVG nodes.
-- The old projection furniture remains latent but is not mounted as an
-  interactive selector. Apparatus return, addressability and supersession are
-  later feature slices and must build on the shared operation model.
+- Projection furniture and the HTML frame switcher become live only after the
+  Projections act settles. Both animated and interactive arrangements write
+  through the shared operation model; Cost and Open remain later slices.
 - **Canvas/WebGL** stays out. If Act 7 cannot hit frame rate with DOM, the
   answer is fewer elements, not a renderer change.

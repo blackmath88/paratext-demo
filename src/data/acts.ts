@@ -167,15 +167,21 @@ export const acts: Act[] = [
     settle: 0.7,
     implemented: true,
   },
-];
-
-export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'projections',
     number: 'II·04',
     title: 'Projections',
     shortTitle: 'Projections',
+    thesis: 'The same source can compose several frames.',
+    body: 'The operations leave chronology and travel through structural, specification and reading arrangements without changing identity. The first digitalization virtualized the page. The next may virtualize the frame.',
+    start: 0.76,
+    end: 0.84,
+    settle: 0.7,
+    implemented: true,
   },
+];
+
+export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'cost',
     number: 'II·05',

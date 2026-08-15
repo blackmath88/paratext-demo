@@ -154,7 +154,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'structured application records. That application separates into specialized tool windows. ' +
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
-    'recovers segmentation, apparatus, stable addresses and explicit supersession.';
+    'recovers segmentation, apparatus, stable addresses and explicit supersession before the ' +
+    'same operations recompose into several coherent projections.';
 
   svg.appendChild(title);
   svg.appendChild(desc);

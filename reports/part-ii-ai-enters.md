@@ -41,8 +41,8 @@ takes ownership of the composition.
 - `II·01` AI / Conversation: `.52–.60`, settle at 60% of the act
 - `II·02` The tube: `.60–.68`, settle at 64% of the act
 
-Recovery now occupies `.68–.76`; the remaining `.76–1` is reserved in equal
-slots for Projections, Cost and Open.
+Recovery and Projections now occupy `.68–.84`; the remaining `.84–1` is
+reserved in equal slots for Cost and Open.
 
 The master fits authored motion into 70% of every range and appends a 30% hold
 tail. ScrollTrigger snaps to the declared settle points with inertia disabled.
@@ -56,9 +56,8 @@ and restoring deterministic scene, material, frame and operation state.
 
 ## 7. Remaining risk before later Part II slices
 
-- The latent legacy `conversation`/`reframe` projection furniture and unused
-  selector modules should be retired or deliberately migrated before apparatus
-  return is implemented.
+- The projection furniture and selector now share operation state; Cost must
+  preserve that ownership while displacing a tracked operation.
 - The tube uses representative SVG turns, not virtualization. A later expanded
   transcript needs a bounded rendering strategy.
 - Apparatus return, segmentation, addressability and supersession remain
