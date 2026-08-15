@@ -11,9 +11,9 @@ conversation and reveals its long chronological stream.
 > Language may become the universal input. It does not have to become the
 > universal interface.
 
-**Status: Part II Projections complete.** AI enters as a calm conversational
-surface, grows into a chronological tube, recovers apparatus, then recomposes
-the same operations into several live frames.
+**Status: Part II Cost complete.** AI enters as conversation, grows into a
+chronological tube, recovers apparatus, recomposes into live frames, then names
+the loss of certainty when a frame changes without the reader asking.
 
 ## Develop
 

@@ -1,4 +1,5 @@
 import type { OperationPlacementState, SceneRefs } from '../scene/scene';
+import type { OperationLayout } from './operationLayouts';
 
 type OperationTarget = Partial<OperationPlacementState> & Pick<OperationPlacementState, 'x' | 'y'>;
 
@@ -29,4 +30,21 @@ export function tweenOperation(
       node.style.opacity = String(state.opacity);
     },
   }, position);
+}
+
+/** Move the complete semantic field into one projection through shared state. */
+export function tweenOperationLayout(
+  tl: gsap.core.Timeline,
+  refs: SceneRefs,
+  layout: OperationLayout,
+  vars: { duration: number; ease?: string },
+  position: number,
+  stagger = 0.012,
+): void {
+  refs.operationNodes.forEach((node, i) => {
+    const id = node.dataset.operation;
+    const placement = id ? layout[id] : undefined;
+    if (!placement) return;
+    tweenOperation(tl, refs, i, placement, vars, position + i * stagger);
+  });
 }

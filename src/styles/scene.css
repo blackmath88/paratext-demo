@@ -524,6 +524,37 @@ text.gloss--ink {
   fill: #a97670;
 }
 
+/* --------------------------------------------------------------------------
+   Cost — a stable marker outlives its projection position
+   -------------------------------------------------------------------------- */
+
+.cost-tracking-bracket {
+  fill: none;
+  stroke: #d0a04e;
+  stroke-width: 1.2;
+}
+
+.cost-tracking-label,
+.cost-selected-view,
+.cost-consequence {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.11em;
+}
+
+.cost-tracking-label {
+  fill: #c89a4d;
+}
+
+.cost-selected-view {
+  fill: #a66f69;
+  font-weight: 600;
+}
+
+.cost-consequence {
+  fill: #9a736e;
+}
+
 .reframe-cluster-label,
 .frame-layout-label {
   font-size: 9px;

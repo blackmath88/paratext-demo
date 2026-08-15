@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import { frameLayout, type FrameId } from './operationLayouts';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
-import { tweenOperation } from './operations';
+import { tweenOperationLayout } from './operations';
 
 function arrange(
   tl: gsap.core.Timeline,
@@ -13,16 +13,10 @@ function arrange(
   position: number,
   duration: number,
 ): void {
-  const layout = frameLayout(frame);
-  refs.operationNodes.forEach((node, i) => {
-    const id = node.dataset.operation;
-    const placement = id ? layout[id] : undefined;
-    if (!placement) return;
-    tweenOperation(tl, refs, i, placement, {
-      duration,
-      ease: 'power3.inOut',
-    }, position + i * 0.012);
-  });
+  tweenOperationLayout(tl, refs, frameLayout(frame), {
+    duration,
+    ease: 'power3.inOut',
+  }, position);
 }
 
 function showFurniture(

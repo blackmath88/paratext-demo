@@ -237,6 +237,7 @@ Recorded so later milestones do not have to re-litigate them:
   remain implied or virtualized; it must not manufacture hundreds of SVG nodes.
 - Projection furniture and the HTML frame switcher become live only after the
   Projections act settles. Both animated and interactive arrangements write
-  through the shared operation model; Cost and Open remain later slices.
+  through the shared operation model. Cost uses the same writer for its
+  unsolicited projection change; Open remains the final slice.
 - **Canvas/WebGL** stays out. If Act 7 cannot hit frame rate with DOM, the
   answer is fewer elements, not a renderer change.

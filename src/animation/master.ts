@@ -26,6 +26,7 @@ import { actConversation } from './actConversation';
 import { actTube } from './actTube';
 import { actRecovery } from './actRecovery';
 import { actProjections } from './actProjections';
+import { actCost } from './actCost';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -59,6 +60,7 @@ const BUILDERS = {
   tube: actTube,
   recovery: actRecovery,
   projections: actProjections,
+  cost: actCost,
 } as const;
 
 export type Master = {

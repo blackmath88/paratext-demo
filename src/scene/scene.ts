@@ -26,6 +26,7 @@ import {
   buildOperations,
   buildReframe,
   buildRecovery,
+  buildCost,
   buildRules,
   el,
   VIEW,
@@ -105,6 +106,10 @@ export type SceneRefs = {
   recoveryToolApparatus: SVGGElement;
   recoveryIdentifiers: SVGGElement;
   recoverySupersession: SVGGElement;
+  cost: SVGGElement;
+  costTrackedReference: SVGGElement;
+  costSelectedView: SVGTextElement;
+  costConsequences: SVGGElement;
   materialState: MaterialState;
   /** Live geometry shared by every act that transforms the material leaf. */
   leafState: LeafFrameState;
@@ -155,7 +160,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
     'recovers segmentation, apparatus, stable addresses and explicit supersession before the ' +
-    'same operations recompose into several coherent projections.';
+    'same operations recompose into several coherent projections. One projection then changes ' +
+    'without the reader asking, displacing a tracked claim and its shared pointing position.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -179,6 +185,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   surface.appendChild(buildReframe());
   surface.appendChild(buildAIConversation());
   surface.appendChild(buildRecovery());
+  surface.appendChild(buildCost());
   surface.appendChild(buildOperations());
   svg.appendChild(surface);
 
@@ -248,6 +255,10 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     recoveryToolApparatus: must(svg, '#recovery-tool-apparatus'),
     recoveryIdentifiers: must(svg, '#recovery-identifiers'),
     recoverySupersession: must(svg, '#recovery-supersession'),
+    cost: must(svg, '#cost-annotations'),
+    costTrackedReference: must(svg, '#cost-tracked-reference'),
+    costSelectedView: must(svg, '#cost-selected-view'),
+    costConsequences: must(svg, '#cost-consequences'),
     materialState: {
       mode: 'paper',
       fieldColor: '#0b0d10',
@@ -358,6 +369,7 @@ export function resetScene(refs: SceneRefs): void {
   refs.reframe.style.opacity = '0';
   refs.aiConversation.style.opacity = '0';
   refs.recovery.style.opacity = '0';
+  refs.cost.style.opacity = '0';
   refs.operations.removeAttribute('clip-path');
   Object.assign(refs.materialState, {
     mode: 'paper',

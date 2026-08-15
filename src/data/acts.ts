@@ -179,15 +179,21 @@ export const acts: Act[] = [
     settle: 0.7,
     implemented: true,
   },
-];
-
-export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'cost',
     number: 'II·05',
     title: 'The cost',
     shortTitle: 'Cost',
+    thesis: 'When the frame moves, shared certainty moves with it.',
+    body: 'A view changes without the reader asking. The operation remains, but the place used to track and discuss it no longer points to the same thing. Dynamic framing weakens mental models, shared pointing and citation, while giving the selector of the frame consequential power.',
+    start: 0.84,
+    end: 0.92,
+    settle: 0.7,
+    implemented: true,
   },
+];
+
+export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'open',
     number: 'II·06',

@@ -1,12 +1,12 @@
 // Activated only after the projections act reaches its stable endpoint.
 import gsap from 'gsap';
 import { frameLayout, FRAME_LABELS, type FrameId } from '../animation/operationLayouts';
-import { tweenOperation } from '../animation/operations';
+import { tweenOperationLayout } from '../animation/operations';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 
 export type FrameSwitcher = {
-  setEnabled(enabled: boolean): void;
+  setEnabled(enabled: boolean, renderedFrame?: FrameId): void;
   destroy(): void;
 };
 
@@ -30,15 +30,10 @@ export function buildFrameSwitcher(mount: HTMLElement, refs: SceneRefs, mode: Mo
     const layout = frameLayout(frame);
     transition?.kill();
     transition = gsap.timeline();
-    refs.operationNodes.forEach((node, i) => {
-      const id = node.dataset.operation;
-      const placement = id ? layout[id] : undefined;
-      if (!placement) return;
-      tweenOperation(transition!, refs, i, placement, {
-        duration: mode === 'static' ? 0.01 : 0.72,
-        ease: 'power3.inOut',
-      }, i * 0.012);
-    });
+    tweenOperationLayout(transition, refs, layout, {
+      duration: mode === 'static' ? 0.01 : 0.72,
+      ease: 'power3.inOut',
+    }, 0);
     refs.frameFurniture.forEach((group) => gsap.set(group, { opacity: group.dataset.frame === frame ? 1 : 0 }));
     refs.reframeCurrent.textContent = `FRAME / ${FRAME_LABELS[frame].toUpperCase()}`;
     reflect();
@@ -52,13 +47,22 @@ export function buildFrameSwitcher(mount: HTMLElement, refs: SceneRefs, mode: Mo
 
   reflect();
   return {
-    setEnabled(next) {
-      if (next === enabled) return;
+    setEnabled(next, renderedFrame) {
+      if (next === enabled) {
+        if (enabled && renderedFrame && current !== renderedFrame) {
+          current = renderedFrame;
+          reflect();
+        }
+        return;
+      }
       enabled = next;
       mount.hidden = !enabled;
       buttons.forEach((button) => { button.disabled = !enabled; });
       if (enabled) {
-        current = 'essay';
+        const rendered = refs.reframeCurrent.textContent.toLowerCase();
+        current = renderedFrame ?? (Object.keys(FRAME_LABELS) as FrameId[]).find((frame) =>
+          rendered.includes(FRAME_LABELS[frame].toLowerCase()),
+        ) ?? 'essay';
         reflect();
       } else {
         transition?.kill();

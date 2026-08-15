@@ -43,6 +43,10 @@ const projections = acts.find((act) => act.id === 'projections');
 const projectionsSettle = projections
   ? projections.start + (projections.end - projections.start) * projections.settle
   : 1;
+const cost = acts.find((act) => act.id === 'cost');
+const costSettle = cost
+  ? cost.start + (cost.end - cost.start) * cost.settle
+  : 1;
 
 // ---------------------------------------------------------------------------
 // Foreground editorial fragments
@@ -82,7 +86,14 @@ let staticObserver: IntersectionObserver | undefined;
 
 function onProgress(progress: number): void {
   navigation?.update(progress);
-  frameSwitcher?.setEnabled(progress >= projectionsSettle - 0.001);
+  const costIsMoving = Boolean(
+    cost && progress >= cost.start - 0.001 && progress < costSettle - 0.001,
+  );
+  const authoredFrame = cost && progress >= costSettle - 0.001 ? 'spec' : 'essay';
+  frameSwitcher?.setEnabled(
+    progress >= projectionsSettle - 0.001 && !costIsMoving,
+    authoredFrame,
+  );
   updateFragments(progress);
 }
 

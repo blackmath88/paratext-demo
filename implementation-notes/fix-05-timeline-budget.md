@@ -13,13 +13,13 @@ Part II is budgeted as six equal `.08` slots:
 | `.60–.68` | Tube |
 | `.68–.76` | Recovery |
 | `.76–.84` | Projections |
-| `.84–.92` | Cost (reserved) |
+| `.84–.92` | Cost |
 | `.92–1` | Open (reserved) |
 
-Recovery and Projections now occupy their slots. Until the remaining acts land,
-the master-level tail holds the Projections endpoint from `.84` to `1`. That
-empty budget is deliberate: later slices can enter without recompressing
-completed transitions.
+Recovery, Projections and Cost now occupy their slots. Until Open lands, the
+master-level tail holds the Cost endpoint from `.92` to `1`. That empty budget
+is deliberate: the final slice can enter without recompressing completed
+transitions.
 
 The true end (`1`) is included as a terminal snap target while this reserved
 tail exists, preventing late scroll from being pulled backward to Tube's settle

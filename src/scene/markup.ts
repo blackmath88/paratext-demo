@@ -758,3 +758,37 @@ export function buildRecovery(): SVGGElement {
 
   return g as SVGGElement;
 }
+
+/** Latent annotations for the cost of an unsolicited projection change. */
+export function buildCost(): SVGGElement {
+  const g = el('g', { id: 'cost-annotations', opacity: '0' });
+
+  const tracked = el('g', { id: 'cost-tracked-reference' });
+  tracked.appendChild(el('path', {
+    class: 'cost-tracking-bracket',
+    d: 'M 252 232 h -14 v 44 h 14',
+  }));
+  const trackedLabel = el('text', { class: 'cost-tracking-label', x: 238, y: 220 });
+  trackedLabel.textContent = 'TRACKED / §03';
+  tracked.appendChild(trackedLabel);
+  g.appendChild(tracked);
+
+  const selected = el('text', { id: 'cost-selected-view', class: 'cost-selected-view', x: 260, y: 112 });
+  selected.textContent = 'VIEW CHANGED / ENGINEERING RELEVANCE';
+  g.appendChild(selected);
+
+  const consequences = el('g', { id: 'cost-consequences' });
+  const lines = [
+    'THE POSITION IS NOT A CITATION',
+    'TWO READERS MAY NOT SHARE THIS VIEW',
+    'THE FRAME WAS SELECTED ON YOUR BEHALF',
+  ];
+  lines.forEach((copy, i) => {
+    const line = el('text', { class: 'cost-consequence', x: 850, y: 690 + i * 24 });
+    line.textContent = copy;
+    consequences.appendChild(line);
+  });
+  g.appendChild(consequences);
+
+  return g as SVGGElement;
+}
