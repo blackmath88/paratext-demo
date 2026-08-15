@@ -456,6 +456,74 @@ text.gloss--ink {
   fill: #78828c;
 }
 
+/* --------------------------------------------------------------------------
+   Recovery — computational apparatus with historical ancestry
+   -------------------------------------------------------------------------- */
+
+.recovery-boundary,
+.recovery-title-rule,
+.recovery-apparatus-rule,
+.recovery-strike,
+.recovery-supersession-relation {
+  fill: none;
+  stroke: #77828c;
+  stroke-width: 0.85;
+}
+
+.recovery-boundary {
+  fill: rgba(8, 11, 15, 0.36);
+  stroke: #59636d;
+}
+
+.recovery-title-rule {
+  stroke: #9aa4ad;
+}
+
+.recovery-title,
+.recovery-folio,
+.recovery-apparatus-title,
+.recovery-apparatus-note,
+.recovery-identifier,
+.recovery-supersession-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.recovery-title,
+.recovery-folio,
+.recovery-apparatus-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  fill: #aab3bb;
+}
+
+.recovery-folio,
+.recovery-identifier {
+  fill: #7e8993;
+}
+
+.recovery-apparatus-note {
+  font-size: 9px;
+  fill: #68737d;
+}
+
+.recovery-identifier {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.recovery-strike,
+.recovery-supersession-relation {
+  stroke: #ad6f69;
+  stroke-width: 1.2;
+}
+
+.recovery-supersession-label {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  fill: #a97670;
+}
+
 .reframe-cluster-label,
 .frame-layout-label {
   font-size: 9px;

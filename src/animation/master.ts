@@ -24,6 +24,7 @@ import { actApplication } from './actApplication';
 import { actFragments } from './actFragments';
 import { actConversation } from './actConversation';
 import { actTube } from './actTube';
+import { actRecovery } from './actRecovery';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,6 +56,7 @@ const BUILDERS = {
   fragments: actFragments,
   conversation: actConversation,
   tube: actTube,
+  recovery: actRecovery,
 } as const;
 
 export type Master = {

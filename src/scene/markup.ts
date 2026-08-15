@@ -685,3 +685,76 @@ export function buildAIConversation(): SVGGElement {
   g.appendChild(tube);
   return g as SVGGElement;
 }
+
+/** Latent apparatus recovered from the chronological stream in Part II. */
+export function buildRecovery(): SVGGElement {
+  const g = el('g', { id: 'recovery-apparatus', opacity: '0' });
+
+  const segment = el('g', { id: 'recovery-segment' });
+  segment.appendChild(el('path', {
+    class: 'recovery-boundary',
+    d: 'M 300 110 H 1140 V 800 H 300 Z',
+  }));
+  segment.appendChild(el('path', {
+    class: 'recovery-title-rule',
+    d: 'M 330 180 H 1110',
+  }));
+  const title = el('text', { class: 'recovery-title', x: 330, y: 151 });
+  title.textContent = 'RESOLVED STRETCH / DECISION AND CONTEXT';
+  const folio = el('text', {
+    class: 'recovery-folio', x: 1110, y: 151, 'text-anchor': 'end',
+  });
+  folio.textContent = 'SEGMENT 01 / 16';
+  segment.appendChild(title);
+  segment.appendChild(folio);
+  g.appendChild(segment);
+
+  const apparatus = el('g', { id: 'recovery-tool-apparatus' });
+  apparatus.appendChild(el('path', {
+    class: 'recovery-apparatus-rule',
+    d: 'M 860 204 V 748',
+  }));
+  const apparatusTitle = el('text', { class: 'recovery-apparatus-title', x: 900, y: 224 });
+  apparatusTitle.textContent = 'TOOLS / APPARATUS';
+  const apparatusNote = el('text', { class: 'recovery-apparatus-note', x: 900, y: 246 });
+  apparatusNote.textContent = 'supports the argument / no longer the argument';
+  apparatus.appendChild(apparatusTitle);
+  apparatus.appendChild(apparatusNote);
+  g.appendChild(apparatus);
+
+  const identifiers = el('g', { id: 'recovery-identifiers' });
+  let primary = 0;
+  let tool = 0;
+  OPERATIONS.forEach((operation, i) => {
+    const isTool = operation.kind === 'tool';
+    const y = isTool ? 292 + tool++ * 88 : 230 + primary++ * 40;
+    const label = el('text', {
+      class: 'recovery-identifier',
+      x: isTool ? 880 : 380,
+      y: y - 5,
+      'text-anchor': 'end',
+      'data-operation': operation.id,
+    });
+    label.textContent = `§${String(i + 1).padStart(2, '0')}`;
+    identifiers.appendChild(label);
+  });
+  g.appendChild(identifiers);
+
+  const supersession = el('g', { id: 'recovery-supersession' });
+  supersession.appendChild(el('path', {
+    class: 'recovery-strike',
+    d: 'M 410 592 H 812',
+  }));
+  supersession.appendChild(el('path', {
+    class: 'recovery-supersession-relation',
+    d: 'M 820 590 C 842 590 842 630 820 630 M 820 630 l 8 -5 M 820 630 l 8 5',
+  }));
+  const relationLabel = el('text', {
+    class: 'recovery-supersession-label', x: 842, y: 614,
+  });
+  relationLabel.textContent = 'SUPERSEDED BY';
+  supersession.appendChild(relationLabel);
+  g.appendChild(supersession);
+
+  return g as SVGGElement;
+}

@@ -41,8 +41,8 @@ takes ownership of the composition.
 - `II·01` AI / Conversation: `.52–.60`, settle at 60% of the act
 - `II·02` The tube: `.60–.68`, settle at 64% of the act
 
-The remaining `.68–1` is reserved in four equal slots for Recovery,
-Projections, Cost and Open.
+Recovery now occupies `.68–.76`; the remaining `.76–1` is reserved in equal
+slots for Projections, Cost and Open.
 
 The master fits authored motion into 70% of every range and appends a 30% hold
 tail. ScrollTrigger snaps to the declared settle points with inertia disabled.

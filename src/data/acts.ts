@@ -155,15 +155,21 @@ export const acts: Act[] = [
     settle: 0.64,
     implemented: true,
   },
-];
-
-export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'recovery',
     number: 'II·03',
     title: 'Recovery',
     shortTitle: 'Recovery',
+    thesis: 'The stream rediscovers apparatus.',
+    body: 'A resolved stretch gains a boundary and title. Tool results become subordinate apparatus, operations acquire stable addresses, and an obsolete claim remains visible through a named relation to the decision that supersedes it.',
+    start: 0.68,
+    end: 0.76,
+    settle: 0.7,
+    implemented: true,
   },
+];
+
+export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'projections',
     number: 'II·04',

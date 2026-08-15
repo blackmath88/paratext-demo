@@ -25,6 +25,7 @@ import {
   buildConversation,
   buildOperations,
   buildReframe,
+  buildRecovery,
   buildRules,
   el,
   VIEW,
@@ -99,6 +100,11 @@ export type SceneRefs = {
   aiScrollThumb: SVGPathElement;
   aiTube: SVGGElement;
   chatClipRect: SVGRectElement;
+  recovery: SVGGElement;
+  recoverySegment: SVGGElement;
+  recoveryToolApparatus: SVGGElement;
+  recoveryIdentifiers: SVGGElement;
+  recoverySupersession: SVGGElement;
   materialState: MaterialState;
   /** Live geometry shared by every act that transforms the material leaf. */
   leafState: LeafFrameState;
@@ -147,7 +153,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'Their irregular marks regularize into print, settle into editorial composition, and become ' +
     'structured application records. That application separates into specialized tool windows. ' +
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
-    'is revealed as a small viewport onto a much longer chronological stream.';
+    'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
+    'recovers segmentation, apparatus, stable addresses and explicit supersession.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -170,6 +177,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   surface.appendChild(buildConversation());
   surface.appendChild(buildReframe());
   surface.appendChild(buildAIConversation());
+  surface.appendChild(buildRecovery());
   surface.appendChild(buildOperations());
   svg.appendChild(surface);
 
@@ -234,6 +242,11 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     aiScrollThumb: must(svg, '#ai-scroll-thumb'),
     aiTube: must(svg, '#ai-tube'),
     chatClipRect: must(svg, '#chat-clip-rect'),
+    recovery: must(svg, '#recovery-apparatus'),
+    recoverySegment: must(svg, '#recovery-segment'),
+    recoveryToolApparatus: must(svg, '#recovery-tool-apparatus'),
+    recoveryIdentifiers: must(svg, '#recovery-identifiers'),
+    recoverySupersession: must(svg, '#recovery-supersession'),
     materialState: {
       mode: 'paper',
       fieldColor: '#0b0d10',
@@ -343,6 +356,7 @@ export function resetScene(refs: SceneRefs): void {
   refs.conversation.style.opacity = '0';
   refs.reframe.style.opacity = '0';
   refs.aiConversation.style.opacity = '0';
+  refs.recovery.style.opacity = '0';
   refs.operations.removeAttribute('clip-path');
   Object.assign(refs.materialState, {
     mode: 'paper',

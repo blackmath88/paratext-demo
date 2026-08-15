@@ -5,7 +5,7 @@ import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { tweenOperation } from './operations';
 
-export function actTube(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
+export function actTube(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
 
   tl.to(refs.aiInput, { opacity: 0.34, duration: 0.55 }, 0);
@@ -34,13 +34,19 @@ export function actTube(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   tl.set(refs.aiTube, { opacity: 1 }, 1.5);
   tl.from(refs.aiTube.querySelector('.ai-tube-surface'), { opacity: 0, duration: 0.65 }, 1.5);
   tl.from(refs.aiTube.querySelectorAll('.ai-continuation'), { opacity: 0, duration: 0.55, stagger: 0.12 }, 1.72);
-  tl.to(refs.operations, {
-    scale: 0.48,
-    y: 12,
-    transformOrigin: '720px 450px',
-    duration: mode === 'static' ? 0.01 : 1.2,
-    ease: 'power3.inOut',
-  }, 1.55);
+  refs.operationNodes.forEach((node, i) => {
+    const streamX = node.dataset.role === 'user' ? 470 : 410;
+    const streamY = -260 + i * 100;
+    tweenOperation(tl, refs, i, {
+      x: 720 + (streamX - 720) * 0.48,
+      y: 450 + (streamY - 450) * 0.48 + 12,
+      scale: 0.92 * 0.48,
+      opacity: 1,
+    }, {
+      duration: 1.2,
+      ease: 'power3.inOut',
+    }, 1.55);
+  });
   tl.to(refs.aiScreenFrame, { opacity: 0.42, duration: 0.8 }, 1.62);
   tl.to(refs.aiConversation.querySelectorAll('.ai-screen-rule, .ai-screen-title, .ai-screen-status, #ai-input'), {
     opacity: 0.28, duration: 0.7,
