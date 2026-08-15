@@ -1,5 +1,5 @@
 /**
- * Act 3 — Print, and the Act 2 → 3 transition it owns.
+ * Print, and the Glosses → Print transition it owns.
  *
  * This act does not begin with print. It begins by *regularizing Act 2*, because
  * that regularization is the argument: what one reader improvised, the press

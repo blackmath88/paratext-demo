@@ -1,4 +1,4 @@
-/** Act 06 — Fragmented frames. Each tool is coherent; their relationships are not. */
+/** Fragmented frames. Each tool is coherent; their relationships are not. */
 
 import gsap from 'gsap';
 import { FRAGMENT_WINDOWS, fragmentPlacement } from '../scene/markup';

@@ -1,4 +1,4 @@
-/** Act 01 — Page. The presentation discloses the material boundary latent in it. */
+/** Page. The presentation discloses the material boundary latent in it. */
 
 import gsap from 'gsap';
 import type { SceneRefs } from '../scene/scene';

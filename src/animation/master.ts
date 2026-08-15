@@ -15,15 +15,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { acts, settlePoints } from '../data/acts';
 import { resetScene, type SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
-import { actBare } from './act01Bare';
-import { actPage } from './act01Page';
-import { actGlosses } from './act02Glosses';
-import { actPrint } from './act03Print';
-import { actEditorial } from './act04Editorial';
-import { actApplication } from './act05Application';
-import { actFragments } from './act06Fragments';
-import { actConversation } from './act07Conversation';
-import { actReframe } from './act08Reframe';
+import { actBare } from './actBare';
+import { actPage } from './actPage';
+import { actGlosses } from './actGlosses';
+import { actPrint } from './actPrint';
+import { actEditorial } from './actEditorial';
+import { actApplication } from './actApplication';
+import { actFragments } from './actFragments';
+import { actConversation } from './actConversation';
+import { actTube } from './actTube';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -54,7 +54,7 @@ const BUILDERS = {
   application: actApplication,
   fragments: actFragments,
   conversation: actConversation,
-  reframe: actReframe,
+  tube: actTube,
 } as const;
 
 export type Master = {

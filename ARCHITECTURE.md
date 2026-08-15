@@ -106,7 +106,7 @@ Rules that keep this honest:
   independently testable and re-orderable, and it is what lets reduced-motion
   mode reuse them by seeking instead of scrubbing.
 - **Transitions belong to the act that is arriving**, not to a separate
-  "transition" module. `act03Print` opens by regularizing Act 2's marginalia —
+  "transition" module. `actPrint` opens by regularizing Act 2's marginalia —
   it owns the 2→3 move, because that move *is* the argument of Act 3.
 - Each authored act occupies 70% of its declared range. The remaining 30% is a
   real hold tail, giving scroll snapping, review links and reduced-motion seeks
@@ -214,9 +214,9 @@ src/
     scene.ts              builds the scene once, returns typed SceneRefs
   animation/
     master.ts             ScrollTrigger + master assembly per mode
-    act01Bare.ts
-    act02Glosses.ts
-    act03Print.ts
+    actBare.ts
+    actGlosses.ts
+    actPrint.ts
   navigation/
     actNavigation.ts      margin navigator, hash sync, click-to-seek
   utils/

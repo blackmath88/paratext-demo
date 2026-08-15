@@ -1,4 +1,4 @@
-/** Act 00 — Presentation. The text is already present; apparent neutrality is the state. */
+/** Presentation. The text is already present; apparent neutrality is the state. */
 
 import gsap from 'gsap';
 import type { SceneRefs } from '../scene/scene';

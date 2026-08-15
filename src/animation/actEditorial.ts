@@ -1,4 +1,4 @@
-/** Act 04 — Editorial composition. Apparatus becomes an engineered reading environment. */
+/** Editorial composition. Apparatus becomes an engineered reading environment. */
 
 import gsap from 'gsap';
 import { COMPOSED_LEAF, SEED } from '../scene/markup';

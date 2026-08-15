@@ -1,5 +1,5 @@
 /**
- * Act 2 — Glosses.
+ * Glosses.
  *
  * Readers speak back. The rule for this act: nothing that a hand would have
  * written is allowed to simply fade in.

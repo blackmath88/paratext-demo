@@ -19,7 +19,7 @@ export type ActId =
   | 'application'
   | 'fragments'
   | 'conversation'
-  | 'reframe'
+  | 'tube'
   | 'recovery'
   | 'projections'
   | 'cost'
@@ -144,7 +144,7 @@ export const acts: Act[] = [
     implemented: true,
   },
   {
-    id: 'reframe',
+    id: 'tube',
     number: 'II·02',
     title: 'The tube',
     shortTitle: 'The tube',

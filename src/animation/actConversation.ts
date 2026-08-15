@@ -1,4 +1,4 @@
-/** Part II / Act 07 — AI conversation. Specialized frames collapse into language. */
+/** AI conversation. Specialized frames collapse into language. */
 
 import gsap from 'gsap';
 import type { SceneRefs } from '../scene/scene';

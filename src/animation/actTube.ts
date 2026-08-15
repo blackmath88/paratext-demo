@@ -1,11 +1,11 @@
-/** Part II / Act 08 — The tube. Conversation grows until chronology becomes a scroll. */
+/** The tube. Conversation grows until chronology becomes a scroll. */
 
 import gsap from 'gsap';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { tweenOperation } from './operations';
 
-export function actReframe(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
+export function actTube(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
 
   tl.to(refs.aiInput, { opacity: 0.34, duration: 0.55 }, 0);

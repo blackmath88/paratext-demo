@@ -4,8 +4,8 @@
 
 - Scene and styling: `src/scene/markup.ts`, `src/scene/scene.ts`,
   `src/styles/scene.css`
-- Animation: `src/animation/act06Fragments.ts`,
-  `src/animation/act07Conversation.ts`, `src/animation/act08Reframe.ts`, plus
+- Animation: `src/animation/actFragments.ts`,
+  `src/animation/actConversation.ts`, `src/animation/actTube.ts`, plus
   new shared writers in `material.ts` and `operations.ts`
 - Content and boot: `src/data/acts.ts`, `src/data/operations.ts`, `src/main.ts`,
   `index.html`

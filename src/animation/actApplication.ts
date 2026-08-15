@@ -1,4 +1,4 @@
-/** Act 05 — Application. Explicit, competent structure with one consequential absence. */
+/** Application. Explicit, competent structure with one consequential absence. */
 
 import gsap from 'gsap';
 import { APP_FRAME, SEED } from '../scene/markup';
