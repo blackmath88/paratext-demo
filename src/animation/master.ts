@@ -33,7 +33,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 /** Arbitrary internal time units; act spans are scaled into this. */
 const TOTAL = 14;
-const CHOREOGRAPHY_RATIO = 0.7;
 
 function nearest(points: number[], value: number): number {
   // Preserve the true ends of the pinned range so snap can never pull a user
@@ -44,9 +43,30 @@ function nearest(points: number[], value: number): number {
   );
 }
 
-function fitWithPlateau(child: gsap.core.Timeline, duration: number): void {
-  child.duration(duration * CHOREOGRAPHY_RATIO);
-  child.to({ held: 0 }, { held: 1, duration: duration * (1 - CHOREOGRAPHY_RATIO), ease: 'none' });
+function fitWithPlateau(
+  child: gsap.core.Timeline,
+  duration: number,
+  settle: number,
+): gsap.core.Timeline {
+  const fitted = gsap.timeline();
+  const choreographyDuration = duration * settle;
+  const naturalDuration = child.duration();
+  if (naturalDuration > 0 && choreographyDuration > 0) {
+    child.timeScale(naturalDuration / choreographyDuration);
+  }
+  fitted.add(child, 0);
+  fitted.to(
+    { held: 0 },
+    { held: 1, duration: duration - choreographyDuration, ease: 'none' },
+    '>',
+  );
+  if (
+    Math.abs(child.endTime() - choreographyDuration) > 0.001
+    || Math.abs(fitted.duration() - duration) > 0.001
+  ) {
+    throw new Error('Act timing invariant failed: choreography and plateau do not fit the declared span.');
+  }
+  return fitted;
 }
 
 const BUILDERS = {
@@ -94,8 +114,8 @@ export function buildMaster(
     if (!build) continue;
     const child = build(refs, mode);
     // Conform the act to its declared span; acts.ts owns all pacing.
-    fitWithPlateau(child, (act.end - act.start) * TOTAL);
-    timeline.add(child, act.start * TOTAL);
+    const fitted = fitWithPlateau(child, (act.end - act.start) * TOTAL, act.settle);
+    timeline.add(fitted, act.start * TOTAL);
   }
 
   // Guarantee the master spans the full declared range even if the last act's
@@ -133,9 +153,9 @@ export function buildMaster(
     scrub: mode === 'cinematic' ? 1 : 0.6,
     snap: {
       snapTo: (value) => nearest(settlePoints, value),
-      duration: { min: 0.15, max: 0.5 },
-      delay: 0.06,
-      ease: 'power2.inOut',
+      duration: { min: 0.2, max: 0.6 },
+      delay: 0.1,
+      ease: 'power1.inOut',
       inertia: false,
     },
     invalidateOnRefresh: true,

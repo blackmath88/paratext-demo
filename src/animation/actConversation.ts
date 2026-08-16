@@ -34,13 +34,15 @@ export function actConversation(refs: SceneRefs, mode: Mode): gsap.core.Timeline
   }, 0.18);
   tl.to([refs.leaf, refs.leafEdge], { opacity: 0, duration: 0.7 }, 0.55);
 
-  tl.set(refs.aiConversation, { opacity: 1 }, 0.88);
+  // Let the specialized frames finish converging before the calm language UI
+  // becomes the new focus. The relief depends on reading these as two beats.
+  tl.set(refs.aiConversation, { opacity: 1 }, 1.5);
   tl.from(refs.aiConversation.querySelectorAll('.ai-screen-rule, .ai-screen-title, .ai-screen-status'), {
     opacity: 0, duration: 0.45, stagger: 0.06,
-  }, 0.92);
+  }, 1.52);
   tl.to(refs.fragmentWindows[0] ?? {}, { opacity: 0, duration: 0.35 }, 1.02);
-  tl.from(refs.aiInput, { opacity: 0, y: 8, duration: 0.55, ease: 'power2.out' }, 1.05);
-  tl.from(refs.aiScrollbar, { opacity: 0, duration: 0.4 }, 1.08);
+  tl.from(refs.aiInput, { opacity: 0, y: 8, duration: 0.55, ease: 'power2.out' }, 1.62);
+  tl.from(refs.aiScrollbar, { opacity: 0, duration: 0.4 }, 1.66);
 
   tl.set(refs.operations, { attr: { 'clip-path': 'url(#clip-chat)' } }, 0.82);
   refs.operationNodes.forEach((node, i) => {

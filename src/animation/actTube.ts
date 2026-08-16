@@ -28,12 +28,12 @@ export function actTube(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
     }, 0.08 + i * 0.055);
   });
 
-  // Pull back: the screen remains a viewport, while the chronological surface
-  // is revealed to extend far beyond it in both directions.
-  tl.set(refs.operations, { attr: { 'clip-path': '' } }, 1.55);
-  tl.set(refs.aiTube, { opacity: 1 }, 1.5);
-  tl.from(refs.aiTube.querySelector('.ai-tube-surface'), { opacity: 0, duration: 0.65 }, 1.5);
-  tl.from(refs.aiTube.querySelectorAll('.ai-continuation'), { opacity: 0, duration: 0.55, stagger: 0.12 }, 1.72);
+  // Only after accumulation has made the viewport inadequate do we pull back:
+  // the screen stays visible while the chronological surface exceeds it.
+  tl.set(refs.operations, { attr: { 'clip-path': '' } }, 2.05);
+  tl.set(refs.aiTube, { opacity: 1 }, 2.0);
+  tl.from(refs.aiTube.querySelector('.ai-tube-surface'), { opacity: 0, duration: 0.65 }, 2.0);
+  tl.from(refs.aiTube.querySelectorAll('.ai-continuation'), { opacity: 0, duration: 0.55, stagger: 0.12 }, 2.22);
   refs.operationNodes.forEach((node, i) => {
     const streamX = node.dataset.role === 'user' ? 470 : 410;
     const streamY = -260 + i * 100;
@@ -45,15 +45,15 @@ export function actTube(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
     }, {
       duration: 1.2,
       ease: 'power3.inOut',
-    }, 1.55);
+    }, 2.05);
   });
-  tl.to(refs.aiScreenFrame, { opacity: 0.42, duration: 0.8 }, 1.62);
+  tl.to(refs.aiScreenFrame, { opacity: 0.42, duration: 0.8 }, 2.12);
   tl.to(refs.aiConversation.querySelectorAll('.ai-screen-rule, .ai-screen-title, .ai-screen-status, #ai-input'), {
     opacity: 0.28, duration: 0.7,
-  }, 1.62);
-  tl.to(refs.aiScrollbar, { opacity: 0.7, duration: 0.65 }, 1.7);
+  }, 2.12);
+  tl.to(refs.aiScrollbar, { opacity: 0.7, duration: 0.65 }, 2.2);
 
   // Stable endpoint before the master timeline's own plateau is applied.
-  tl.to({ held: 0 }, { held: 1, duration: 0.25, ease: 'none' }, 2.8);
+  tl.to({ held: 0 }, { held: 1, duration: 0.25, ease: 'none' }, 3.3);
   return tl;
 }
