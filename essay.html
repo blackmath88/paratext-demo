@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The frame problem in agent threads — bridge·work</title>
+<link rel="stylesheet" href="/src/essay/essay.css">
+</head>
+<body class="ge0" data-level="0" data-frame="essay">
+
+<div class="dial">
+  <div class="dial-top">
+    <span class="lab">Apparatus</span>
+    <span class="cur" id="dialCur">Bare text</span>
+    <span class="desc" id="dialDesc"></span>
+  </div>
+  <div class="track" id="track"><span class="fill" id="fill"></span></div>
+  <div class="dial-hint">The animation’s first six acts, on this text, under your hand — only the framing is added · <kbd>&larr;</kbd> <kbd>&rarr;</kbd></div>
+</div>
+
+<nav class="spine" id="spine" aria-label="Sections">
+  <a class="mark" href="#top" aria-label="bridge·work">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="5" y="5" width="43.5" height="43.5" rx="1.5" fill="#1a7a6d"/>
+      <rect x="51.5" y="5" width="43.5" height="43.5" rx="1.5" fill="#3d1f47"/>
+      <rect x="5" y="51.5" width="43.5" height="43.5" rx="1.5" fill="#3d1f47"/>
+      <path d="M51.5 95 Q51.5 51.5 95 51.5 L95 95 Z" fill="#d4416b"/>
+    </svg>
+  </a>
+</nav>
+
+<header class="nav" id="top">
+  <a class="brand" href="#top"><span class="word">bridge<span>·</span>work</span></a>
+  <div class="nav-right">
+    <button class="kbtn" id="palBtn">Jump <kbd>&#8984;K</kbd></button>
+    <div class="seg" id="themeSeg">
+      <button data-theme="dark" class="active">&#9679;</button>
+      <button data-theme="light">&#9675;</button>
+    </div>
+  </div>
+</header>
+
+<div class="mast">
+  <div class="mast-meta u">
+    <span class="cat">AI · Interface</span><span>Text theory, applied</span><span>14 August 2026</span>
+  </div>
+  <h1>The frame problem in agent threads.</h1>
+  <p class="subtitle">Language may become the universal input. It does not have to become the universal interface.</p>
+  <div class="strip" id="strip"></div>
+</div>
+
+<div class="shell">
+  <div class="framebar">
+    <div class="fb-lead">
+      <span class="lbl">Frame</span>
+      <span class="say" id="frameSay">the same nodes, bound four ways</span>
+    </div>
+    <div class="frames" id="frames">
+      <button data-frame="essay" class="active"><span class="fn">Essay</span>
+        <span class="fd">the argument in intended order</span><span class="n"></span></button>
+      <button data-frame="thread"><span class="fn">Thread</span>
+        <span class="fd">where it came from · voice memos, unedited</span><span class="n"></span></button>
+      <button data-frame="structure"><span class="fn">Structure</span>
+        <span class="fd">claims, concessions, one superseded</span><span class="n"></span></button>
+      <button data-frame="spec"><span class="fn">Spec</span>
+        <span class="fd">five failures, five devices</span><span class="n"></span></button>
+    </div>
+    <p class="framenote" id="frameNote"></p>
+  </div>
+
+  <div class="doc">
+  <main id="stream">
+
+    <div class="spread" id="spread">
+      <span class="gutter"></span>
+      <section class="leaf recto">
+        <div class="runhead"><span>The frame problem in agent threads</span><span>Argument</span></div>
+        <p class="spread-thesis">Language may become the universal input. It does not have to become the universal interface.</p>
+        <div class="block" id="spreadBlock"></div>
+        <span class="folio">recto</span>
+      </section>
+      <section class="leaf verso">
+        <div class="runhead"><span>Apparatus</span><span>Sources &middot; evidence &middot; open</span></div>
+        <div class="apparat" id="spreadApparat"></div>
+        <span class="folio">verso</span>
+      </section>
+      <div class="gloss" id="gloss">
+        <div class="gk"><span id="glossKind"></span><span id="glossSec"></span>
+          <span class="x" id="glossX">&#10005;</span></div>
+        <div class="gb" id="glossBody"></div>
+      </div>
+    </div>
+    <p class="spread-foot">
+      <span>One opening &middot; the whole essay</span>
+      <span>Recto: the argument in order</span>
+      <span>Verso: what grounds it</span>
+      <span>Any line opens its gloss</span>
+    </p>
+
+
+    <div class="sechead node" data-frames="essay" data-sec="1" id="sec-1">
+      <span class="badge" data-glyph="1"></span>
+      <div class="txt"><span class="no">01 — Position</span>
+        <h2>The claim, and the concession</h2>
+        <p class="thesis">Most interface really is dissolving. The disagreement is about what's left.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      Let me start with where this came from and what I actually want to argue. I listened to Syntax
+      #1029 with Nathan Sobo of Zed, about Delta, and one part of it sat down uncomfortably close to
+      something I have been circling for months. The interesting move is not that a model writes files
+      for you. It is that the conversation, the fine-grained evolution of the code, the decisions and
+      the collaboration are treated as part of the actual development
+      history<button class="anchor" data-note="n1">1</button> — rather than being flattened into Git
+      snapshots and pull requests after the fact. As Sobo puts it, conversations are becoming, in
+      effect, the source our code comes out of; the code is the downstream artefact.
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="concession" data-in-sec="1" data-id="cs1" data-label="Most UI really is dissolving">
+      Before disagreeing with anything, I want to concede more than is comfortable. Sobo also argues
+      that as language gets better we will need much less user interface, and he is largely right. Most
+      of the chrome built over the last fifteen years exists because software could not understand a
+      sentence. Configuration panels, wizards, advanced-search forms, the seventeen-field ticket dialog
+      — these are not interfaces, they are parsers made of widgets. Language eats all of them, and good
+      riddance. My objection is only about the remainder, the part that does not dissolve, which I think
+      has been mischaracterised.
+    </p>
+
+    <div class="sechead node" data-frames="essay" data-sec="2" id="sec-2">
+      <span class="badge" data-glyph="2"></span>
+      <div class="txt"><span class="no">02 — Distinction</span>
+        <h2>Intent and state are different jobs</h2>
+        <p class="thesis">Language is superb at one and weak at the other, in both directions.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="2" data-id="c1" data-label="Intent vs state">
+      That remainder rests on a distinction worth making carefully. An interface does at least two
+      things: it lets you <em>express intent</em>, and it makes system <em>state perceptible</em>.
+      Language is extraordinary at the first. It is not automatically superior at the second, and it is
+      frequently terrible at it.
+    </p>
+
+    <p class="plain">
+      Put the three channels on those two axes and none of them reaches the top right. Language scores
+      high on intent and low on perception; direct manipulation is the mirror image; visual structure
+      carries state well but cannot receive a novel instruction. The answer is a composition, not a
+      winner.
+    </p>
+
+    <div class="piece" data-frames="essay" data-type="figure">
+      <div class="piece-head"><span class="u">Figure 01 · what each channel is good at</span></div>
+      <div class="piece-body">
+        <div class="quad" id="quad">
+          <span class="ax axv"></span><span class="ax axh"></span>
+          <span class="axlbl y">Makes state perceptible &rarr;</span>
+          <span class="axlbl x">Expresses intent &rarr;</span>
+        </div>
+        <p class="cap"><b>Read the corners.</b> No channel occupies the top right — which is why the
+        answer is a composition, not a winner.</p>
+      </div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      The reason is not taste but the difference between a serial process and a parallel one. Certain
+      visual features — colour, orientation, size, motion — are registered <em>preattentively</em>,
+      across the whole field at once, without search
+      (<button class="chip" data-src="treisman">Treisman &amp; Gelade 1980</button>). Read a list to
+      find the odd item and you are running a serial scan whose cost grows with list length. Code the
+      same item by colour and the cost is close to flat.<button class="anchor" data-note="n2">2</button>
+      You can test this on yourself: find one marked token among forty-eight, once uncoded and once
+      coloured, and the second search is typically several times faster although nothing about the
+      content changed.
+    </p>
+
+    <div class="piece" data-frames="essay" data-type="instrument">
+      <div class="piece-head"><span class="u">Instrument 01 · serial vs parallel search</span>
+        <span style="display:flex;gap:7px">
+          <button class="btn" id="shuffleBtn">Shuffle</button>
+          <button class="btn pri" id="startBtn">Start</button></span>
+      </div>
+      <div class="piece-body">
+        <div class="searchpair">
+          <div class="field" id="fieldPlain">
+            <div class="lab"><span>Uncoded · find ERR</span><span id="tPlain">—</span></div>
+            <div class="grid-tok" id="gridPlain"></div>
+          </div>
+          <div class="field coded" id="fieldCoded">
+            <div class="lab"><span>Coded · find ERR</span><span id="tCoded">—</span></div>
+            <div class="grid-tok" id="gridCoded"></div>
+          </div>
+        </div>
+        <p class="cap" id="searchResult">Press <b>Start</b>, then click ERR on the left, then on the right.</p>
+      </div>
+    </div>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="2" data-id="c2" data-label="Language encodes space badly">
+      The same asymmetry runs in the input direction. Language is a poor channel for spatial and
+      continuous adjustment. "Move that block up two, no, one" is not a superior interface to dragging
+      it — pointing has a known, modellable cost that describing does not
+      (<button class="chip" data-src="fitts">Fitts 1954</button>). Direct manipulation is not a legacy
+      affordance we tolerate until models improve. It is a faster channel for a class of instruction
+      that language encodes badly.
+    </p>
+
+    <p class="pull node" data-frames="essay structure" data-type="claim" data-in-sec="2" data-id="c3" data-label="Less fixed UI, not less UI">
+      The future may not be less UI.<br>It may be less <em>fixed</em> UI.
+    </p>
+
+    <p class="node" data-frames="essay">
+      Which might not be a disagreement at all. If you already think interfaces get generated on demand,
+      then less fixed UI is your position too, and I have written several hundred words to arrive where
+      you started. The narrower claim I want to defend is that whatever gets generated has to be
+      <em>a frame</em>, and framing is an old, well-studied and largely unsolved problem.
+    </p>
+
+    <div class="xrow" data-frames="essay">
+      <button class="xlink" data-goto="sec-6">Picked up in 06 — Textrahmen</button>
+      <button class="xlink" data-goto="sec-8">Cashed out in 08 — Devices</button>
+    </div>
+
+    <div class="sechead node" data-frames="essay" data-sec="3" id="sec-3">
+      <span class="badge" data-glyph="3"></span>
+      <div class="txt"><span class="no">03 — Mechanism</span>
+        <h2>Why the top-ten list beats the paragraph</h2>
+        <p class="thesis">Not stupidity. Chunking, and who is made to do it.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      Before going near literary theory, it is worth admitting something about format. Nobody defends the
+      listicle and everybody reads it faster, and the reason is not stupidity. Working memory holds
+      something like four chunks, not seven
+      (<button class="chip" data-src="cowan">Cowan 2001</button>), and prose makes the reader do the
+      chunking; a list has done it for them. Signalling — headings, numbering, emphasis — reliably
+      improves comprehension of the same underlying content
+      (<button class="chip" data-src="mayer">Mayer's signalling principle</button>), and eye-tracking
+      shows people do not read pages so much as sweep them
+      (<button class="chip" data-src="nielsen">Nielsen Norman</button>).<button class="anchor" data-note="n3">3</button>
+    </p>
+
+    <p class="plain">
+      Take the five failures listed later in this piece and write them twice at the same length: once as
+      a flowing sentence, once as a numbered list. The list is not better writing. It is pre-chunked, so
+      the reader spends their four slots on the argument instead of on parsing it.
+    </p>
+
+    <div class="piece" data-frames="essay" data-type="instrument">
+      <div class="piece-head"><span class="u">Instrument 02 · same claims, two formats</span>
+        <span class="u" style="color:var(--teal-txt)">matched length</span></div>
+      <div class="piece-body"><div class="fmt">
+        <div class="fpane">A long agent thread fails in several related ways: you cannot cite turn forty
+          because nothing is addressable; a decision revised late looks identical to the stale one it
+          replaced; tool calls are rendered at the same weight as reasoning; resolved stretches never
+          close; and the diff, once produced, no longer carries the reasons that produced it.</div>
+        <div class="fpane"><ol>
+          <li><b>No addressability</b> — you cannot cite turn 40.</li>
+          <li><b>No supersession</b> — revised looks like stale.</li>
+          <li><b>Apparatus noise</b> — tool calls outweigh reasoning.</li>
+          <li><b>Nothing closes</b> — resolved stretches stay open.</li>
+          <li><b>Orphan diffs</b> — the artefact loses its reasons.</li>
+        </ol></div>
+      </div>
+      <p class="cap">Identical claims, matched length. The right pane is pre-chunked, so the reader spends
+      their four slots on the argument rather than on parsing it.</p>
+      </div>
+    </div>
+
+    <div class="sechead node" data-frames="essay" data-sec="4" id="sec-4">
+      <span class="badge" data-glyph="4"></span>
+      <div class="txt"><span class="no">04 — Evidence</span>
+        <h2>Colour is a convention we acquired</h2>
+        <p class="thesis">The preference outruns the effect size. That gap is the finding.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="4" data-id="c4" data-label="The terminal-colour fetish">
+      There is a case close to home that shows how these devices actually get established. Developers
+      have a documented fetish for colouring the terminal, and it is worth asking how much of that is
+      measured benefit and how much is acquired convention, because the answer is more interesting than
+      the fetish.
+    </p>
+
+    <p class="node" data-frames="essay">
+      The evidence is real but modest. An eye-tracking study found syntax highlighting significantly
+      reduced comprehension time — around eight seconds on average — with the effect shrinking as
+      programming experience grew (<button class="chip" data-src="sarkar">Sarkar 2015</button>). An
+      earlier experiment found no significant benefit for visual search at all, and its participants
+      preferred the coloured code anyway
+      (<button class="chip" data-src="hakala">Hakala et al. 2006</button>).
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="4" data-id="c5" data-label="Colour is acquired convention">
+      That gap is the point. The preference outruns the effect size, which means this is not a raw
+      perceptual win. It is a <em>convention</em> — a way of reading that a professional culture
+      acquired, trained on, and now cannot comfortably work
+      without.<button class="anchor" data-note="n4">4</button> Media do not merely carry text; they teach
+      a way of perceiving it, and that training is historical, not natural. Which is why the reading
+      habits of someone raised on books are genuinely not those of someone raised on feeds, and why
+      "just put it in prose" is not a neutral default. It is one convention among several, and currently
+      the least equipped one.
+    </p>
+
+    <div class="sechead node" data-frames="essay" data-sec="5" id="sec-5">
+      <span class="badge" data-glyph="5"></span>
+      <div class="txt"><span class="no">05 — History</span>
+        <h2>We read with borrowed apparatus</h2>
+        <p class="thesis">Eight centuries of accumulation, and then a cliff.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      If conventions are acquired, they have a history, and that history is not flattering to us. Every
+      framing device we use was invented at a particular moment, for a particular medium, and then
+      inherited. None is obvious. All had to be built.
+    </p>
+
+    <p class="plain">
+      Count the framing devices available in each medium and the shape is unmistakable. A glossed
+      manuscript page around 1200 has roughly six: marginalia, interlinear gloss, rubrication, running
+      head, decorated initials, quire marks. Print adds pagination, the index, the footnote, the colophon
+      — about nine. The nineteenth-century newspaper reaches eleven, the terminal drops back to seven,
+      the graphical web climbs to thirteen. The feed falls to five. The agent thread has two: speaker
+      label and timestamp.
+    </p>
+
+    <div class="piece" data-frames="essay" data-type="figure">
+      <div class="piece-head"><span class="u">Figure 02 · framing devices available in the medium</span>
+        <span class="u" id="eraCount"></span></div>
+      <div class="piece-body" style="padding:16px 16px 0"><div class="chart" id="chart"></div></div>
+      <div class="band" id="band"></div>
+      <div class="eradet" id="eraDetail"></div>
+    </div>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="5" data-id="c6" data-label="Apparatus collapsed">
+      Read that sequence backwards and something uncomfortable shows up. Apparatus accumulated steadily
+      for eight centuries — gloss, rubrication, the paragraph, the title page, the footnote, the column,
+      the headline, the link, the syntax colour, the panel — and then, in the medium where we now do our
+      most complex thinking, it collapsed. A five-hundred-message agent thread has fewer framing devices
+      than a thirteenth-century glossed page.
+    </p>
+
+    <div class="sechead node" data-frames="essay" data-sec="6" id="sec-6">
+      <span class="badge" data-glyph="6"></span>
+      <div class="txt"><span class="no">06 — Theory</span>
+        <h2>Textrahmen</h2>
+        <p class="thesis">Frames stopped leaning on an inherited order and started constituting one.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      There is a literature on exactly this, and it is older than the problem. A book by Till Dembeck
+      called <em>Texte rahmen</em> — roughly, framing texts — studies the paratextual frames around
+      literary works in the second half of the eighteenth century
+      (<button class="chip" data-src="dembeck">Dembeck</button>). Title pages, prefaces, dedications,
+      footnotes, editorial apologies. His argument is that these edges are not decoration: they are where
+      a text is bound into a cultural and communicative context. The frame is what makes a text
+      receivable at all.
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="6" data-id="c7" data-label="Frames constitute a world">
+      His historical finding is the part that should interest anyone building agent threads. Framing
+      shifts. In the older model, the frame's job is to attach the text to a pre-existing order the
+      reader already inhabits — a metaphysics, a genre, a moral world. In the newer model, the frame
+      stops leaning on that order and starts constituting one: it embeds the text in <em>a world of its
+      own</em>.
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="6" data-id="c8" data-label="Delta makes that shift">
+      That is precisely the shift Delta is making, in a different medium. Today an AI thread is framed by
+      a pre-existing order it did not create: the repository, the branch, the commit, the issue tracker.
+      The conversation is an accessory to those and inherits its meaning from them. Saying conversation
+      is the source removes that scaffolding. The thread now has to constitute its own world — and it
+      needs its own frames to do it.
+    </p>
+
+    <p class="node" data-frames="essay">
+      Dembeck's cases are the ones that manage the transition without a clean break: Wieland's
+      <i>Agathon</i>, Sterne's <i>Tristram Shandy</i>, Jean Paul. Sterne in particular is a book composed
+      almost entirely of its own framing devices, digressions and apparatus, published in instalments — a
+      long thread with terrible navigation and a strong authorial
+      voice.<button class="anchor" data-note="n5">5</button> I feel we have all read this thread.
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="6" data-id="c9" data-label="Unity depends on reception">
+      The third point in Dembeck has the sharpest engineering consequence. The frame asserts the unity of
+      the text while making that unity visibly dependent on reception. Unity is not a property the text
+      has; it is produced by the framing, for a reader. Which means there is no canonical structure of a
+      thread. There are frames, and each constitutes a different unity for a different reader — which is
+      why multiple live views over one context stops being a nice-to-have and becomes the only position
+      consistent with how framing works.
+    </p>
+
+    <div class="xrow" data-frames="essay">
+      <button class="xlink" data-goto="sec-9">This page runs on that claim — 09</button>
+    </div>
+
+    <div class="sechead node" data-frames="essay" data-sec="7" id="sec-7">
+      <span class="badge" data-glyph="7"></span>
+      <div class="txt"><span class="no">07 — Diagnosis</span>
+        <h2>Where the context currently lives</h2>
+        <p class="thesis">Outside the artefact. The design job is moving it in.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      Genette gives us the vocabulary for saying where the problem sits
+      (<button class="chip" data-src="genette">Genette 1987</button>). He splits paratext in two.
+      <em>Peritext</em> is the material inside the object: title, preface, chapter heads, marginalia,
+      notes. <em>Epitext</em> is everything outside it: interviews, letters, reviews, the author
+      explaining himself afterwards.
+    </p>
+
+    <p class="plain">
+      Picture the artefact — a diff, a document, a decision — as a box. Today the reasoning that produced
+      it sits outside that box, scattered across a chat window, a Slack thread, a closed tab and
+      somebody's memory. The conversion Delta proposes is positional: bring that apparatus inside the
+      box, as a thread head above the artefact, a decision log beside it and a colophon beneath it, so it
+      travels with the work.
+    </p>
+
+    <div class="piece" data-frames="essay" data-type="figure">
+      <div class="piece-head"><span class="u">Figure 03 · the conversion Delta proposes</span></div>
+      <div class="piece-body">
+        <div class="nest">
+          <svg viewBox="0 0 430 190" aria-hidden="true">
+            <text x="8" y="16" font-family="monospace" font-size="8.5" letter-spacing="1.4" fill="currentColor" opacity=".38">EPITEXT — OUTSIDE THE ARTEFACT</text>
+            <g opacity=".55">
+              <rect x="10" y="30" width="52" height="15" rx="3" fill="#5a3068" opacity=".55"/>
+              <text x="16" y="41" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".85">chat</text>
+              <rect x="10" y="54" width="52" height="15" rx="3" fill="#5a3068" opacity=".45"/>
+              <text x="16" y="65" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".85">slack</text>
+              <rect x="10" y="78" width="52" height="15" rx="3" fill="#5a3068" opacity=".35"/>
+              <text x="16" y="89" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".85">a tab</text>
+              <rect x="10" y="102" width="52" height="15" rx="3" fill="#5a3068" opacity=".25"/>
+              <text x="16" y="113" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".85">a head</text>
+            </g>
+            <path d="M74 74 Q104 74 104 100" stroke="#d4416b" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            <path d="M100 93 l4 8 4 -8" stroke="#d4416b" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="78" y="66" font-family="monospace" font-size="7.5" letter-spacing="1" fill="#d4416b">pull in</text>
+            <rect x="150" y="24" width="268" height="150" rx="8" fill="none" stroke="#1a7a6d" stroke-width="1.4"/>
+            <text x="160" y="42" font-family="monospace" font-size="8.5" letter-spacing="1.4" fill="#23A595">PERITEXT — TRAVELS WITH THE WORK</text>
+            <rect x="160" y="52" width="248" height="13" rx="3" fill="#1a7a6d" opacity=".32"/>
+            <text x="166" y="62" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".9">thread head · goal, constraints</text>
+            <rect x="160" y="70" width="248" height="13" rx="3" fill="#1a7a6d" opacity=".26"/>
+            <text x="166" y="80" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".9">decision log · with supersessions</text>
+            <rect x="176" y="94" width="216" height="42" rx="5" fill="#3d1f47" opacity=".6"/>
+            <text x="188" y="112" font-family="monospace" font-size="9" letter-spacing="1.2" fill="currentColor">THE ARTEFACT</text>
+            <text x="188" y="125" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".65">code · document · decision</text>
+            <rect x="160" y="144" width="248" height="13" rx="3" fill="#d4416b" opacity=".32"/>
+            <text x="166" y="154" font-family="monospace" font-size="7.5" fill="currentColor" opacity=".9">colophon · what this was made from</text>
+          </svg>
+        </div>
+        <p class="cap"><b>The design job in one move.</b> Not storage — we already store the thread. The
+        conversion is positional.</p>
+      </div>
+    </div>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="7" data-id="c10" data-label="Reasoning is epitext">
+      Right now, the reasoning around your code is epitext. It sits in a chat window, a Slack thread,
+      someone's head, a closed tab, and the commit message is a two-line gesture at it. What Delta
+      proposes is a conversion: make the epitext peritext. That conversion is the whole design job, and
+      it is not a storage problem — storing the thread is easy, we already do. The problem is that five
+      hundred messages with no framing apparatus is not memory. It is sediment.
+    </p>
+
+    <p class="pull node" data-frames="essay structure" data-type="claim" data-in-sec="7" data-id="c11" data-label="Five hundred messages">
+      At five messages, chronology is enough. At fifty, topics emerge.
+      At five hundred, you are not looking at a chat. You are looking at a project.
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="superseded" data-in-sec="7" data-id="c12" data-label="Grow a tracker from chat" data-superseded="c13">
+      So the answer is to grow a project-management structure out of the chat: tasks, boards, owners,
+      status — the conversation maturing into a tracker.
+    </p>
+
+    <p class="node" data-frames="essay structure" data-type="claim" data-in-sec="7" data-id="c13" data-label="Framing, not a board">
+      I thought that for a while, and it was the small version. A board is one frame, and not a very
+      interesting one. The general move is framing itself: the same material bound into different
+      unities, for different readers, at different moments — without a copy, an export, or a second tool
+      that immediately starts drifting from the first.
+    </p>
+
+    <div class="sechead node" data-frames="essay" data-sec="8" id="sec-8">
+      <span class="badge" data-glyph="8"></span>
+      <div class="txt"><span class="no">08 — Specification</span>
+        <h2>Five failures, five devices</h2>
+        <p class="thesis">Theory pays rent. None of these needs a model.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      Theory earns its place by paying rent, so here is the rent: five failures I hit in practice in long
+      agent threads, each with the paratextual device that answers it. What they need is a document model
+      in which a message is not the only first-class object.
+    </p>
+
+    <div class="spec node" data-frames="essay spec" data-type="spec" data-id="sp1">
+      <span class="idx">01</span>
+      <div><span class="fail">No addressability.</span> <h4>The device is a thread head.</h4></div>
+      <p>You cannot cite turn 40. There is no stable handle for any span, so you re-paste instead of
+      referring. A thread needs a preface: goal, constraints, and named linkable regions — the way a book
+      has a title page and numbered chapters.</p>
+    </div>
+    <div class="spec node" data-frames="essay spec" data-type="spec" data-id="sp2">
+      <span class="idx">02</span>
+      <div><span class="fail">No supersession.</span> <h4>The device is a supersession mark.</h4></div>
+      <p>A decision revised at turn 40 renders identically to the stale one at turn 12. Both are just
+      messages, and retrieval and humans are both poisoned by it. Scholarly editions solved this: strike
+      it, keep it visible, point at what replaced it. Delete nothing.</p>
+    </div>
+    <div class="spec node" data-frames="essay spec" data-type="spec" data-id="sp3">
+      <span class="idx">03</span>
+      <div><span class="fail">Apparatus crowds out argument.</span> <h4>The device is register separation.</h4></div>
+      <p>Tool calls, diffs and logs render at the same visual weight as reasoning, so the argument drowns
+      in its own machinery. This is what footnotes are for: keep the apparatus, demote it, expand on
+      demand.</p>
+    </div>
+    <div class="spec node" data-frames="essay spec" data-type="spec" data-id="sp4">
+      <span class="idx">04</span>
+      <div><span class="fail">Nothing ever closes.</span> <h4>The device is a segment frame.</h4></div>
+      <p>Resolved stretches stay open forever at full length. A thread should be able to say: turns 12–31
+      resolved the auth question, here is the result, collapsed. A chapter that has ended should look like
+      it has ended.</p>
+    </div>
+    <div class="spec node" data-frames="essay spec" data-type="spec" data-id="sp5">
+      <span class="idx">05</span>
+      <div><span class="fail">The diff forgets its reasons.</span> <h4>The device is a colophon.</h4></div>
+      <p>Artefact and conversation drift apart the moment they are separated. Every produced thing wants a
+      colophon: what this was made from, by whom, after which decisions, with which questions still open.</p>
+    </div>
+
+
+    <div class="sechead node" data-frames="essay" data-sec="9" id="sec-9">
+      <span class="badge" data-glyph="9"></span>
+      <div class="txt"><span class="no">09 — Demonstration</span>
+        <h2>What this page is doing</h2>
+        <p class="thesis">The argument, executed rather than described.</p></div>
+    </div>
+
+    <p class="node" data-frames="essay">
+      The controls at the top of this page are not settings, and they divide the work between the two halves
+      of this piece deliberately. The animation depicts: it can show ancestry, causality and time, and it is
+      allowed to illustrate because that is what an animation is for. This page demonstrates. Its frames are
+      real, its apparatus is real, and the claim that nothing is duplicated is checkable rather than asserted.
+      Each artefact makes the argument it can actually make.
+    </p>
+
+    <p class="node" data-frames="essay">
+      The apparatus control replays eight centuries in nine steps, on text that never changes: paragraphs,
+      spacing, glosses, headings, editorial hierarchy — and then three steps the page had to earn rather than
+      inherit. Hypertext breaks the scroll, so every claim becomes a place you can name. Layering trades
+      length for depth: each claim carries its thesis and folds its argument away beneath it. And the last
+      step returns the whole essay to a single opening.
+    </p>
+
+    <p class="node" data-frames="essay">
+      The last step is the one I would defend hardest, and it is the oldest idea in the piece. German
+      idealism has a word for understanding that arrives whole rather than in sequence: <em>Anschauung</em> —
+      intuition in the literal sense, grasping something in a single view. It is what a good diagram does and
+      a long document cannot. The mind map you draw the night before an examination works because the whole
+      terrain is available at once; the trouble is that you can only draw it after you have read everything.
+    </p>
+
+    <p class="node" data-frames="essay">
+      So the final station is not a diagram. It is the page from station 01, come back at the end to hold
+      what nine sections held. An opening: the argument on the recto in section order, what grounds it on the
+      verso, and any line opening its own gloss at the foot. Load-bearing claims set larger, concessions in
+      italic beneath them, the superseded claim struck and still carrying a pointer to what replaced it —
+      which is the apparatus of a scholarly edition doing exactly the job it was built for, on an essay about
+      agent threads. Every region is derived from the same attributes the frames use. Nothing was placed by
+      hand. If the codex could not carry this, the argument would be in trouble; it turns out it can.
+    </p>
+
+    <p class="node" data-frames="essay">
+      Thread view is the one I would look at first, if only because it is embarrassing. It is where this
+      came from: a podcast, voice memos full of transcription damage, a wrong turn, and a book from a
+      seminar I took a long time ago. The essay is the polished frame. The thread is what was actually
+      going on. Neither is the real version.
+    </p>
+
+    <p class="pull node" data-frames="essay structure" data-type="claim" data-in-sec="9" data-id="c14" data-label="Code and interface are both downstream">
+      Conversation becomes the source of structured work.<br>
+      Code is one downstream artefact. The interface is another.
+    </p>
+
+    <p class="node" data-frames="essay">
+      If you are building this — and Delta is closer to it than anything else I have seen — the thing I
+      would push on is that the frame is not a view layer you add later. It decides whether five hundred
+      messages are a memory or a landfill. There is a literature on this. It is two hundred and fifty years
+      old, mostly in German, and unexpectedly about you.
+    </p>
+
+    <div class="raw node verbatim" data-frames="thread" data-type="voice memo · raw" data-id="t1">
+      <span class="stamp">12 Aug · listening, first reaction</span>
+      "Ok, this approves alot i think aboutband i work about, its building the project managment to a coding proj."
+    </div>
+    <div class="raw node verbatim" data-frames="thread" data-type="voice memo · raw" data-id="t2">
+      <span class="stamp">12 Aug · the objection, unedited</span>
+      "when he says ui is gonna be less and language is the best form of ui, i would strongly disagree — special
+      user interfaces for specific interactions, so some visual stuff is ways faster then texts. even clicking and mouse.."
+    </div>
+    <div class="raw node verbatim" data-frames="thread" data-type="voice memo · raw" data-id="t3">
+      <span class="stamp">12 Aug · the term arrives, half-formed</span>
+      "and on text, yes text but i have idea of formatting, 'texte Rahmen'"
+    </div>
+    <div class="raw node" data-frames="thread" data-type="note" data-id="t4">
+      <span class="stamp">12 Aug · working out the progression</span>
+      It starts with paragraphs. Conversation structured by paragraphs, but the structural elements change as it
+      grows. First chronological, then topical, then something like project management. And there should be
+      different types of structuralisation you can choose — not one feature you turn on and off.
+    </div>
+    <div class="raw node" data-frames="thread" data-type="wrong turn" data-id="t5">
+      <span class="stamp">13 Aug · the version I abandoned</span>
+      Build the demo as a chat that becomes a Kanban board. Four tabs, same items, watch it mature. — Killed: it
+      demonstrates a tab switcher, not a thesis, and it argues for the thing I don't believe.
+    </div>
+    <div class="raw node" data-frames="thread" data-type="detour" data-id="t6">
+      <span class="stamp">13 Aug · where Textrahmen actually comes from</span>
+      Not a metaphor I invented. Till Dembeck, <i>Texte rahmen</i>, on paratextual frames in late-18th-century
+      literature — how the edges of a text bind it into its context, and how that binding shifted from leaning on
+      an inherited world order to constituting a world of its own.
+    </div>
+    <div class="raw node" data-frames="thread" data-type="reframe" data-id="t7">
+      <span class="stamp">14 Aug · what the piece became</span>
+      Not an essay about better project management. An essay about framing, aimed at the people building the thread
+      I want to use. And the page performs the argument instead of describing it: a dial that adds eight centuries
+      of apparatus to one unchanging text.
+    </div>
+
+    <div class="feedback">
+      <h3>Tell me where this is wrong</h3>
+      <p>Particularly if you build agent threads for a living. The five failures come from my own use, which is a
+      sample size of one — I would like to know which are real and which are me holding it wrong.</p>
+      <div class="fb-actions">
+        <a class="primary" id="fbLinkedIn" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.07 1.4-2.07 2.86V21H9z"/></svg>
+          Reply on LinkedIn</a>
+        <a id="fbMail" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h17A1.5 1.5 0 0 1 22 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 18.5zM4.4 6 12 11.6 19.6 6z"/></svg>
+          Email me</a>
+        <a id="fbCopy" href="#">Copy link</a>
+      </div>
+    </div>
+
+    <div class="colophon">
+      <p><b>Colophon.</b> Written 12–14 August 2026, out of one thread. Trigger: Syntax #1029, "The Workflow of the
+      Future With Zed," with Nathan Sobo, Wes Bos and Scott Tolinski. Delta: delta.dev. Theory: Till Dembeck,
+      <i>Texte rahmen</i>; Gérard Genette, <i>Seuils</i>. One claim superseded, still visible.</p>
+      <p><b>Division of labour.</b> The animation above depicts the history; this page demonstrates the
+      claim. Everything here is real — the structure control adds apparatus to a fixed set of DOM nodes, and
+      the four frames re-sort those same nodes rather than swapping in a second copy. Nothing on this page is
+      a mockup. The software screens that once sat here were moved into the animation, where depiction is
+      the honest register.</p>
+      <p><b>Method.</b> No build step, no framework, no dependencies. The dial adds apparatus to a fixed set of DOM
+      nodes; nothing is added, removed or rewritten between steps. Frames re-sort the same nodes. Figures carry a
+      prose statement of their finding, shown below step 5 and replaced by the graphic above it — so the argument
+      survives at every level of structure. Delta is credited as the trigger for this argument, not as an
+      implementation of it.</p>
+    </div>
+
+  </main>
+  <div class="notecol" id="notecol"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="5" y="5" width="43.5" height="43.5" rx="1.5" fill="#1a7a6d"/>
+      <rect x="51.5" y="5" width="43.5" height="43.5" rx="1.5" fill="#3d1f47"/>
+      <rect x="5" y="51.5" width="43.5" height="43.5" rx="1.5" fill="#3d1f47"/>
+      <path d="M51.5 95 Q51.5 51.5 95 51.5 L95 95 Z" fill="#d4416b"/>
+    </svg>
+    <span class="footer-word">bridge<span>·</span>work</span>
+  </div>
+  <span class="footer-meta">human judgement · adaptive systems · better work</span>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<div class="panes" id="panes"><div class="trail" id="trail" hidden></div></div>
+<div class="pal" id="pal"><div class="pal-box">
+  <input id="palInput" placeholder="Jump to a section, source or frame…" autocomplete="off">
+  <div class="pal-list" id="palList"></div>
+</div></div>
+<script type="module" src="/src/essay/essay.ts"></script>
+</body>
+</html>
+

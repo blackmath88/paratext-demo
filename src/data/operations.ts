@@ -7,7 +7,14 @@ export type OperationKind =
   | 'decision'
   | 'superseded'
   | 'artifact'
-  | 'open';
+  | 'open'
+  | 'concession'
+  | 'spec'
+  | 'voice memo · raw'
+  | 'note'
+  | 'wrong turn'
+  | 'detour'
+  | 'reframe';
 
 export type Operation = {
   id: string;
@@ -17,6 +24,8 @@ export type Operation = {
   supersedes?: string;
   projection?: Array<'essay' | 'thread' | 'structure' | 'spec'>;
   role?: 'user' | 'assistant' | 'tool';
+  section?: string;
+  artifact?: 'animation' | 'essay';
 };
 
 export const OPERATIONS: Operation[] = [

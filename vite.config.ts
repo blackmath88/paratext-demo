@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'node:path';
 
 // GitHub Pages serves the project at /<repo>/. Override with BASE_PATH when
 // deploying elsewhere (custom domain, root hosting, local preview).
@@ -10,5 +11,11 @@ export default defineConfig({
     target: 'es2020',
     cssTarget: 'chrome90',
     assetsInlineLimit: 2048,
+    rollupOptions: {
+      input: {
+        animation: resolve(__dirname, 'index.html'),
+        essay: resolve(__dirname, 'essay.html'),
+      },
+    },
   },
 });

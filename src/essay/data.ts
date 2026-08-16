@@ -1,0 +1,68 @@
+import type { Operation } from '../data/operations';
+
+export type EssayStation = {
+  level: number;
+  name: string;
+  description: string;
+  demonstratedBy: string;
+};
+
+/**
+ * A station belongs here only when the essay can demonstrate it on its own
+ * content. Narrative milestones from the animation are deliberately absent.
+ */
+export const ESSAY_STATIONS: EssayStation[] = [
+  { level: 0, name: 'Bare text', description: 'One block. No breaks, no titles, no marks. Everything the piece says is already here.', demonstratedBy: 'The complete essay is present as an unbroken text block.' },
+  { level: 1, name: 'Paragraphs', description: 'The oldest structural device: a break. Nothing else changes.', demonstratedBy: 'The same authored nodes gain paragraph boundaries.' },
+  { level: 2, name: 'Spacing', description: 'Measure, leading, whitespace. Structure you can feel before you read it.', demonstratedBy: 'Measure, leading, and whitespace expose the existing paragraphs.' },
+  { level: 3, name: 'Glosses', description: 'Marginalia arrive from the edge — commentary that does not interrupt the line.', demonstratedBy: 'Five note anchors project into real marginal glosses.' },
+  { level: 4, name: 'Print', description: 'Headings, numbering, rules, a masthead. Apparatus becomes regular.', demonstratedBy: 'The essay sections supply headings, numbers, rules, and running identity.' },
+  { level: 5, name: 'Editorial', description: 'Hierarchy, pull quotes, figures. Composition directs attention — and the page is still long.', demonstratedBy: 'Existing claims, figures, instruments, and pull quotes acquire editorial hierarchy.' },
+  { level: 6, name: 'Hypertext', description: 'The scroll breaks. Every section and every claim becomes a place you can name and reach.', demonstratedBy: 'Section IDs, the spine, cross-links, source panes, and jump palette are live.' },
+  { level: 7, name: 'Layering', description: 'Depth instead of length. Claims carry their thesis; the argument beneath them folds away.', demonstratedBy: 'Section claims are moved into operable folds without being copied.' },
+  { level: 8, name: 'The spread', description: 'One opening carrying the whole essay. The page from station 01, come back to hold what nine sections held.', demonstratedBy: 'The recto and verso are derived from the same operation registry and source records.' },
+];
+
+/** Semantic work units shared with the animation's Operation model. */
+export const ESSAY_OPERATIONS: Operation[] = [
+  { id: 'cs1', kind: 'concession', label: 'Most UI really is dissolving', section: '1', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c1', kind: 'claim', label: 'Intent vs state', section: '2', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c2', kind: 'claim', label: 'Language encodes space badly', section: '2', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c3', kind: 'claim', label: 'Less fixed UI, not less UI', section: '2', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c4', kind: 'claim', label: 'The terminal-colour fetish', section: '4', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c5', kind: 'claim', label: 'Colour is acquired convention', section: '4', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c6', kind: 'claim', label: 'Apparatus collapsed', section: '5', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c7', kind: 'claim', label: 'Frames constitute a world', section: '6', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c8', kind: 'claim', label: 'Delta makes that shift', section: '6', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c9', kind: 'claim', label: 'Unity depends on reception', section: '6', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c10', kind: 'claim', label: 'Reasoning is epitext', section: '7', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c11', kind: 'claim', label: 'Five hundred messages', section: '7', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'c12', kind: 'superseded', label: 'Grow a tracker from chat', section: '7', artifact: 'essay', supersedes: 'c13', projection: ['essay', 'structure'] },
+  { id: 'c13', kind: 'claim', label: 'Framing, not a board', section: '7', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 'sp1', kind: 'spec', label: 'No addressability', section: '8', artifact: 'essay', projection: ['essay', 'spec'] },
+  { id: 'sp2', kind: 'spec', label: 'No supersession', section: '8', artifact: 'essay', projection: ['essay', 'spec'] },
+  { id: 'sp3', kind: 'spec', label: 'Apparatus crowds out argument', section: '8', artifact: 'essay', projection: ['essay', 'spec'] },
+  { id: 'sp4', kind: 'spec', label: 'Nothing ever closes', section: '8', artifact: 'essay', projection: ['essay', 'spec'] },
+  { id: 'sp5', kind: 'spec', label: 'The diff forgets its reasons', section: '8', artifact: 'essay', projection: ['essay', 'spec'] },
+  { id: 'c14', kind: 'claim', label: 'Code and interface are both downstream', section: '9', artifact: 'essay', projection: ['essay', 'structure'] },
+  { id: 't1', kind: 'voice memo · raw', label: 'Listening, first reaction', artifact: 'essay', projection: ['thread'] },
+  { id: 't2', kind: 'voice memo · raw', label: 'The objection, unedited', artifact: 'essay', projection: ['thread'] },
+  { id: 't3', kind: 'voice memo · raw', label: 'The term arrives, half-formed', artifact: 'essay', projection: ['thread'] },
+  { id: 't4', kind: 'note', label: 'Working out the progression', artifact: 'essay', projection: ['thread'] },
+  { id: 't5', kind: 'wrong turn', label: 'The version I abandoned', artifact: 'essay', projection: ['thread'] },
+  { id: 't6', kind: 'detour', label: 'Where Textrahmen actually comes from', artifact: 'essay', projection: ['thread'] },
+  { id: 't7', kind: 'reframe', label: 'What the piece became', artifact: 'essay', projection: ['thread'] },
+];
+
+/** Projects canonical operation metadata onto the v12-authored content nodes. */
+export function applyEssayOperationMetadata(root: HTMLElement): void {
+  for (const operation of ESSAY_OPERATIONS) {
+    const node = root.querySelector<HTMLElement>(`[data-id="${operation.id}"]`);
+    if (!node) throw new Error(`Missing essay operation node: ${operation.id}`);
+    node.dataset.type = operation.kind;
+    node.dataset.label = operation.label;
+    node.dataset.frames = operation.projection?.join(' ') ?? '';
+    if (operation.section) node.dataset.inSec = operation.section;
+    if (operation.supersedes) node.dataset.superseded = operation.supersedes;
+  }
+}

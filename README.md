@@ -22,6 +22,14 @@ npm install
 npm run dev
 ```
 
+The single Vite workflow serves both first-class artifacts:
+
+- `/` — the scroll-driven animation
+- `/essay.html` — the performative essay, integrated from the v12 standalone
+
+With the default GitHub Pages base these become `/paratext-demo/` and
+`/paratext-demo/essay.html` in a production preview or deployment.
+
 ## Verify
 
 ```bash
@@ -61,13 +69,19 @@ model and the responsive strategy. In short:
   The master timeline and the navigator both read those numbers, so they cannot
   drift apart. Re-pace the piece by editing that file.
 - `src/data/operations.ts` defines stable work-unit identities for Acts 05–08;
-  later frames arrange these units rather than inventing replacement content.
+  the essay extends the same operation type, and both artifacts project those
+  semantic records rather than treating layout as the source of truth.
+- `src/essay/` contains the v12 essay runtime, styling, and its explicit station
+  and operation data. A station belongs in this artifact only when it is real
+  on this content; animation milestones are not copied into the dial.
 
 ## Reference
 
 - `reference/prototype.html` — concept/state reference for the Act 8 adaptive
   interface. Not production code.
 - `reference/storyboard.png` — art direction and narrative reference.
+- `bridge-work-frame-problem-v12.html` remains an external source reference;
+  `essay.html` plus `src/essay/` are the canonical integrated implementation.
 
 ## Accessibility
 
