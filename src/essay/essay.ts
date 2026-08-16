@@ -5,32 +5,29 @@ const CONFIG={linkedin:"https://www.linkedin.com/in/YOUR-HANDLE/",email:"you@bri
   subject:"The frame problem in agent threads"};
 const T='#1a7a6d',P='#3d1f47',R='#d4416b';
 
-/* ===== dial ===== */
+/* ===== station control ===== */
 const STEPS=ESSAY_STATIONS.map(({name,description})=>({n:name,d:description}));
-const track=document.getElementById('track'),fill=document.getElementById('fill');
-STEPS.forEach((s,i)=>{
-  const b=document.createElement('button');
-  b.className='step';b.dataset.i=i;
-  b.innerHTML='<span class="pip"></span><span class="nm">'+i+' '+s.n+'</span>';
-  b.onclick=()=>setLevel(i);
-  track.appendChild(b);
-});
-let LEVEL=0, BOOTED=false;
+const station=document.getElementById('station'),ticks=document.getElementById('stationTicks');
+const ordinal=document.getElementById('stationOrdinal'),stationName=document.getElementById('stationName');
+const capability=document.getElementById('stationCapability'),hint=document.getElementById('stationHint');
+const prev=document.getElementById('stationPrev'),next=document.getElementById('stationNext');
+STEPS.forEach((_,i)=>{const tick=document.createElement('i');tick.className='station-tick';tick.dataset.i=i;ticks.appendChild(tick);});
+let LEVEL=0,INTRO_ACTIVE=false,JUST_ABORTED=false,introTimers=[];
 function setLevel(n){
   LEVEL=Math.max(0,Math.min(8,n));
   const b=document.body;
   b.className='';
   for(let i=0;i<=LEVEL;i++)b.classList.add('ge'+i);
   b.dataset.level=LEVEL;
-  document.querySelectorAll('.step').forEach((s,i)=>{
-    s.classList.toggle('on',i===LEVEL);s.classList.toggle('done',i<LEVEL);});
-  fill.style.width=(LEVEL/(STEPS.length-1)*100)+'%';
-  document.getElementById('dialCur').textContent=STEPS[LEVEL].n;
-  document.getElementById('dialDesc').textContent=STEPS[LEVEL].d;
-  
-  if(BOOTED){buildFolds();applyFolds(LEVEL===7);renderSpread();}
-  setTimeout(layoutNotes,430);
+  ordinal.textContent=String(LEVEL).padStart(2,'0');stationName.textContent=STEPS[LEVEL].n;capability.textContent=STEPS[LEVEL].d;
+  ticks.querySelectorAll('.station-tick').forEach((tick,i)=>{tick.classList.toggle('reached',i<=LEVEL);tick.classList.toggle('current',i===LEVEL);});
+  prev.disabled=LEVEL===0;next.disabled=LEVEL===8;updateReadingProgress();
 }
+function stopIntro(){introTimers.forEach(window.clearTimeout);introTimers=[];INTRO_ACTIVE=false;station.classList.remove('is-running');}
+function abortIntro(){if(!INTRO_ACTIVE)return false;stopIntro();setLevel(5);JUST_ABORTED=true;window.setTimeout(()=>{JUST_ABORTED=false;},0);return true;}
+prev.onclick=(event)=>{if(JUST_ABORTED||abortIntro()){event.preventDefault();return;}setLevel(LEVEL-1);};
+next.onclick=(event)=>{if(JUST_ABORTED||abortIntro()){event.preventDefault();return;}setLevel(LEVEL+1);};
+station.addEventListener('click',(event)=>{if(event.target.closest('button'))return;station.classList.toggle('is-expanded');});
 
 /* ===== glyphs ===== */
 const GLYPHS={
@@ -43,24 +40,8 @@ const GLYPHS={
  7:'<rect x="5" y="12" width="12" height="24" rx="2" fill="'+P+'" opacity=".5"/><rect x="21" y="8" width="22" height="32" rx="3" fill="none" stroke="'+T+'" stroke-width="2.5"/><path d="M17 24 L21 24" stroke="'+R+'" stroke-width="2.5" stroke-linecap="round"/>',
  8:'<circle cx="24" cy="24" r="15" fill="none" stroke="'+T+'" stroke-width="2.5"/><circle cx="24" cy="9" r="3.4" fill="'+R+'"/><circle cx="24" cy="24" r="4" fill="'+P+'"/>',
  9:'<rect x="7" y="7" width="15" height="15" rx="1.5" fill="'+T+'"/><rect x="26" y="7" width="15" height="15" rx="1.5" fill="'+P+'"/><rect x="7" y="26" width="15" height="15" rx="1.5" fill="'+P+'"/><path d="M26 41 Q26 26 41 26 L41 41 Z" fill="'+R+'"/>'};
-const SECTIONS=[{n:1,t:'The claim, and the concession'},{n:2,t:'Intent and state'},{n:3,t:'Why the list wins'},
- {n:4,t:'Colour as convention'},{n:5,t:'Borrowed apparatus'},{n:6,t:'Textrahmen'},
- {n:7,t:'Where context lives'},{n:8,t:'Five failures'},{n:9,t:'What this page does'}];
 const glyphSvg=n=>'<svg viewBox="0 0 48 48" fill="none" aria-hidden="true">'+GLYPHS[n]+'</svg>';
-const spine=document.getElementById('spine');
-SECTIONS.forEach(s=>{
-  const b=document.createElement('button');
-  b.className='gl';b.dataset.sec=s.n;
-  b.innerHTML=glyphSvg(s.n)+'<span class="tip">'+String(s.n).padStart(2,'0')+' · '+s.t+'</span>';
-  b.onclick=()=>goto('sec-'+s.n);
-  spine.appendChild(b);
-});
 document.querySelectorAll('.badge[data-glyph]').forEach(el=>el.innerHTML=glyphSvg(el.dataset.glyph));
-
-document.getElementById('themeSeg').onclick=function(e){
-  const b=e.target.closest('button');if(!b)return;
-  document.documentElement.setAttribute('data-theme',b.dataset.theme);
-  b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));};
 (function(){
   const seq=['teal','purple','teal-d','purple','teal','purple-m','teal-d','purple','rose','purple','teal','teal-d','purple','teal-d'];
   const strip=document.getElementById('strip');
@@ -81,85 +62,40 @@ const SOURCES={
  deltadb:{kind:'Architecture',title:'Zed — Software Is Made Between Commits (2026)',body:'Announcement of DeltaDB: work is broken into a stream of fine-grained deltas. Where Git captures a snapshot at each commit, DeltaDB captures every operation in between and gives each a stable identity, so any moment of the code can be addressed even as it keeps changing — versioning a worktree together with the conversation driving it.',cav:'Read the primary source before repeating this. The reading offered here — file tree as projection over the operation log — is my inference about interface consequences, not a claim Zed has made in those terms.'},
  genette:{kind:'Theory',title:'Gérard Genette — Seuils (1987)',body:'Translated as Paratexts: Thresholds of Interpretation. The peritext/epitext distinction: apparatus inside the object versus apparatus outside it.',cav:'Genette is describing books and authorial intent, not software artefacts. The transfer is deliberate and arguable.'}};
 
-/* ===== sidenotes ===== */
+/* ===== contextual notes and sources ===== */
 const NOTES={
  n1:{t:'Not a storage claim',b:'Git already stores everything. What it does not store is the reasoning that made one diff preferable to another — and that is the part that decays first.'},
  n2:{t:'Why close to flat',b:'Not perfectly flat. Pop-out holds for a single distinguishing feature; conjunctions of two features return to serial search.'},
  n3:{t:'The listicle&rsquo;s bad reputation',b:'Deserved on content grounds, undeserved on form grounds. The newspaper invented the same devices in 1850 and got called a public service.'},
  n4:{t:'Test on yourself',b:'Open a large file with highlighting off. The discomfort is real, and it is trained. That is precisely what a convention feels like from the inside.'},
  n5:{t:'Sterne, seriously',b:'Tristram Shandy has a black page, a marbled page, a blank page for the reader to draw on, and a preface arriving several chapters late. Apparatus as the work itself.'}};
-const notecol=document.getElementById('notecol');
 document.querySelectorAll('.anchor').forEach(a=>{
   const n=NOTES[a.dataset.note];if(!n)return;
   const el=document.createElement('aside');
   el.className='sidenote';el.dataset.for=a.dataset.note;
   el.innerHTML='<b>'+n.t+'</b>'+n.b;
-  notecol.appendChild(el);
+  a.insertAdjacentElement('afterend',el);
+  a.onclick=()=>el.classList.toggle('lit');
 });
-function layoutNotes(){
-  if(LEVEL<3||window.innerWidth<=1180){
-    document.querySelectorAll('.sidenote').forEach(el=>{el.style.top='';el.hidden=false;});return;}
-  const top0=notecol.getBoundingClientRect().top+window.scrollY;
-  let cursor=0;
-  document.querySelectorAll('.sidenote').forEach(el=>{
-    const a=document.querySelector('.anchor[data-note="'+el.dataset.for+'"]');
-    const vis=a&&a.offsetParent!==null;
-    el.hidden=!vis;if(!vis)return;
-    const y=a.getBoundingClientRect().top+window.scrollY-top0;
-    const t=Math.max(y,cursor);
-    el.style.top=t+'px';cursor=t+el.offsetHeight+18;});
-}
-window.addEventListener('resize',layoutNotes);
+let openSource;
+document.querySelectorAll('.chip[data-src]').forEach((chip)=>{
+  const source=SOURCES[chip.dataset.src];if(!source)return;
+  chip.setAttribute('aria-expanded','false');
+  const detail=document.createElement('span');detail.className='source-detail';
+  detail.innerHTML='<span class="source-kind">'+source.kind+'</span><strong>'+source.title+'</strong><span class="source-body">'+source.body+'</span><span class="source-caveat">'+source.cav+'</span>';
+  chip.insertAdjacentElement('afterend',detail);
+  chip.onclick=(event)=>{event.preventDefault();if(LEVEL<5)return;
+    const closing=openSource===detail;
+    document.querySelectorAll('.source-detail.is-open').forEach((item)=>item.classList.remove('is-open'));
+    document.querySelectorAll('.chip[aria-expanded=true]').forEach((item)=>item.setAttribute('aria-expanded','false'));
+    openSource=closing?undefined:detail;
+    if(openSource){detail.classList.add('is-open');chip.setAttribute('aria-expanded','true');}
+  };
+});
 
-/* ===== panes ===== */
-const panesEl=document.getElementById('panes'),trailEl=document.getElementById('trail'),scrim=document.getElementById('scrim');
-let stack=[];
-function paint(){
-  panesEl.querySelectorAll('.pane').forEach(p=>p.remove());
-  const top=stack[stack.length-1];
-  if(top){
-    const p=document.createElement('div');
-    p.className='pane';
-    p.innerHTML='<div class="pane-head"><div><div class="kind">'+top.kind+'</div><h4>'+top.title+
-      '</h4></div><button class="x" aria-label="Close">&#10005;</button></div><div class="pane-body">'+top.html+'</div>';
-    p.querySelector('.x').onclick=closePane;
-    panesEl.appendChild(p);
-    requestAnimationFrame(()=>p.classList.add('in'));
-  }
-  trailEl.innerHTML='';
-  const older=stack.slice(0,-1);
-  trailEl.hidden=older.length===0;
-  older.forEach((item,i)=>{
-    const b=document.createElement('button');b.textContent=item.title;
-    b.onclick=()=>{stack=stack.slice(0,i+1);paint();};
-    trailEl.appendChild(b);});
-  scrim.classList.toggle('in',stack.length>0);
-}
-function openPane(item){
-  if(stack.length&&stack[stack.length-1].title===item.title)return;
-  stack.push(item);paint();}
-function closePane(){if(stack.length){stack=[];paint();}}
-scrim.onclick=closePane;
-document.addEventListener('click',function(e){
-  const chip=e.target.closest('.chip');
-  if(chip){
-    const s=SOURCES[chip.dataset.src];if(!s)return;
-    document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c===chip));
-    openPane({kind:s.kind,title:s.title,html:'<p>'+s.body+'</p><p class="cav">'+s.cav+'</p>'});
-    return;}
-  const x=e.target.closest('.xlink');if(x){goto(x.dataset.goto);return;}
-  const a=e.target.closest('.anchor');
-  if(a){
-    const el=document.querySelector('.sidenote[data-for="'+a.dataset.note+'"]');if(!el)return;
-    document.querySelectorAll('.sidenote').forEach(x=>x.classList.remove('lit'));
-    el.classList.add('lit');
-    if(window.innerWidth<=1180)el.scrollIntoView({behavior:'smooth',block:'center'});}
-});
-function goto(id){
-  const el=document.getElementById(id);if(!el)return;
-  if(document.body.dataset.frame!=='essay')render('essay');
-  closePane();
-  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),70);}
+document.querySelectorAll('.contents a').forEach((link)=>link.addEventListener('click',(event)=>{
+  event.preventDefault();document.querySelector(link.getAttribute('href'))?.scrollIntoView({behavior:'smooth',block:'start'});
+}));
 
 /* ===== figures ===== */
 (function(){
@@ -243,230 +179,8 @@ document.getElementById('gridCoded').onclick=function(e){
    :'Uncoded <b>'+(tPlainMs/1000).toFixed(2)+'s</b> · coded <b>'+(tc/1000).toFixed(2)+'s</b> — roughly level, and you already knew where to look. Shuffle and try again.';};
 
 
-/* ===== specimen: one thread, three framings ===== */
-
-/* ===== 07 layering: fold the argument beneath its thesis ===== */
-function buildFolds(){
-  if(document.querySelector('.fold'))return;
-  var groups={};
-  ORIGINAL.forEach(function(n){
-    if(!n.dataset || !n.dataset.label) return;
-    var sec=n.dataset.inSec; if(!sec)return;
-    (groups[sec]=groups[sec]||[]).push(n);
-  });
-  Object.keys(groups).forEach(function(sec){
-    var head=document.getElementById('sec-'+sec); if(!head)return;
-    var members=groups[sec];
-    var fold=document.createElement('div');
-    fold.className='fold'; fold.dataset.sec=sec;
-    fold.innerHTML='<button class="fold-btn"><span class="cv">&rsaquo;</span>'+
-      '<span>Read section '+String(sec).padStart(2,'0')+'</span>'+
-      '<span class="n">'+members.length+' claims</span></button><div class="wrap"></div>';
-    head.parentNode.insertBefore(fold, head.nextSibling);
-    fold.querySelector('.fold-btn').onclick=function(){fold.classList.toggle('open');setTimeout(layoutNotes,60);};
-  });
-}
-function applyFolds(on){
-  document.querySelectorAll('.fold').forEach(function(f){
-    var wrap=f.querySelector('.wrap'); var sec=f.dataset.sec;
-    ORIGINAL.forEach(function(n){
-      if(!n.dataset||n.dataset.inSec!==sec)return;
-      if(n.classList.contains('sechead'))return;
-      if(on){ if(n.parentNode!==wrap) wrap.appendChild(n); }
-      else if(n.parentNode===wrap){ stream.appendChild(n); }
-    });
-  });
-  if(!on) render(document.body.dataset.frame||'essay');
-}
-
-
-/* ===== 08 the spread: one opening carrying the whole essay =====
-   Regions are derived, never hand-placed. A node's data-type decides which
-   leaf it lands on; data-in-sec decides its order. Nothing is redrawn: the
-   gloss renders the real node's own innerHTML. */
-var spreadBuilt=false;
-var SEC_TITLES={1:'Position',2:'Distinction',3:'Mechanism',4:'Evidence',5:'History',
-                6:'Theory',7:'Diagnosis',8:'Specification',9:'Demonstration'};
-function renderSpread(){
-  if(LEVEL<8||spreadBuilt)return;
-  var block=document.getElementById('spreadBlock'),
-      appar=document.getElementById('spreadApparat');
-  if(!block||!appar)return;
-
-  /* recto — claims, concessions and the superseded line, in section order */
-  var bySec={};
-  ORIGINAL.forEach(function(n){
-    if(!n.dataset||!n.dataset.label)return;
-    var k=n.dataset.inSec||'0';
-    (bySec[k]=bySec[k]||[]).push(n);
-  });
-  var html='';
-  Object.keys(bySec).sort(function(a,b){return a-b;}).forEach(function(sec){
-    html+='<div class="sq"><span class="sn">'+String(sec).padStart(2,'0')+
-          ' &middot; '+(SEC_TITLES[sec]||'')+'</span>';
-    bySec[sec].forEach(function(n){
-      var t=n.dataset.type||'claim';
-      var lead=n.classList.contains('pull')?' lead':'';
-      var rep=n.dataset.superseded?'<span class="rep">replaced by &sect;'+n.dataset.superseded+'</span>':'';
-      html+='<button class="sitem '+t+lead+'" data-ref="'+n.dataset.id+'">'+
-            n.dataset.label+rep+'</button>';
-    });
-    html+='</div>';
-  });
-  block.innerHTML=html;
-
-  /* verso — the apparatus: what grounds the argument */
-  var a='<div class="ahead">Sources</div>';
-  Object.keys(SOURCES).forEach(function(id){
-    var src=SOURCES[id];
-    a+='<button class="aitem" data-src2="'+id+'"><span class="mk">'+src.kind+
-       '</span>'+src.title+'</button>';
-  });
-  a+='<div class="ahead">Evidence in the text</div>';
-  ORIGINAL.forEach(function(n){
-    if(n.dataset&&n.dataset.type==='evidence')
-      a+='<button class="aitem" data-ref="'+(n.dataset.id||'')+'"><span class="mk">quoted</span>'+
-         n.textContent.trim().slice(0,88)+'&hellip;</button>';
-  });
-  a+='<div class="ahead">Still open</div>'+
-     '<button class="aitem q" data-open="1"><span class="mk">question</span>'+
-     'Which of the five failures are real for people who build these tools?</button>'+
-     '<button class="aitem q" data-open="2"><span class="mk">question</span>'+
-     'Does the argument still land at station 0, with no apparatus to carry it?</button>';
-  appar.innerHTML=a;
-
-  /* one handler; the gloss is the only reader */
-  var g=document.getElementById('gloss');
-  document.getElementById('spread').addEventListener('click',function(e){
-    var line=e.target.closest('.sitem,.aitem');
-    if(!line){return;}
-    document.querySelectorAll('.sitem,.aitem').forEach(function(x){x.classList.toggle('on',x===line);});
-    var kind='', sec='', body='';
-    if(line.dataset.src2){
-      var src=SOURCES[line.dataset.src2];
-      kind=src.kind; sec=src.title;
-      body='<p>'+src.body+'</p><p style="color:var(--rose);font-family:var(--mono);font-size:9.5px;line-height:1.7;margin-top:11px">'+src.cav+'</p>';
-    } else if(line.dataset.open){
-      kind='open question'; sec='unresolved';
-      body='<p>'+line.textContent.replace(/^question/i,'').trim()+'</p>';
-    } else {
-      var node=ORIGINAL.filter(function(n){return n.dataset&&n.dataset.id===line.dataset.ref;})[0];
-      if(!node)return;
-      kind=node.dataset.type||'claim';
-      sec='section '+String(node.dataset.inSec||'').padStart(2,'0')+
-          (node.dataset.superseded?' &middot; superseded by \u00a7'+node.dataset.superseded:'');
-      body=node.innerHTML;
-    }
-    document.getElementById('glossKind').textContent=kind;
-    document.getElementById('glossSec').innerHTML=sec;
-    document.getElementById('glossBody').innerHTML=body;
-    g.classList.add('in');
-  });
-  document.getElementById('glossX').onclick=function(){
-    g.classList.remove('in');
-    document.querySelectorAll('.sitem,.aitem').forEach(function(x){x.classList.remove('on');});
-  };
-  spreadBuilt=true;
-}
-
-/* ===== frames ===== */
 const stream=document.getElementById('stream');
 applyEssayOperationMetadata(stream);
-const ORIGINAL=Array.prototype.slice.call(stream.children);
-const TAIL=ORIGINAL.filter(n=>n.classList.contains('feedback')||n.classList.contains('colophon'));
-const FRAMENOTES={
- essay:'Argument in intended order. Other frames re-sort these same nodes — no copies.',
- thread:'Chronological origin material: raw voice memos, transcription damage intact, and the abandoned version.',
- structure:'Prose stripped, apparatus exposed: claims, concessions, and the superseded claim.',
- spec:'Five observed failures, five paratextual devices.'};
-const GROUPS={
- structure:[['claim','Claims'],['concession','Concessions'],['superseded','Superseded']],
- thread:[['voice memo · raw','Raw capture'],['note','Working out'],['wrong turn','Abandoned'],['detour','Where the theory came from'],['reframe','Reframe']],
- spec:[['spec','Thread failures &rarr; paratextual devices']]};
-function inFrame(n,f){return (n.dataset.frames||'').split(/\s+/).indexOf(f)>=0;}
-document.querySelectorAll('#frames button').forEach(b=>{
-  b.querySelector('.n').textContent=ORIGINAL.filter(n=>inFrame(n,b.dataset.frame)).length;});
-function render(frame){
-  document.body.dataset.frame=frame;
-  document.querySelectorAll('#frames button').forEach(b=>b.classList.toggle('active',b.dataset.frame===frame));
-  document.getElementById('frameNote').textContent=FRAMENOTES[frame];
-  var say=document.getElementById('frameSay');
-  if(say){var vis=ORIGINAL.filter(function(n){return !n.hidden&&n.dataset&&n.dataset.frames;}).length;
-    say.textContent=frame==='essay'?'the same nodes, bound four ways':
-      vis+' of the same nodes, re-sorted \u2014 nothing copied';}
-  stream.querySelectorAll('.grouphead').forEach(h=>h.remove());
-  if(frame==='essay'){
-    ORIGINAL.forEach(n=>{stream.appendChild(n);
-      n.hidden=!(inFrame(n,'essay')||TAIL.indexOf(n)>=0||n.classList.contains('plain')||n.classList.contains('piece'));});
-  }else{
-    ORIGINAL.forEach(n=>n.hidden=true);
-    const used=[];
-    GROUPS[frame].forEach(function(g){
-      const m=ORIGINAL.filter(n=>inFrame(n,frame)&&n.dataset.type===g[0]&&used.indexOf(n)<0);
-      if(!m.length)return;
-      const h=document.createElement('div');h.className='grouphead';h.innerHTML=g[1];
-      stream.appendChild(h);
-      m.forEach(n=>{used.push(n);n.hidden=false;stream.appendChild(n);});});
-    TAIL.forEach(n=>{n.hidden=false;stream.appendChild(n);});}
-  setTimeout(layoutNotes,80);
-}
-document.getElementById('frames').onclick=function(e){
-  const b=e.target.closest('button');if(!b)return;
-  render(b.dataset.frame);
-  const top=document.querySelector('.framebar');
-  if(top){const y=top.getBoundingClientRect().top+window.scrollY-6;
-    if(window.scrollY>y)window.scrollTo({top:y,behavior:'smooth'});}
-};
-
-window.addEventListener('scroll',function(){
-  if(LEVEL<6||document.body.dataset.frame!=='essay')return;
-  const y=window.scrollY+160;let cur=1;
-  SECTIONS.forEach(s=>{
-    const el=document.getElementById('sec-'+s.n);
-    if(el&&!el.hidden&&el.getBoundingClientRect().top+window.scrollY<=y)cur=s.n;});
-  document.querySelectorAll('.gl').forEach(g=>g.classList.toggle('on',+g.dataset.sec===cur));
-},{passive:true});
-
-/* ===== palette ===== */
-const pal=document.getElementById('pal'),palInput=document.getElementById('palInput'),palList=document.getElementById('palList');
-const ITEMS=[].concat(
- STEPS.map((s,i)=>({l:i+' — '+s.n,k:'Structure',act:()=>setLevel(i)})),
- SECTIONS.map(s=>({l:String(s.n).padStart(2,'0')+' — '+s.t,k:'Section',g:s.n,act:()=>goto('sec-'+s.n)})),
- Object.keys(SOURCES).map(id=>{const s=SOURCES[id];
-   return {l:s.title,k:'Source',act:function(){openPane({kind:s.kind,title:s.title,html:'<p>'+s.body+'</p><p class="cav">'+s.cav+'</p>'});}};}),
- ['essay','thread','structure','spec'].map(f=>({l:f[0].toUpperCase()+f.slice(1)+' frame',k:'Frame',
-   act:function(){render(f);}})));
-let sel=0,shown=[];
-function palRender(){
-  const q=palInput.value.toLowerCase().trim();
-  shown=ITEMS.filter(i=>!q||i.l.toLowerCase().indexOf(q)>=0||i.k.toLowerCase().indexOf(q)>=0);
-  sel=Math.min(sel,Math.max(0,shown.length-1));
-  palList.innerHTML=shown.length?'':'<div class="pal-empty">Nothing matches</div>';
-  shown.forEach((i,ix)=>{
-    const d=document.createElement('div');
-    d.className='pal-item'+(ix===sel?' sel':'');
-    d.innerHTML='<span class="g">'+(i.g?glyphSvg(i.g):'')+'</span><span class="l">'+i.l+'</span><span class="k">'+i.k+'</span>';
-    d.onclick=function(){palClose();i.act();};
-    palList.appendChild(d);});}
-function palOpen(){pal.classList.add('in');palInput.value='';sel=0;palRender();palInput.focus();}
-function palClose(){pal.classList.remove('in');}
-document.getElementById('palBtn').onclick=palOpen;
-pal.onclick=function(e){if(e.target===pal)palClose();};
-palInput.oninput=function(){sel=0;palRender();};
-document.addEventListener('keydown',function(e){
-  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();
-    pal.classList.contains('in')?palClose():palOpen();return;}
-  if(pal.classList.contains('in')){
-    if(e.key==='Escape')palClose();
-    if(e.key==='ArrowDown'){e.preventDefault();sel=Math.min(sel+1,shown.length-1);palRender();}
-    if(e.key==='ArrowUp'){e.preventDefault();sel=Math.max(sel-1,0);palRender();}
-    if(e.key==='Enter'&&shown[sel]){palClose();shown[sel].act();}
-    return;}
-  if(e.key==='Escape'&&stack.length){closePane();return;}
-  if(e.target.tagName==='INPUT')return;
-  if(e.key==='ArrowRight'){e.preventDefault();setLevel(LEVEL+1);}
-  if(e.key==='ArrowLeft'){e.preventDefault();setLevel(LEVEL-1);}
-});
 
 /* ===== misc + boot ===== */
 document.getElementById('fbLinkedIn').href=CONFIG.linkedin;
@@ -476,13 +190,33 @@ document.getElementById('fbCopy').onclick=function(e){
   if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(function(){
     const o=t.textContent;t.textContent='Copied';setTimeout(function(){t.textContent=o;},1600);});};
 
-const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-BOOTED=true;
-if(reduce){setLevel(5);}
-else{
-  setLevel(0);
-  let n=0;
-  const climb=setInterval(function(){n++;setLevel(n);if(n>=5)clearInterval(climb);},420);
+document.getElementById('themeSeg').onclick=function(event){
+  const button=event.target.closest('button[data-theme]');if(!button)return;
+  document.documentElement.setAttribute('data-theme',button.dataset.theme);
+  button.parentNode.querySelectorAll('button').forEach((item)=>item.classList.toggle('active',item===button));
+};
+function updateReadingProgress(){
+  const progress=document.getElementById('readingProgress');
+  if(LEVEL<5){progress.style.width='0%';return;}
+  const article=document.getElementById('stream'),start=article.getBoundingClientRect().top+window.scrollY;
+  const length=Math.max(1,article.offsetHeight-window.innerHeight);
+  progress.style.width=(Math.max(0,Math.min(1,(window.scrollY-start)/length))*100)+'%';
 }
-window.addEventListener('load',layoutNotes);
-setTimeout(layoutNotes,900);
+let collapseTimer;
+window.addEventListener('scroll',()=>{updateReadingProgress();station.classList.remove('is-expanded');window.clearTimeout(collapseTimer);collapseTimer=window.setTimeout(()=>station.classList.add('is-resting'),120);},{passive:true});
+window.addEventListener('keydown',(event)=>{
+  if(event.target instanceof HTMLInputElement||event.target instanceof HTMLTextAreaElement||event.target.isContentEditable)return;
+  if(abortIntro()){event.preventDefault();return;}
+  if(event.key==='ArrowRight'){event.preventDefault();setLevel(LEVEL+1);}
+  if(event.key==='ArrowLeft'){event.preventDefault();setLevel(LEVEL-1);}
+});
+for(const type of ['wheel','touchstart','pointerdown'])window.addEventListener(type,()=>abortIntro(),{once:true,passive:true,capture:true});
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let visited=false;
+try{visited=sessionStorage.getItem('frame-problem-visited')==='1';sessionStorage.setItem('frame-problem-visited','1');}catch{visited=false;}
+if(reduce||visited){setLevel(5);if(reduce){hint.hidden=false;station.classList.add('is-expanded');}}
+else{
+  INTRO_ACTIVE=true;station.classList.add('is-running','is-expanded');setLevel(0);
+  [[250,1],[500,2],[950,3],[1550,4],[2500,5]].forEach(([delay,level])=>introTimers.push(window.setTimeout(()=>{setLevel(level);if(level===5)stopIntro();},delay)));
+}
+window.addEventListener('load',updateReadingProgress);

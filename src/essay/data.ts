@@ -12,15 +12,15 @@ export type EssayStation = {
  * content. Narrative milestones from the animation are deliberately absent.
  */
 export const ESSAY_STATIONS: EssayStation[] = [
-  { level: 0, name: 'Bare text', description: 'One block. No breaks, no titles, no marks. Everything the piece says is already here.', demonstratedBy: 'The complete essay is present as an unbroken text block.' },
-  { level: 1, name: 'Paragraphs', description: 'The oldest structural device: a break. Nothing else changes.', demonstratedBy: 'The same authored nodes gain paragraph boundaries.' },
-  { level: 2, name: 'Spacing', description: 'Measure, leading, whitespace. Structure you can feel before you read it.', demonstratedBy: 'Measure, leading, and whitespace expose the existing paragraphs.' },
-  { level: 3, name: 'Glosses', description: 'Marginalia arrive from the edge — commentary that does not interrupt the line.', demonstratedBy: 'Five note anchors project into real marginal glosses.' },
-  { level: 4, name: 'Print', description: 'Headings, numbering, rules, a masthead. Apparatus becomes regular.', demonstratedBy: 'The essay sections supply headings, numbers, rules, and running identity.' },
-  { level: 5, name: 'Editorial', description: 'Hierarchy, pull quotes, figures. Composition directs attention — and the page is still long.', demonstratedBy: 'Existing claims, figures, instruments, and pull quotes acquire editorial hierarchy.' },
-  { level: 6, name: 'Hypertext', description: 'The scroll breaks. Every section and every claim becomes a place you can name and reach.', demonstratedBy: 'Section IDs, the spine, cross-links, source panes, and jump palette are live.' },
-  { level: 7, name: 'Layering', description: 'Depth instead of length. Claims carry their thesis; the argument beneath them folds away.', demonstratedBy: 'Section claims are moved into operable folds without being copied.' },
-  { level: 8, name: 'The spread', description: 'One opening carrying the whole essay. The page from station 01, come back to hold what nine sections held.', demonstratedBy: 'The recto and verso are derived from the same operation registry and source records.' },
+  { level: 0, name: 'Bare', description: 'no added apparatus', demonstratedBy: 'The complete essay is present as an unbroken text block.' },
+  { level: 1, name: 'Paragraphs', description: 'segmentation: paragraph breaks distinguish units of thought', demonstratedBy: 'The same authored nodes gain paragraph boundaries.' },
+  { level: 2, name: 'Spacing', description: 'measure: line length, leading and margin make structure perceptible', demonstratedBy: 'Measure, leading, and whitespace expose the existing paragraphs.' },
+  { level: 3, name: 'Gloss', description: 'annotation: commentary becomes addressable without interrupting the line', demonstratedBy: 'Five note anchors project into real marginal glosses.' },
+  { level: 4, name: 'Print', description: 'regularisation: reproducible hierarchy makes the apparatus citable', demonstratedBy: 'The essay sections supply headings, numbers, rules, contents, and running identity.' },
+  { level: 5, name: 'Editorial Web', description: 'composition and inspectable evidence: sources open where they are cited', demonstratedBy: 'Existing claims, figures, instruments, and pull quotes acquire responsive editorial hierarchy.' },
+  { level: 6, name: 'Hypertext', description: 'not yet designed', demonstratedBy: 'Stable identities and cross-link relations remain in the data.' },
+  { level: 7, name: 'Layering', description: 'not yet designed', demonstratedBy: 'The station is retained as a placeholder without a shipped mechanism.' },
+  { level: 8, name: 'Vista', description: 'not yet designed', demonstratedBy: 'Projection metadata remains populated without exposing a projection interface.' },
 ];
 
 /** Semantic work units shared with the animation's Operation model. */
