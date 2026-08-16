@@ -22,6 +22,7 @@ const backButton = document.querySelector<HTMLButtonElement>('#backButton')!;
 let sections: Section[] = [];
 let canonicalStream: HTMLElement;
 let currentRoute: PlaceRoute;
+let historyDepth = 0;
 const canonicalVisitKey = 'frame-problem-visited';
 const priorCanonicalVisit = sessionStorage.getItem(canonicalVisitKey);
 
@@ -44,8 +45,10 @@ function parseRoute(): PlaceRoute {
 
 function navigate(route: PlaceRoute): void {
   const nextHash = `#${routeKey(route)}`;
-  if (location.hash === nextHash) render(route);
-  else location.hash = nextHash;
+  if (location.hash === nextHash) return render(route);
+  historyDepth += 1;
+  history.pushState({ hypertextDepth: historyDepth }, '', nextHash);
+  render(route);
 }
 
 function sectionForNode(node: Element | null): Section {
@@ -89,13 +92,16 @@ function buildNavigation(): void {
   sectionNavigation.replaceChildren();
   mobileSections.replaceChildren();
   for (const section of sections) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'section-link';
-    button.dataset.section = section.id;
-    button.innerHTML = `<span>${section.number}</span>${section.label}`;
-    button.addEventListener('click', () => navigate({ kind: 'section', id: section.id }));
-    sectionNavigation.append(button);
+    const link = document.createElement('a');
+    link.className = 'section-link';
+    link.dataset.section = section.id;
+    link.href = `#section/${section.id}`;
+    link.innerHTML = `<span>${section.number}</span>${section.label}`;
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      navigate({ kind: 'section', id: section.id });
+    });
+    sectionNavigation.append(link);
 
     const option = document.createElement('option');
     option.value = section.id;
@@ -119,6 +125,28 @@ function cleanClone(node: HTMLElement): HTMLElement {
   return clone;
 }
 
+function semanticNodes(section: Section): HTMLElement[] {
+  return section.nodes.filter((node) => Boolean(node.dataset.id && node.dataset.label));
+}
+
+function sourceCitations(nodes: HTMLElement[]): HTMLButtonElement[] {
+  return nodes.flatMap((node) => Array.from(node.querySelectorAll<HTMLButtonElement>('.chip[data-src]')));
+}
+
+function crossLinks(nodes: HTMLElement[]): HTMLElement[] {
+  return nodes.flatMap((node) => Array.from(node.querySelectorAll<HTMLElement>('[data-goto]')));
+}
+
+function crossLinksForClaim(claim: HTMLElement): HTMLElement[] {
+  const links: HTMLElement[] = [];
+  let cursor = claim.nextElementSibling;
+  while (cursor && !cursor.matches('.sechead,[data-id]')) {
+    if (cursor instanceof HTMLElement) links.push(...Array.from(cursor.querySelectorAll<HTMLElement>('[data-goto]')));
+    cursor = cursor.nextElementSibling;
+  }
+  return links;
+}
+
 function pageHeader(kicker: string, title: string, thesis: string): DocumentFragment {
   const fragment = document.createDocumentFragment();
   const label = document.createElement('p');
@@ -133,13 +161,16 @@ function pageHeader(kicker: string, title: string, thesis: string): DocumentFrag
   return fragment;
 }
 
-function relation(kind: string, label: string, route: PlaceRoute): HTMLButtonElement {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'relation';
-  button.innerHTML = `<small>${kind}</small><span>${label} →</span>`;
-  button.addEventListener('click', () => navigate(route));
-  return button;
+function relation(kind: string, label: string, route: PlaceRoute): HTMLAnchorElement {
+  const link = document.createElement('a');
+  link.className = 'relation';
+  link.href = `#${routeKey(route)}`;
+  link.innerHTML = `<small>${kind}</small><span>${label}</span><i aria-hidden="true">→</i>`;
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    navigate(route);
+  });
+  return link;
 }
 
 function relationsFor(section: Section): HTMLElement {
@@ -149,15 +180,18 @@ function relationsFor(section: Section): HTMLElement {
   const list = document.createElement('div');
   list.className = 'relation-list';
 
-  if (section.id === '2') list.append(relation('Claim', 'Less fixed UI, not less UI', { kind: 'claim', id: 'c3' }));
-  if (section.id === '6') list.append(relation('Argument continues', 'Where context lives', { kind: 'section', id: '7' }));
-  const crossLink = section.nodes.flatMap((node) => Array.from(node.querySelectorAll<HTMLElement>('[data-goto]')))[0];
-  if (crossLink?.dataset.goto) {
-    const target = crossLink.dataset.goto.replace('sec-', '');
-    list.append(relation('Existing cross-link', crossLink.textContent?.trim() || 'Related section', { kind: 'section', id: target }));
+  for (const node of semanticNodes(section)) {
+    list.append(relation(node.dataset.type || 'Claim', node.dataset.label!, { kind: 'claim', id: node.dataset.id! }));
   }
-  const source = section.nodes.flatMap((node) => Array.from(node.querySelectorAll<HTMLButtonElement>('.chip[data-src]')))[0];
-  if (source?.dataset.src) list.append(relation('Source', source.textContent?.trim() || 'Inspect evidence', { kind: 'source', id: source.dataset.src, from: `section/${section.id}` }));
+  for (const crossLink of crossLinks(section.nodes)) {
+    if (!crossLink.dataset.goto) continue;
+    const target = crossLink.dataset.goto.replace('sec-', '');
+    list.append(relation('Cross-reference', crossLink.textContent?.trim() || 'Related section', { kind: 'section', id: target }));
+  }
+  for (const source of sourceCitations(section.nodes)) {
+    if (!source.dataset.src) continue;
+    list.append(relation('Source', source.textContent?.trim() || 'Inspect evidence', { kind: 'source', id: source.dataset.src, from: `section/${section.id}` }));
+  }
   const next = sections[Number(section.id)];
   if (!list.children.length && next) list.append(relation('Next place', next.title, { kind: 'section', id: next.id }));
   region.append(list);
@@ -166,16 +200,16 @@ function relationsFor(section: Section): HTMLElement {
 
 function setBreadcrumb(section: Section, detail?: string): void {
   breadcrumb.replaceChildren();
-  const root = document.createElement('button');
-  root.type = 'button';
+  const root = document.createElement('a');
+  root.href = '#section/1';
   root.textContent = 'The frame problem';
-  root.addEventListener('click', () => navigate({ kind: 'section', id: '1' }));
+  root.addEventListener('click', (event) => { event.preventDefault(); navigate({ kind: 'section', id: '1' }); });
   const divider = document.createElement('span');
   divider.textContent = '/';
-  const sectionCrumb = document.createElement('button');
-  sectionCrumb.type = 'button';
+  const sectionCrumb = document.createElement('a');
+  sectionCrumb.href = `#section/${section.id}`;
   sectionCrumb.textContent = `${section.number} ${section.label}`;
-  sectionCrumb.addEventListener('click', () => navigate({ kind: 'section', id: section.id }));
+  sectionCrumb.addEventListener('click', (event) => { event.preventDefault(); navigate({ kind: 'section', id: section.id }); });
   breadcrumb.append(root, divider, sectionCrumb);
   if (detail) {
     const detailDivider = document.createElement('span');
@@ -191,7 +225,18 @@ function renderSection(section: Section): void {
   place.replaceChildren(pageHeader(`${section.number} — ${section.label}`, section.title, section.thesis));
   const body = document.createElement('div');
   body.className = 'place-body';
-  section.nodes.filter((node) => !node.matches('.xrow')).forEach((node) => body.append(cleanClone(node)));
+  section.nodes.filter((node) => !node.matches('.xrow')).forEach((node) => {
+    const clone = cleanClone(node);
+    if (node.dataset.id && node.dataset.label) {
+      const addressed = document.createElement('div');
+      addressed.className = 'addressed-node';
+      const address = relation(node.dataset.type || 'Claim', node.dataset.label, { kind: 'claim', id: node.dataset.id });
+      address.classList.add('claim-address');
+      address.querySelector('small')!.textContent = node.dataset.id;
+      addressed.append(address, clone);
+      body.append(addressed);
+    } else body.append(clone);
+  });
   place.append(body, relationsFor(section));
   setBreadcrumb(section);
 }
@@ -201,7 +246,8 @@ function renderClaim(id: string): void {
   if (!source) return renderSection(sectionForNode(null));
   const section = sectionForNode(source);
   const title = source.dataset.label || 'Claim';
-  place.replaceChildren(pageHeader(`Claim · ${section.number} ${section.label}`, title, 'A directly addressable argument node from the canonical essay.'));
+  const kind = source.dataset.type || 'Claim';
+  place.replaceChildren(pageHeader(`${kind} · ${id} · ${section.number} ${section.label}`, title, section.thesis));
   const body = document.createElement('div');
   body.className = 'place-body';
   const claim = cleanClone(source);
@@ -212,7 +258,28 @@ function renderClaim(id: string): void {
   related.innerHTML = '<h2>Follow the argument</h2>';
   const list = document.createElement('div');
   list.className = 'relation-list';
-  if (id === 'c3') list.append(relation('Picked up in theory', 'Textrahmen', { kind: 'section', id: '6' }));
+  for (const crossLink of crossLinksForClaim(source)) {
+    if (!crossLink.dataset.goto) continue;
+    list.append(relation('Cross-reference', crossLink.textContent?.trim() || 'Related section', { kind: 'section', id: crossLink.dataset.goto.replace('sec-', '') }));
+  }
+  for (const citation of sourceCitations([source])) {
+    if (!citation.dataset.src) continue;
+    list.append(relation('Source', citation.textContent?.trim() || 'Inspect evidence', { kind: 'source', id: citation.dataset.src, from: `claim/${id}` }));
+  }
+  if (source.dataset.superseded) {
+    const replacement = canonicalStream.querySelector<HTMLElement>(`[data-id="${CSS.escape(source.dataset.superseded)}"]`);
+    if (replacement) list.append(relation('Replaced by', replacement.dataset.label || replacement.dataset.id!, { kind: 'claim', id: replacement.dataset.id! }));
+  }
+  const superseded = Array.from(canonicalStream.querySelectorAll<HTMLElement>(`[data-superseded="${CSS.escape(id)}"]`));
+  for (const previous of superseded) {
+    list.append(relation('Supersedes', previous.dataset.label || previous.dataset.id!, { kind: 'claim', id: previous.dataset.id! }));
+  }
+  const peers = semanticNodes(section);
+  const peerIndex = peers.indexOf(source);
+  const previous = peers[peerIndex - 1];
+  const next = peers[peerIndex + 1];
+  if (previous) list.append(relation(`Previous ${previous.dataset.type || 'claim'}`, previous.dataset.label!, { kind: 'claim', id: previous.dataset.id! }));
+  if (next) list.append(relation(`Next ${next.dataset.type || 'claim'}`, next.dataset.label!, { kind: 'claim', id: next.dataset.id! }));
   list.append(relation('Return to section', section.title, { kind: 'section', id: section.id }));
   related.append(list);
   place.append(body, related);
@@ -253,13 +320,16 @@ function render(route: PlaceRoute): void {
   if (route.kind === 'claim') renderClaim(route.id);
   else if (route.kind === 'source') renderSource(route.id, route.from);
   else renderSection(section);
-  backButton.disabled = history.length <= 1;
+  backButton.disabled = historyDepth === 0;
   place.focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 backButton.addEventListener('click', () => history.back());
-window.addEventListener('hashchange', () => render(parseRoute()));
+window.addEventListener('popstate', (event) => {
+  historyDepth = typeof event.state?.hypertextDepth === 'number' ? event.state.hypertextDepth : 0;
+  render(parseRoute());
+});
 sourceFrame.addEventListener('load', () => {
   const sourceDocument = sourceFrame.contentDocument;
   const stream = sourceDocument?.querySelector<HTMLElement>('#stream');
@@ -272,6 +342,7 @@ sourceFrame.addEventListener('load', () => {
   else sessionStorage.setItem(canonicalVisitKey, priorCanonicalVisit);
   deriveSections();
   buildNavigation();
+  history.replaceState({ hypertextDepth: 0 }, '', location.href);
   render(parseRoute());
 });
 sourceFrame.src = new URL('../essay.html', location.href).href;
