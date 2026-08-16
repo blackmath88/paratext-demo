@@ -1,21 +1,12 @@
 // @ts-nocheck -- faithful integration of the standalone v12 runtime; typed semantic data lives in data.ts.
-import { applyEssayOperationMetadata } from './data';
+import { applyEssayOperationMetadata, ESSAY_STATIONS } from './data';
 
 const CONFIG={linkedin:"https://www.linkedin.com/in/YOUR-HANDLE/",email:"you@bridge-work.ai",
   subject:"The frame problem in agent threads"};
 const T='#1a7a6d',P='#3d1f47',R='#d4416b';
 
 /* ===== dial ===== */
-const STEPS=[
- {n:'Bare text',d:'One block. No breaks, no titles, no marks. Everything the piece says is already here.'},
- {n:'Paragraphs',d:'The oldest structural device: a break. Nothing else changes.'},
- {n:'Spacing',d:'Measure, leading, whitespace. Structure you can feel before you read it.'},
- {n:'Glosses',d:'Marginalia arrive from the edge — commentary that does not interrupt the line.'},
- {n:'Print',d:'Headings, numbering, rules, a masthead. Apparatus becomes regular.'},
- {n:'Editorial',d:'Hierarchy, pull quotes, figures. Composition directs attention — and the page is still long.'},
- {n:'Hypertext',d:'The scroll breaks. Every section and every claim becomes a place you can name and reach.'},
- {n:'Layering',d:'Depth instead of length. Claims carry their thesis; the argument beneath them folds away.'},
- {n:'The spread',d:'One opening carrying the whole essay. The page from station 01, come back to hold what nine sections held.'}];
+const STEPS=ESSAY_STATIONS.map(({name,description})=>({n:name,d:description}));
 const track=document.getElementById('track'),fill=document.getElementById('fill');
 STEPS.forEach((s,i)=>{
   const b=document.createElement('button');
@@ -495,4 +486,3 @@ else{
 }
 window.addEventListener('load',layoutNotes);
 setTimeout(layoutNotes,900);
-

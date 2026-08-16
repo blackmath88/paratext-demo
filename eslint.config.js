@@ -16,4 +16,15 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    files: ['src/essay/essay.ts'],
+    rules: {
+      // This file is a behavior-preserving module extraction of the reviewed
+      // v12 runtime. Keep its older JavaScript idioms visible until a dedicated
+      // refactor can be checked independently against the reference artifact.
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      'no-var': 'off',
+    },
+  },
 );
