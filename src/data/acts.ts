@@ -191,21 +191,25 @@ export const acts: Act[] = [
     settle: 0.7,
     implemented: true,
   },
-];
-
-export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [
   {
     id: 'open',
     number: 'II·06',
     title: 'Which frame now?',
     shortTitle: 'Open',
+    thesis: 'Which frame now?',
+    body: 'The operations remain visible and no final arrangement is declared authoritative. The question is now available as an action: read, thread, structure or specification.',
+    start: 0.92,
+    end: 1,
+    settle: 0.7,
+    implemented: true,
   },
 ];
 
+export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [];
+
 export const settlePoints: number[] = [
   ...acts.map((act) => act.start + (act.end - act.start) * act.settle),
-  // While future acts occupy reserved but unimplemented ranges, the true end
-  // remains a forward snap target instead of pulling late scroll back to Tube.
+  // Preserve the true end as an exit target after the final authored plateau.
   1,
 ];
 

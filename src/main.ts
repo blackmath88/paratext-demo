@@ -121,13 +121,17 @@ function attachStaticObserver(current: Master): void {
   for (const s of sections) staticObserver.observe(s);
 }
 
-function boot(): void {
+function boot(initialProgress = 0): void {
   master = buildMaster(refs, mode, stage!, onProgress);
   frameSwitcher = buildFrameSwitcher(frameSwitcherMount!, refs, mode);
   navigation = buildNavigation(navMount!, master);
   if (mode === 'static') attachStaticObserver(master);
   ScrollTrigger.refresh();
-  onProgress(0);
+  if (initialProgress > 0) {
+    requestAnimationFrame(() => master?.seek(initialProgress, false));
+  } else {
+    onProgress(0);
+  }
 }
 
 function teardown(): void {
@@ -144,10 +148,11 @@ function teardown(): void {
 boot();
 
 onModeChange((next) => {
+  const progress = master?.trigger?.progress ?? master?.timeline.progress() ?? 0;
   mode = next;
   document.body.dataset.mode = mode;
   teardown();
-  boot();
+  boot(progress);
 });
 
 // Fonts change text metrics, which changes nothing we measure — but ScrollTrigger

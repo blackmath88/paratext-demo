@@ -555,6 +555,17 @@ text.gloss--ink {
   fill: #9a736e;
 }
 
+/* --------------------------------------------------------------------------
+   Open ending
+   -------------------------------------------------------------------------- */
+
+.open-question-text {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 400;
+  fill: #ded7c9;
+}
+
 .reframe-cluster-label,
 .frame-layout-label {
   font-size: 9px;

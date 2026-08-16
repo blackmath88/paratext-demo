@@ -27,6 +27,7 @@ import {
   buildReframe,
   buildRecovery,
   buildCost,
+  buildOpen,
   buildRules,
   el,
   VIEW,
@@ -110,6 +111,8 @@ export type SceneRefs = {
   costTrackedReference: SVGGElement;
   costSelectedView: SVGTextElement;
   costConsequences: SVGGElement;
+  open: SVGGElement;
+  openQuestion: SVGTextElement;
   materialState: MaterialState;
   /** Live geometry shared by every act that transforms the material leaf. */
   leafState: LeafFrameState;
@@ -186,6 +189,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   surface.appendChild(buildAIConversation());
   surface.appendChild(buildRecovery());
   surface.appendChild(buildCost());
+  surface.appendChild(buildOpen());
   surface.appendChild(buildOperations());
   svg.appendChild(surface);
 
@@ -259,6 +263,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     costTrackedReference: must(svg, '#cost-tracked-reference'),
     costSelectedView: must(svg, '#cost-selected-view'),
     costConsequences: must(svg, '#cost-consequences'),
+    open: must(svg, '#open-question'),
+    openQuestion: must(svg, '.open-question-text'),
     materialState: {
       mode: 'paper',
       fieldColor: '#0b0d10',
@@ -370,6 +376,7 @@ export function resetScene(refs: SceneRefs): void {
   refs.aiConversation.style.opacity = '0';
   refs.recovery.style.opacity = '0';
   refs.cost.style.opacity = '0';
+  refs.open.style.opacity = '0';
   refs.operations.removeAttribute('clip-path');
   Object.assign(refs.materialState, {
     mode: 'paper',

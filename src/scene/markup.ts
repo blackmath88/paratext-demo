@@ -792,3 +792,14 @@ export function buildCost(): SVGGElement {
 
   return g as SVGGElement;
 }
+
+/** Final question. The operation field remains the material under discussion. */
+export function buildOpen(): SVGGElement {
+  const g = el('g', { id: 'open-question', opacity: '0' });
+  const question = el('text', {
+    class: 'open-question-text', x: 720, y: 118, 'text-anchor': 'middle',
+  });
+  question.textContent = 'Which frame now?';
+  g.appendChild(question);
+  return g as SVGGElement;
+}
