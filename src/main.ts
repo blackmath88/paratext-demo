@@ -18,7 +18,9 @@ import './styles/global.css';
 import './styles/scene.css';
 
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { buildMaster, type Master } from './animation/master';
+import gsap from 'gsap';
+import Lenis from 'lenis';
+import { buildMaster, type Master, type ScrollTo } from './animation/master';
 import { acts, settlePoints } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
 import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
@@ -33,6 +35,15 @@ const frameSwitcherMount = document.querySelector<HTMLElement>('#frame-switcher'
 
 if (!stage || !sceneMount || !navMount || !foreground || !frameSwitcherMount) {
   throw new Error('main: required mount points are missing from the document');
+}
+
+// Capture deep links before the browser can apply native anchor scrolling to
+// content below the pinned range. Navigation restores the requested act once
+// the master has measured its scroll coordinates.
+let startupActId = location.hash.replace('#', '') || undefined;
+if (startupActId) {
+  history.replaceState(null, '', `${location.pathname}${location.search}`);
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 let mode: Mode = detectMode();
@@ -86,6 +97,28 @@ let staticObserver: IntersectionObserver | undefined;
 let renderedProgress = 0;
 let resizeAnchorId: string | undefined;
 let resizeAnchorTimer: number | undefined;
+let lenis: Lenis | undefined;
+let lenisTick: ((time: number) => void) | undefined;
+
+/** Lenis exists only while an animated master exists. */
+function attachSmoothScroll(): ScrollTo | undefined {
+  if (mode === 'static') return undefined;
+
+  lenis = new Lenis({ autoRaf: false });
+  lenis.on('scroll', ScrollTrigger.update);
+  lenisTick = (time) => lenis?.raf(time * 1000);
+  gsap.ticker.add(lenisTick);
+  gsap.ticker.lagSmoothing(0);
+
+  return (target, immediate) => lenis?.scrollTo(target, { immediate });
+}
+
+function detachSmoothScroll(): void {
+  if (lenisTick) gsap.ticker.remove(lenisTick);
+  lenisTick = undefined;
+  lenis?.destroy();
+  lenis = undefined;
+}
 
 // Capture the stable act before ScrollTrigger remaps scroll coordinates. The
 // anchor expires if the resize does not actually cross a responsive mode.
@@ -134,9 +167,11 @@ function attachStaticObserver(current: Master): void {
 }
 
 function boot(initialProgress = 0): void {
-  master = buildMaster(refs, mode, stage!, onProgress);
+  const scrollTo = attachSmoothScroll();
+  master = buildMaster(refs, mode, stage!, onProgress, scrollTo);
   frameSwitcher = buildFrameSwitcher(frameSwitcherMount!, refs, mode);
-  navigation = buildNavigation(navMount!, master);
+  navigation = buildNavigation(navMount!, master, startupActId);
+  startupActId = undefined;
   if (mode === 'static') attachStaticObserver(master);
   ScrollTrigger.refresh();
   if (initialProgress > 0) {
@@ -161,6 +196,7 @@ function teardown(): void {
   frameSwitcher = undefined;
   master?.destroy();
   master = undefined;
+  detachSmoothScroll();
 }
 
 boot();

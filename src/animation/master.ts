@@ -73,11 +73,14 @@ export type Master = {
   destroy(): void;
 };
 
+export type ScrollTo = (target: number, immediate: boolean) => void;
+
 export function buildMaster(
   refs: SceneRefs,
   mode: Mode,
   stage: HTMLElement,
   onProgress: (progress: number) => void,
+  scrollTo?: ScrollTo,
 ): Master {
   gsap.set(refs.svg.querySelectorAll('*'), { clearProps: 'all' });
   resetScene(refs);
@@ -146,7 +149,8 @@ export function buildMaster(
       const clamped = gsap.utils.clamp(0, 1, progress);
       const start = trigger.start;
       const target = start + (trigger.end - start) * clamped;
-      window.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
+      if (scrollTo) scrollTo(target, !smooth);
+      else window.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
     },
     destroy: () => {
       trigger.kill();

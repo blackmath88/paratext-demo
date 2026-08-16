@@ -16,7 +16,11 @@ export type Navigation = {
   destroy(): void;
 };
 
-export function buildNavigation(mount: HTMLElement, master: Master): Navigation {
+export function buildNavigation(
+  mount: HTMLElement,
+  master: Master,
+  initialHash = location.hash.replace('#', ''),
+): Navigation {
   const nav = document.createElement('nav');
   nav.className = 'actnav';
   nav.setAttribute('aria-label', 'Acts');
@@ -39,11 +43,16 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
       `<span class="actnav__title">${act.shortTitle}</span>`;
 
     link.addEventListener('click', (e) => {
-      e.preventDefault();
       // Land on the same stable argument state used by scroll snapping.
       const target = settlePoints[index] ?? act.start;
-      master.seek(target, true);
-      history.replaceState(null, '', `#${act.id}`);
+      if (master.trigger) {
+        e.preventDefault();
+        master.seek(target, true);
+        history.replaceState(null, '', `#${act.id}`);
+      } else {
+        // Static mode keeps native anchor navigation: no Lenis and no motion.
+        master.seek(target, false);
+      }
     });
 
     item.appendChild(link);
@@ -83,24 +92,36 @@ export function buildNavigation(mount: HTMLElement, master: Master): Navigation 
   };
 
   // Direct navigation to a hash.
-  const applyHash = () => {
-    const id = location.hash.replace('#', '');
+  const applyHash = (id = location.hash.replace('#', '')) => {
     const act = actById(id);
     if (!act) return;
     const index = acts.indexOf(act);
     master.seek(settlePoints[index] ?? act.start, false);
+    if (!master.trigger) document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
   };
 
   const onHashChange = () => applyHash();
   window.addEventListener('hashchange', onHashChange);
 
   // Defer so ScrollTrigger has measured before we scroll into position.
-  if (location.hash) requestAnimationFrame(() => requestAnimationFrame(applyHash));
+  let initialHashTimer: number | undefined;
+  const applyInitialHash = () => {
+    // Native anchor placement happens at the end of the load task even though
+    // the hash was removed during boot. Restore on the following task so it
+    // cannot overwrite the authored timeline position.
+    initialHashTimer = window.setTimeout(() => applyHash(initialHash), 0);
+  };
+  if (initialHash) {
+    if (document.readyState === 'complete') applyInitialHash();
+    else window.addEventListener('load', applyInitialHash, { once: true });
+  }
 
   return {
     update,
     destroy: () => {
       window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener('load', applyInitialHash);
+      if (initialHashTimer !== undefined) window.clearTimeout(initialHashTimer);
       nav.remove();
     },
   };
