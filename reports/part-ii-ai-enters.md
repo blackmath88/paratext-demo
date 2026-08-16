@@ -41,8 +41,7 @@ takes ownership of the composition.
 - `II·01` AI / Conversation: `.52–.60`, settle at 60% of the act
 - `II·02` The tube: `.60–.68`, settle at 64% of the act
 
-Recovery, Projections and Cost now occupy `.68–.92`; the remaining `.92–1` is
-reserved for Open.
+Recovery, Projections, Cost and Open now occupy `.68–1`.
 
 The master fits authored motion into 70% of every range and appends a 30% hold
 tail. ScrollTrigger snaps to the declared settle points with inertia disabled.
@@ -56,10 +55,9 @@ and restoring deterministic scene, material, frame and operation state.
 
 ## 7. Remaining risk before later Part II slices
 
-- The projection furniture, selector and Cost displacement now share operation
-  state; Open must preserve that ownership at the interactive endpoint.
+- The projection furniture, selector, Cost displacement and Open endpoint all
+  share operation state.
 - The tube uses representative SVG turns, not virtualization. A later expanded
   transcript needs a bounded rendering strategy.
-- Apparatus return, segmentation, addressability and supersession remain
-  intentionally unimplemented; they should reuse the durable operation IDs and
-  shared material state rather than introduce parallel scene ownership.
+- Future transcript expansion still needs a bounded rendering strategy; the
+  present argument intentionally remains at 16 durable operations.

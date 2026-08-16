@@ -11,8 +11,8 @@
   clipping viewport, long computational strip and continuation markers.
 - **Timeline:** after the Part II rebalance, Part I ends with Fragments at .52.
   `II·01` AI / Conversation is .52–.60; `II·02` The Tube is .60–.68. Both
-  retain master-managed plateaus; Recovery, Projections and Cost now occupy
-  .68–.92, while .92–1 is reserved for Open.
+  retain master-managed plateaus; Recovery, Projections, Cost and Open now
+  occupy .68–1.
 - **Reduced motion:** section seeking lands on the calm four-turn conversation
   and the fully revealed tube endpoints.
 - **Performance:** 16 existing operation groups imply scale; no bulk message

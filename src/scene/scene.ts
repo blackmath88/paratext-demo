@@ -164,7 +164,8 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
     'recovers segmentation, apparatus, stable addresses and explicit supersession before the ' +
     'same operations recompose into several coherent projections. One projection then changes ' +
-    'without the reader asking, displacing a tracked claim and its shared pointing position.';
+    'without the reader asking, displacing a tracked claim and its shared pointing position. ' +
+    'The operation field remains visible under the final question: Which frame now?';
 
   svg.appendChild(title);
   svg.appendChild(desc);

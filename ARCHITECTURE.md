@@ -238,6 +238,7 @@ Recorded so later milestones do not have to re-litigate them:
 - Projection furniture and the HTML frame switcher become live only after the
   Projections act settles. Both animated and interactive arrangements write
   through the shared operation model. Cost uses the same writer for its
-  unsolicited projection change; Open remains the final slice.
+  unsolicited projection change. Open leaves that shared field visible and
+  hands the live selector to the viewer instead of declaring a final frame.
 - **Canvas/WebGL** stays out. If Act 7 cannot hit frame rate with DOM, the
   answer is fewer elements, not a renderer change.

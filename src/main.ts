@@ -83,8 +83,20 @@ let master: Master | undefined;
 let navigation: Navigation | undefined;
 let frameSwitcher: FrameSwitcher | undefined;
 let staticObserver: IntersectionObserver | undefined;
+let renderedProgress = 0;
+let resizeAnchorId: string | undefined;
+let resizeAnchorTimer: number | undefined;
+
+// Capture the stable act before ScrollTrigger remaps scroll coordinates. The
+// anchor expires if the resize does not actually cross a responsive mode.
+window.addEventListener('resize', () => {
+  resizeAnchorId = location.hash.replace('#', '');
+  if (resizeAnchorTimer !== undefined) window.clearTimeout(resizeAnchorTimer);
+  resizeAnchorTimer = window.setTimeout(() => { resizeAnchorId = undefined; }, 400);
+}, { passive: true });
 
 function onProgress(progress: number): void {
+  renderedProgress = progress;
   navigation?.update(progress);
   const costIsMoving = Boolean(
     cost && progress >= cost.start - 0.001 && progress < costSettle - 0.001,
@@ -128,7 +140,13 @@ function boot(initialProgress = 0): void {
   if (mode === 'static') attachStaticObserver(master);
   ScrollTrigger.refresh();
   if (initialProgress > 0) {
-    requestAnimationFrame(() => master?.seek(initialProgress, false));
+    requestAnimationFrame(() => {
+      master?.seek(initialProgress, false);
+      requestAnimationFrame(() => {
+        master?.timeline.progress(initialProgress);
+        onProgress(initialProgress);
+      });
+    });
   } else {
     onProgress(0);
   }
@@ -148,7 +166,13 @@ function teardown(): void {
 boot();
 
 onModeChange((next) => {
-  const progress = master?.trigger?.progress ?? master?.timeline.progress() ?? 0;
+  const activeId = resizeAnchorId ?? location.hash.replace('#', '');
+  resizeAnchorId = undefined;
+  const activeAct = acts.find((act) => act.id === activeId);
+  const activeIndex = activeAct ? acts.indexOf(activeAct) : -1;
+  const progress = activeIndex >= 0
+    ? settlePoints[activeIndex] ?? renderedProgress
+    : renderedProgress;
   mode = next;
   document.body.dataset.mode = mode;
   teardown();
