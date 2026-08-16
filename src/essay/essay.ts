@@ -7,21 +7,22 @@ const T='#1a7a6d',P='#3d1f47',R='#d4416b';
 
 /* ===== station control ===== */
 const STEPS=ESSAY_STATIONS.map(({name,description})=>({n:name,d:description}));
+const BUILT_LEVEL=5;
 const station=document.getElementById('station'),ticks=document.getElementById('stationTicks');
 const ordinal=document.getElementById('stationOrdinal'),stationName=document.getElementById('stationName');
 const capability=document.getElementById('stationCapability'),hint=document.getElementById('stationHint');
 const prev=document.getElementById('stationPrev'),next=document.getElementById('stationNext');
-STEPS.forEach((_,i)=>{const tick=document.createElement('i');tick.className='station-tick';tick.dataset.i=i;ticks.appendChild(tick);});
+STEPS.forEach((_,i)=>{const tick=document.createElement('i');tick.className='station-tick';tick.classList.toggle('is-future',i>BUILT_LEVEL);tick.dataset.i=i;ticks.appendChild(tick);});
 let LEVEL=0,INTRO_ACTIVE=false,JUST_ABORTED=false,introTimers=[];
 function setLevel(n){
-  LEVEL=Math.max(0,Math.min(8,n));
+  LEVEL=Math.max(0,Math.min(BUILT_LEVEL,n));
   const b=document.body;
   b.className='';
   for(let i=0;i<=LEVEL;i++)b.classList.add('ge'+i);
   b.dataset.level=LEVEL;
   ordinal.textContent=String(LEVEL).padStart(2,'0');stationName.textContent=STEPS[LEVEL].n;capability.textContent=STEPS[LEVEL].d;
   ticks.querySelectorAll('.station-tick').forEach((tick,i)=>{tick.classList.toggle('reached',i<=LEVEL);tick.classList.toggle('current',i===LEVEL);});
-  prev.disabled=LEVEL===0;next.disabled=LEVEL===8;updateReadingProgress();
+  prev.disabled=LEVEL===0;next.disabled=LEVEL===BUILT_LEVEL;updateReadingProgress();
 }
 function stopIntro(){introTimers.forEach(window.clearTimeout);introTimers=[];INTRO_ACTIVE=false;station.classList.remove('is-running');}
 function abortIntro(){if(!INTRO_ACTIVE)return false;stopIntro();setLevel(5);JUST_ABORTED=true;window.setTimeout(()=>{JUST_ABORTED=false;},0);return true;}
@@ -92,10 +93,6 @@ document.querySelectorAll('.chip[data-src]').forEach((chip)=>{
     if(openSource){detail.classList.add('is-open');chip.setAttribute('aria-expanded','true');}
   };
 });
-
-document.querySelectorAll('.contents a').forEach((link)=>link.addEventListener('click',(event)=>{
-  event.preventDefault();document.querySelector(link.getAttribute('href'))?.scrollIntoView({behavior:'smooth',block:'start'});
-}));
 
 /* ===== figures ===== */
 (function(){
@@ -203,7 +200,7 @@ function updateReadingProgress(){
   progress.style.width=(Math.max(0,Math.min(1,(window.scrollY-start)/length))*100)+'%';
 }
 let collapseTimer;
-window.addEventListener('scroll',()=>{updateReadingProgress();station.classList.remove('is-expanded');window.clearTimeout(collapseTimer);collapseTimer=window.setTimeout(()=>station.classList.add('is-resting'),120);},{passive:true});
+window.addEventListener('scroll',()=>{abortIntro();updateReadingProgress();station.classList.remove('is-expanded');window.clearTimeout(collapseTimer);collapseTimer=window.setTimeout(()=>station.classList.add('is-resting'),120);},{passive:true});
 window.addEventListener('keydown',(event)=>{
   if(event.target instanceof HTMLInputElement||event.target instanceof HTMLTextAreaElement||event.target.isContentEditable)return;
   if(abortIntro()){event.preventDefault();return;}

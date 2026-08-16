@@ -18,9 +18,9 @@ export const ESSAY_STATIONS: EssayStation[] = [
   { level: 3, name: 'Gloss', description: 'annotation: commentary becomes addressable without interrupting the line', demonstratedBy: 'Five note anchors project into real marginal glosses.' },
   { level: 4, name: 'Print', description: 'regularisation: reproducible hierarchy makes the apparatus citable', demonstratedBy: 'The essay sections supply headings, numbers, rules, contents, and running identity.' },
   { level: 5, name: 'Editorial Web', description: 'composition and inspectable evidence: sources open where they are cited', demonstratedBy: 'Existing claims, figures, instruments, and pull quotes acquire responsive editorial hierarchy.' },
-  { level: 6, name: 'Hypertext', description: 'not yet designed', demonstratedBy: 'Stable identities and cross-link relations remain in the data.' },
-  { level: 7, name: 'Layering', description: 'not yet designed', demonstratedBy: 'The station is retained as a placeholder without a shipped mechanism.' },
-  { level: 8, name: 'Vista', description: 'not yet designed', demonstratedBy: 'Projection metadata remains populated without exposing a projection interface.' },
+  { level: 6, name: 'Hypertext', description: 'The scroll breaks. Every section and every claim becomes a place you can name and reach.', demonstratedBy: 'Section IDs and cross-link relations remain available for the later station.' },
+  { level: 7, name: 'Layering', description: 'Depth instead of length. Claims carry their thesis; the argument beneath them folds away.', demonstratedBy: 'Semantic grouping remains available for the later station.' },
+  { level: 8, name: 'The spread', description: 'One opening carrying the whole essay.', demonstratedBy: 'The obsolete experiment is preserved as reference, not shipped as an endpoint.' },
 ];
 
 /** Semantic work units shared with the animation's Operation model. */
