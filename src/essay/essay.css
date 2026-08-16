@@ -335,6 +335,7 @@ body.ge4 .theme-control{display:flex}
 .theme-control button.active{border-color:var(--teal);color:var(--teal-txt)}
 body:not(.ge4) .colophon,body:not(.ge5) .feedback{display:none}
 body:not(.ge5) .spec.node .fail{font-weight:inherit;color:inherit}
+body:not(.ge1) .spec.node,body:not(.ge1) .spec.node>div{display:inline}
 
 @media(max-width:760px){
   .station-steppers button{width:44px;height:44px}

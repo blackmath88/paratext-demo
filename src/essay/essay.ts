@@ -14,6 +14,7 @@ const capability=document.getElementById('stationCapability'),hint=document.getE
 const prev=document.getElementById('stationPrev'),next=document.getElementById('stationNext');
 STEPS.forEach((_,i)=>{const tick=document.createElement('i');tick.className='station-tick';tick.classList.toggle('is-future',i>BUILT_LEVEL);tick.dataset.i=i;ticks.appendChild(tick);});
 let LEVEL=0,INTRO_ACTIVE=false,JUST_ABORTED=false,introTimers=[];
+let verifyEssayIntegrity=()=>{};
 function setLevel(n){
   LEVEL=Math.max(0,Math.min(BUILT_LEVEL,n));
   const b=document.body;
@@ -23,9 +24,12 @@ function setLevel(n){
   ordinal.textContent=String(LEVEL).padStart(2,'0');stationName.textContent=STEPS[LEVEL].n;capability.textContent=STEPS[LEVEL].d;
   ticks.querySelectorAll('.station-tick').forEach((tick,i)=>{tick.classList.toggle('reached',i<=LEVEL);tick.classList.toggle('current',i===LEVEL);});
   prev.disabled=LEVEL===0;next.disabled=LEVEL===BUILT_LEVEL;updateReadingProgress();
+  if(LEVEL<5)closeSourceDetails();
+  verifyEssayIntegrity();
 }
+function settleStationControl(){station.classList.add('is-resting');station.classList.remove('is-expanded');}
 function stopIntro(){introTimers.forEach(window.clearTimeout);introTimers=[];INTRO_ACTIVE=false;station.classList.remove('is-running');}
-function abortIntro(){if(!INTRO_ACTIVE)return false;stopIntro();setLevel(5);JUST_ABORTED=true;window.setTimeout(()=>{JUST_ABORTED=false;},0);return true;}
+function abortIntro(){if(!INTRO_ACTIVE)return false;stopIntro();setLevel(5);settleStationControl();JUST_ABORTED=true;window.setTimeout(()=>{JUST_ABORTED=false;},0);return true;}
 prev.onclick=(event)=>{if(JUST_ABORTED||abortIntro()){event.preventDefault();return;}setLevel(LEVEL-1);};
 next.onclick=(event)=>{if(JUST_ABORTED||abortIntro()){event.preventDefault();return;}setLevel(LEVEL+1);};
 station.addEventListener('click',(event)=>{if(event.target.closest('button'))return;station.classList.toggle('is-expanded');});
@@ -79,6 +83,11 @@ document.querySelectorAll('.anchor').forEach(a=>{
   a.onclick=()=>el.classList.toggle('lit');
 });
 let openSource;
+function closeSourceDetails(){
+  document.querySelectorAll('.source-detail.is-open').forEach((item)=>item.classList.remove('is-open'));
+  document.querySelectorAll('.chip[aria-expanded=true]').forEach((item)=>item.setAttribute('aria-expanded','false'));
+  openSource=undefined;
+}
 document.querySelectorAll('.chip[data-src]').forEach((chip)=>{
   const source=SOURCES[chip.dataset.src];if(!source)return;
   chip.setAttribute('aria-expanded','false');
@@ -87,10 +96,10 @@ document.querySelectorAll('.chip[data-src]').forEach((chip)=>{
   chip.insertAdjacentElement('afterend',detail);
   chip.onclick=(event)=>{event.preventDefault();if(LEVEL<5)return;
     const closing=openSource===detail;
-    document.querySelectorAll('.source-detail.is-open').forEach((item)=>item.classList.remove('is-open'));
-    document.querySelectorAll('.chip[aria-expanded=true]').forEach((item)=>item.setAttribute('aria-expanded','false'));
+    closeSourceDetails();
     openSource=closing?undefined:detail;
     if(openSource){detail.classList.add('is-open');chip.setAttribute('aria-expanded','true');}
+    verifyEssayIntegrity();
   };
 });
 
@@ -179,6 +188,23 @@ document.getElementById('gridCoded').onclick=function(e){
 const stream=document.getElementById('stream');
 applyEssayOperationMetadata(stream);
 
+/* Station changes may add apparatus, but never another authored essay. */
+const authoredNodes=Array.from(stream.children).filter((node)=>node.matches('[data-frames]'));
+const authoredIds=authoredNodes.filter((node)=>node.dataset.id).map((node)=>node.dataset.id);
+const generatedScaffoldCount=stream.querySelectorAll('.sidenote,.source-detail').length;
+verifyEssayIntegrity=()=>{
+  const currentNodes=Array.from(stream.children).filter((node)=>node.matches('[data-frames]'));
+  const currentIds=currentNodes.filter((node)=>node.dataset.id).map((node)=>node.dataset.id);
+  const identityIsStable=currentNodes.length===authoredNodes.length&&currentNodes.every((node,index)=>node===authoredNodes[index]);
+  const idsAreStable=currentIds.length===authoredIds.length&&currentIds.every((id,index)=>id===authoredIds[index]);
+  const idsAreUnique=new Set(currentIds).size===currentIds.length;
+  const scaffoldIsStable=stream.querySelectorAll('.sidenote,.source-detail').length===generatedScaffoldCount;
+  if(!identityIsStable||!idsAreStable||!idsAreUnique||!scaffoldIsStable){
+    throw new Error('Essay station invariant failed: authored nodes or generated apparatus changed.');
+  }
+};
+verifyEssayIntegrity();
+
 /* ===== misc + boot ===== */
 document.getElementById('fbLinkedIn').href=CONFIG.linkedin;
 document.getElementById('fbMail').href='mailto:'+CONFIG.email+'?subject='+encodeURIComponent(CONFIG.subject);
@@ -211,9 +237,9 @@ for(const type of ['wheel','touchstart','pointerdown'])window.addEventListener(t
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let visited=false;
 try{visited=sessionStorage.getItem('frame-problem-visited')==='1';sessionStorage.setItem('frame-problem-visited','1');}catch{visited=false;}
-if(reduce||visited){setLevel(5);if(reduce){hint.hidden=false;station.classList.add('is-expanded');}}
+if(reduce||visited){setLevel(5);settleStationControl();if(reduce)hint.hidden=false;}
 else{
   INTRO_ACTIVE=true;station.classList.add('is-running','is-expanded');setLevel(0);
-  [[250,1],[500,2],[950,3],[1550,4],[2500,5]].forEach(([delay,level])=>introTimers.push(window.setTimeout(()=>{setLevel(level);if(level===5)stopIntro();},delay)));
+  [[250,1],[500,2],[950,3],[1550,4],[2500,5]].forEach(([delay,level])=>introTimers.push(window.setTimeout(()=>{setLevel(level);if(level===5){stopIntro();settleStationControl();}},delay)));
 }
 window.addEventListener('load',updateReadingProgress);
