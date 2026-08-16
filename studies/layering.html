@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-direction="expansion">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A feasibility study for semantic depth in the performative essay.">
+  <title>Layering study — The frame problem in agent threads</title>
+  <link rel="stylesheet" href="../src/studies/layering.css">
+</head>
+<body>
+  <header class="study-head">
+    <span class="station">07?</span>
+    <div><strong>Layering feasibility study</strong><span>Can context appear without losing the current place?</span></div>
+  </header>
+
+  <nav class="study-controls" aria-label="Study directions and cases">
+    <fieldset id="directions">
+      <legend>Spatial hypothesis</legend>
+      <button type="button" data-direction="margin">A · Margin</button>
+      <button type="button" data-direction="expansion" aria-pressed="true">B · Expansion</button>
+      <button type="button" data-direction="superimposed">C · Superimposed</button>
+    </fieldset>
+    <fieldset id="cases">
+      <legend>Real essay relationship</legend>
+      <button type="button" data-case="source" aria-pressed="true">Claim → source</button>
+      <button type="button" data-case="related">Claim → related section</button>
+      <button type="button" data-case="supersession">Claim → superseded claim</button>
+    </fieldset>
+  </nav>
+
+  <main>
+    <div class="location" id="location" aria-live="polite"></div>
+    <div class="field" id="field">
+      <article class="primary-plane" id="primaryPlane" tabindex="-1"></article>
+      <aside class="secondary-plane" id="secondaryPlane" tabindex="-1" aria-label="Inspected secondary context" hidden></aside>
+    </div>
+    <section class="evaluation" aria-labelledby="evaluationTitle">
+      <p class="eyebrow">Evaluation</p>
+      <h2 id="evaluationTitle">Does another depth earn a station?</h2>
+      <div class="evaluation-grid">
+        <article><span>A</span><h3>Marginal depth</h3><p>Preserves the place, but remains too close to Gloss and a conventional sidenote. Useful, not new.</p></article>
+        <article class="winner"><span>B</span><h3>Spatial expansion</h3><p>The primary geometry persists while a related leaf opens. Inspect and Navigate become visibly different actions.</p></article>
+        <article><span>C</span><h3>Superimposed depth</h3><p>Keeps context present, but behaves too much like a modal overlay and weakens reading continuity.</p></article>
+      </div>
+      <p class="verdict"><strong>Provisional verdict:</strong> Layering earns a station only as spatial expansion—not as a general license for panels. Its formal rule is that inspection may widen the current place, but may not replace or mutate it.</p>
+    </section>
+  </main>
+
+  <iframe id="canonicalSource" class="canonical-source" title="Canonical essay content source" aria-hidden="true"></iframe>
+  <script type="module" src="../src/studies/layering.ts"></script>
+</body>
+</html>
