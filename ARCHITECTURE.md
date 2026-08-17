@@ -48,7 +48,7 @@ svg#scene
     ├── g#print         title, caput, folio, footnotes   (Act 3)
     └── g#editorial     construction grid and labels    (Act 4)
 └── g#surface      ← software/screen carrier; sibling of #page
-    ├── g#hypertext     addressable textual places and history
+    ├── g#hypertext-scene addressable textual places and history
     ├── g#application
     ├── g#fragments
     ├── g#ai-conversation

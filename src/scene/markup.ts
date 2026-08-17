@@ -530,7 +530,7 @@ const HYPERTEXT_PLACES: readonly HypertextPlace[] = [
 
 /** First digital substrate: navigable locations without application state. */
 export function buildHypertext(): SVGGElement {
-  const g = el('g', { id: 'hypertext', opacity: '0' });
+  const g = el('g', { id: 'hypertext-scene', opacity: '0' });
   g.appendChild(el('rect', {
     id: 'hypertext-substrate', class: 'hypertext-substrate',
     x: 140, y: 42, width: 1160, height: 816,

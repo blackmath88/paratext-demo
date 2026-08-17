@@ -259,7 +259,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     magazineCaption: must(svg, '#magazine-caption'),
     magazineQuote: must(svg, '#magazine-quote'),
     magazineLabels: must(svg, '#magazine-labels'),
-    hypertext: must(svg, '#hypertext'),
+    hypertext: must(svg, '#hypertext-scene'),
     hypertextSubstrate: must(svg, '#hypertext-substrate'),
     hypertextPlaces: [...svg.querySelectorAll<SVGGElement>('.hypertext-place')],
     hypertextControls: must(svg, '#hypertext-controls'),
