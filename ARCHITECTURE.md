@@ -1,9 +1,10 @@
 # Architecture — A History of Framing
 
-This document describes the scene graph, the timeline model and the responsive
-strategy. It is written before implementation so the acts have something to
-conform to, rather than the architecture being back-formed from whatever the
-animation code happened to need.
+This document describes the currently implemented scene graph, timeline model,
+and responsive strategy. The intended next conceptual revision—three framing
+regimes separated by Digital and AI paradigm shifts—is recorded separately in
+[`docs/animation-paradigm-structure.md`](./docs/animation-paradigm-structure.md).
+That brief is not implemented and does not override current runtime facts.
 
 ---
 
@@ -108,9 +109,12 @@ Rules that keep this honest:
 - **Transitions belong to the act that is arriving**, not to a separate
   "transition" module. `actPrint` opens by regularizing Act 2's marginalia —
   it owns the 2→3 move, because that move *is* the argument of Act 3.
-- Each authored act occupies 70% of its declared range. The remaining 30% is a
-  real hold tail, giving scroll snapping, review links and reduced-motion seeks
-  a stable endpoint rather than a frame inside active choreography.
+- Each act declares its own `settle` ratio in `data/acts.ts`. The master fits
+  choreography to that portion of the range and appends a real hold tail for
+  the remainder. Scroll snapping, review links, and reduced-motion seeks all
+  target that same completed state. Most material acts currently resolve at
+  70%; Conversation, Tube, Recovery, Projections, Cost, and Open deliberately
+  use different ratios.
 - Act boundaries are declared once, as normalized progress, in `data/acts.ts`.
   Navigation and the timeline read the same numbers, so the navigator cannot
   drift out of sync with the animation.
@@ -223,15 +227,22 @@ src/
     env.ts                mode detection, reduced motion, debounced resize
 ```
 
-Acts 4–8 add one module each under `animation/` and one entry in `acts.ts`.
-Shared path, material and operation writers live beside those act factories so
-later acts cannot accidentally introduce competing geometry ownership.
+Every implemented act has one module under `animation/` and one entry in
+`acts.ts`. Shared path, material, and operation writers live beside those act
+factories so later acts cannot accidentally introduce competing geometry
+ownership.
 
 ---
 
 ## 8. Deferred decisions
 
 Recorded so later milestones do not have to re-litigate them:
+
+- The current scene implements one continuous act sequence. The next design
+  pass must make Material, Digital, and AI regimes—and both substrate shifts—
+  perceptible without violating the single-field continuity constraint. The
+  concept brief owns that intended direction; this document continues to own
+  current implementation mechanics.
 
 - Part II currently uses 16 durable semantic operation nodes. Later scale must
   remain implied or virtualized; it must not manufacture hundreds of SVG nodes.

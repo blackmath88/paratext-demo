@@ -1,6 +1,7 @@
 # A History of Framing
 
-A scroll-driven editorial animation about paratext, interfaces and language.
+A scroll-driven editorial animation about how material, computational, and
+linguistic regimes frame text and structured work.
 
 One body of text persists through the whole piece. It is never replaced: its
 presentation discloses a page boundary, outside annotations force that boundary
@@ -14,6 +15,13 @@ conversation and reveals its long chronological stream.
 **Status: complete through Part II.** AI enters as conversation, grows into a
 chronological tube, recovers apparatus, recomposes into live frames, names the
 cost of unsolicited framing, and ends with the viewer choosing the frame.
+
+The next conceptual revision is documented—but not implemented—in
+[`docs/animation-paradigm-structure.md`](./docs/animation-paradigm-structure.md).
+It reorganizes the argument as three framing regimes separated by a Digital
+shift and an AI shift. Runtime act names, order, narration, and visuals remain
+unchanged until a dedicated implementation pass resolves the open decisions in
+that brief.
 
 ## Develop
 
@@ -58,8 +66,10 @@ renamed.
 
 ## Structure
 
-See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the scene graph, the timeline
-model and the responsive strategy. In short:
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the implemented scene graph,
+timeline model, and responsive strategy. See the
+[`animation paradigm brief`](./docs/animation-paradigm-structure.md) for the
+intended conceptual revision. In short:
 
 - `src/scene/` builds the SVG **once** and hands back typed refs.
 - `src/animation/` may only transform what already exists — act modules have no
