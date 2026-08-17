@@ -143,10 +143,9 @@ export function buildMaster(
     };
   }
 
-  // Hypertext adds a deliberately long navigation sequence. Increasing the
-  // physical range preserves the established pace of earlier acts while the
-  // new digital threshold receives enough distance to read and settle.
-  const scrollLength = mode === 'cinematic' ? '+=1030%' : '+=620%';
+  // The two digital acts add deliberately legible navigation and state
+  // sequences. The longer physical range preserves the established act pace.
+  const scrollLength = mode === 'cinematic' ? '+=1095%' : '+=660%';
 
   const trigger = ScrollTrigger.create({
     animation: timeline,

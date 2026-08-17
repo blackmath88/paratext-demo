@@ -26,18 +26,12 @@ export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
     opacity: 0, duration: 0.45, stagger: 0.06,
   }, 1.25);
 
-  // Application regions are claimed by different tools before the parent
-  // shell recedes. This makes the split causal rather than six new windows
-  // appearing on top of an application screenshot.
-  const navRegion = refs.application.querySelectorAll('#app-nav-section, .app-nav-item');
-  const inspectorRegion = refs.application.querySelectorAll(
-    '#app-inspector-label, [id^="app-meta"], #app-missing-reason, [id^="app-history"]',
-  );
-  const headerRegion = refs.application.querySelectorAll('#app-brand, #app-search, #app-content-label');
-  tl.to(navRegion, { x: 690, y: 330, opacity: 0, duration: 1.25, ease: 'power3.inOut' }, 0.18);
-  tl.to(refs.appRecords, { x: 505, y: -28, opacity: 0, duration: 1.25, ease: 'power3.inOut' }, 0.2);
-  tl.to(inspectorRegion, { x: -790, y: 302, opacity: 0, duration: 1.3, ease: 'power3.inOut' }, 0.2);
-  tl.to(headerRegion, { y: -32, opacity: 0, duration: 0.9, ease: 'power2.in' }, 0.25);
+  // The coherent application separates into local tool regions before its
+  // shared shell recedes. The critique begins here, not in the application act.
+  tl.to(refs.appMetatext, { x: -92, y: 300, opacity: 0, duration: 1.25, ease: 'power3.inOut' }, 0.18);
+  tl.to(refs.appViewLayers, { x: 500, y: -30, opacity: 0, duration: 1.25, ease: 'power3.inOut' }, 0.2);
+  tl.to(refs.appState, { x: -520, y: 80, opacity: 0, duration: 1.3, ease: 'power3.inOut' }, 0.2);
+  tl.to(refs.appChrome, { y: -32, opacity: 0, duration: 0.9, ease: 'power2.in' }, 0.25);
   tl.to(refs.appRules, { opacity: 0, duration: 0.85 }, 0.55);
   tl.to(refs.application, { opacity: 0.12, duration: 0.35 }, 1.3);
   tl.to(refs.leaf, { opacity: 0.08, duration: 1.3, ease: 'power2.inOut' }, 0.35);
@@ -45,8 +39,9 @@ export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   tl.to([refs.rulePaths[0], refs.rulePaths[1]], { opacity: 0.06, duration: 0.9 }, 0.55);
   tl.to(refs.printNotes, { opacity: 0.12, duration: 0.8 }, 0.6);
 
-  // The persistent document is claimed by the draft window rather than
-  // replaced by a mock document.
+  // The earlier document persists and is claimed by the draft window rather
+  // than being replaced by a mock document.
+  tl.fromTo([refs.body, refs.printTitle, refs.printCaput], { opacity: 0 }, { opacity: 1, duration: 0.55 }, 0.42);
   tl.to(refs.body, { x: 530, y: -80, scale: 0.52, transformOrigin: '466px 264px', duration: 1.55, ease: 'power3.inOut' }, 0.25);
   tl.to(refs.printTitle, { x: 530, y: -52, scale: 0.7, transformOrigin: '466px 206px', duration: 1.5, ease: 'power3.inOut' }, 0.25);
   tl.to(refs.printCaput, { opacity: 0.35, x: 530, y: -48, scale: 0.7, transformOrigin: '466px 234px', duration: 1.4 }, 0.3);

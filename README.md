@@ -7,8 +7,9 @@ One body of text persists through the whole piece. It is never replaced: its
 presentation discloses a page boundary, outside annotations force that boundary
 to expand, and those notes regularize into printed apparatus and editorial
 composition. Hypertext then replaces physical adjacency with addressable,
-navigable places before the same context passes through application structure
-and fragmentation and the later sequence introduces AI
+navigable places. Application turns the frame into several operational views
+onto one persistent state, then exposes the metatext that composes the frame.
+Fragmentation follows before the later sequence introduces AI
 conversation and reveals its long chronological stream.
 
 > Language may become the universal input. It does not have to become the
@@ -20,8 +21,9 @@ cost of unsolicited framing, and ends with the viewer choosing the frame.
 
 The larger conceptual revision is documented in
 [`docs/animation-paradigm-structure.md`](./docs/animation-paradigm-structure.md).
-The material-to-digital shift is now implemented through the Magazine →
-Hypertext transition; the later regime changes remain intentionally unchanged.
+The material-to-digital shift is now implemented through Magazine → Hypertext
+→ Application / State / Metatext; the later regime changes remain intentionally
+unchanged.
 
 ## Develop
 

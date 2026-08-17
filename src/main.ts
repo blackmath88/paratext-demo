@@ -85,6 +85,14 @@ const bridgeFragments = acts.flatMap((act) => {
   foreground.appendChild(p);
   return [{ act, node: p }];
 });
+const beatFragments = acts.flatMap((act) => (act.beats ?? []).map((beat, index) => {
+  const p = document.createElement('p');
+  p.className = `fragment fragment--beat fragment--${act.id}-beat-${index}`;
+  p.setAttribute('aria-hidden', 'true');
+  p.textContent = beat.text;
+  foreground.appendChild(p);
+  return { act, beat, node: p };
+}));
 const openingRegimeEnd = acts.find((act) => act.id === 'magazine')?.end ?? 0;
 
 function updateFragments(progress: number): void {
@@ -92,9 +100,10 @@ function updateFragments(progress: number): void {
     const span = act.end - act.start;
     const isOpeningRegime = act.end <= openingRegimeEnd;
     const isHypertext = act.id === 'hypertext';
-    const from = act.start + span * (isOpeningRegime ? 0.04 : isHypertext ? 0.035 : 0.14);
+    const isApplication = act.id === 'application';
+    const from = act.start + span * (isOpeningRegime ? 0.04 : isHypertext || isApplication ? 0.035 : 0.14);
     const to = act.start + span * (
-      isOpeningRegime ? Math.min(0.94, act.settle + 0.16) : isHypertext ? 0.94 : 0.52
+      isOpeningRegime ? Math.min(0.94, act.settle + 0.16) : isHypertext ? 0.94 : isApplication ? 0.26 : 0.52
     );
     node.classList.toggle('is-visible', progress >= from && progress <= to);
   }
@@ -102,6 +111,12 @@ function updateFragments(progress: number): void {
     const span = act.end - act.start;
     const from = act.start + span * 0.002;
     const to = act.start + span * 0.055;
+    node.classList.toggle('is-visible', progress >= from && progress <= to);
+  }
+  for (const { act, beat, node } of beatFragments) {
+    const span = act.end - act.start;
+    const from = act.start + span * beat.from;
+    const to = act.start + span * beat.to;
     node.classList.toggle('is-visible', progress >= from && progress <= to);
   }
 }
@@ -119,6 +134,20 @@ let resizeAnchorId: string | undefined;
 let resizeAnchorTimer: number | undefined;
 let lenis: Lenis | undefined;
 let lenisTick: ((time: number) => void) | undefined;
+const application = acts.find((act) => act.id === 'application');
+
+function performApplicationAction(): void {
+  if (!master || !application) return;
+  // An explicit state-changing control must win over any pending scroll snap.
+  master.seek(application.start + (application.end - application.start) * 0.57, false);
+}
+
+refs.appAction.addEventListener('click', performApplicationAction);
+refs.appAction.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  performApplicationAction();
+});
 
 /** Lenis exists only while an animated master exists. */
 function attachSmoothScroll(): ScrollTo | undefined {
@@ -150,6 +179,11 @@ window.addEventListener('resize', () => {
 
 function onProgress(progress: number): void {
   renderedProgress = progress;
+  const actionAvailable = Boolean(application
+    && progress >= application.start + (application.end - application.start) * 0.31
+    && progress <= application.start + (application.end - application.start) * 0.52);
+  refs.appAction.setAttribute('tabindex', actionAvailable ? '0' : '-1');
+  refs.appAction.setAttribute('aria-hidden', actionAvailable ? 'false' : 'true');
   navigation?.update(progress);
   const costIsMoving = Boolean(
     cost && progress >= cost.start - 0.001 && progress < costSettle - 0.001,

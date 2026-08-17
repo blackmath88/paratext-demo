@@ -95,9 +95,25 @@ export type SceneRefs = {
   hypertextActions: SVGTextElement[];
   hypertextStatus: SVGTextElement;
   application: SVGGElement;
+  appSubstrate: SVGRectElement;
+  appChrome: SVGGElement;
+  appViewNames: SVGTextElement[];
   appRules: SVGPathElement[];
-  appRecords: SVGGElement[];
-  appMissingReason: SVGGElement;
+  appState: SVGGElement;
+  appStateProgress: SVGPathElement;
+  appStateSteps: SVGGElement[];
+  appStateReviewed: SVGTextElement;
+  appStateApproved: SVGTextElement;
+  appViews: SVGGElement;
+  appViewLayers: SVGGElement[];
+  appStatusReviewed: SVGTextElement[];
+  appStatusApproved: SVGTextElement[];
+  appAction: SVGGElement;
+  appMetatext: SVGGElement;
+  appCodeBefore: SVGTextElement;
+  appCodeAfter: SVGTextElement;
+  appGeneratedMain: SVGPathElement;
+  appGeneratedAside: SVGGElement;
   fragments: SVGGElement;
   fragmentWindows: SVGGElement[];
   fragmentFrames: SVGPathElement[];
@@ -179,7 +195,9 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'Their irregular marks regularize into print, settle into editorial composition, and open into ' +
     'a contemporary spread of text, image and diagram. One phrase then becomes actionable, and the ' +
     'reader moves through addressable textual places before returning home through digital history. ' +
-    'The same material then becomes structured application records. ' +
+    'The frame then becomes an application window onto persistent state: several sequential views ' +
+    'monitor one case, an explicit action changes it from reviewed to approved, and visible source ' +
+    'code recomposes the current view. ' +
     'That application separates into specialized tool windows. ' +
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
@@ -268,10 +286,26 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     hypertextPointer: must(svg, '#hypertext-pointer'),
     hypertextActions: [...svg.querySelectorAll<SVGTextElement>('.hypertext-action')],
     hypertextStatus: must(svg, '#hypertext-status'),
-    application: must(svg, '#application'),
+    application: must(svg, '#application-scene'),
+    appSubstrate: must(svg, '#app-substrate'),
+    appChrome: must(svg, '#app-chrome'),
+    appViewNames: [...svg.querySelectorAll<SVGTextElement>('.app-view-name')],
     appRules: [...svg.querySelectorAll<SVGPathElement>('.app-rule')],
-    appRecords: [...svg.querySelectorAll<SVGGElement>('.app-record')],
-    appMissingReason: must(svg, '#app-missing-reason'),
+    appState: must(svg, '#app-state'),
+    appStateProgress: must(svg, '#app-state-progress'),
+    appStateSteps: [...svg.querySelectorAll<SVGGElement>('.app-state-step')],
+    appStateReviewed: must(svg, '#app-state-current-reviewed'),
+    appStateApproved: must(svg, '#app-state-current-approved'),
+    appViews: must(svg, '#app-views'),
+    appViewLayers: [...svg.querySelectorAll<SVGGElement>('.app-view')],
+    appStatusReviewed: [...svg.querySelectorAll<SVGTextElement>('.app-status-reviewed')],
+    appStatusApproved: [...svg.querySelectorAll<SVGTextElement>('.app-status-approved')],
+    appAction: must(svg, '#app-approve-action'),
+    appMetatext: must(svg, '#app-metatext'),
+    appCodeBefore: must(svg, '.app-code-before'),
+    appCodeAfter: must(svg, '#app-code-after'),
+    appGeneratedMain: must(svg, '#app-generated-main'),
+    appGeneratedAside: must(svg, '#app-generated-aside'),
     fragments: must(svg, '#fragments'),
     fragmentWindows: [...svg.querySelectorAll<SVGGElement>('.fragment-window')],
     fragmentFrames: [...svg.querySelectorAll<SVGPathElement>('.fragment-window-frame')],

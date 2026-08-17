@@ -617,65 +617,179 @@ export function buildHypertext(): SVGGElement {
   return g as SVGGElement;
 }
 
-/** Restrained software furniture; the historical page remains visible within it. */
+/** The second digital act: temporary operational views over persistent state. */
 export function buildApplication(): SVGGElement {
-  const g = el('g', { id: 'application', opacity: '0' });
-  g.appendChild(el('path', { id: 'app-top-rule', class: 'app-rule', d: 'M 250 132 L 1190 132' }));
-  g.appendChild(el('path', { id: 'app-nav-rule', class: 'app-rule', d: 'M 430 132 L 430 838' }));
+  const g = el('g', { id: 'application-scene', opacity: '0' });
+  g.appendChild(el('rect', {
+    id: 'app-substrate', class: 'app-substrate', x: 140, y: 42, width: 1160, height: 816,
+  }));
 
-  const label = (id: string, text: string, x: number, y: number, className = 'app-label') => {
-    const node = el('text', { id, class: className, x, y });
+  const label = (
+    parent: SVGElement,
+    id: string,
+    text: string,
+    x: number,
+    y: number,
+    className = 'app-label',
+  ) => {
+    const attrs: Record<string, string | number> = { class: className, x, y };
+    if (id) attrs.id = id;
+    const node = el('text', attrs);
     node.textContent = text;
-    g.appendChild(node);
+    parent.appendChild(node);
+    return node;
   };
 
-  label('app-brand', 'PARATEXT / WORKSPACE', 278, 104, 'app-brand');
-  label('app-search', 'Search claims, sources, status…', 780, 104, 'app-search');
-  label('app-nav-section', 'ARGUMENT', 278, 174);
-  label('app-nav-claims', 'Claims', 296, 210, 'app-nav-item app-nav-item--active');
-  label('app-nav-sources', 'Sources', 296, 246, 'app-nav-item');
-  label('app-nav-decisions', 'Decisions', 296, 282, 'app-nav-item');
-  label('app-nav-open', 'Open questions', 296, 318, 'app-nav-item');
-  label('app-content-label', 'CLAIMS / CURRENT ORDER', 466, 174);
-  label('app-inspector-label', 'INSPECTOR', 952, 174);
-
-  const recordOps = OPERATIONS.filter((op) => op.kind === 'claim').slice(0, 3);
-  recordOps.forEach((op, i) => {
-    const y = 224 + i * 154;
-    const row = el('g', { class: 'app-record', id: `app-record-${op.id}` });
-    row.appendChild(el('path', { class: 'app-record-rule', d: `M 466 ${y + 112} L 916 ${y + 112}` }));
-    const kind = el('text', { class: 'app-record-kind', x: 466, y });
-    kind.textContent = `CLAIM 0${i + 1}`;
-    const status = el('text', { class: 'app-record-status', x: 916, y, 'text-anchor': 'end' });
-    status.textContent = i === 2 ? 'DRAFT' : 'CURRENT';
-    row.appendChild(kind);
-    row.appendChild(status);
-    g.appendChild(row);
+  const chrome = el('g', { id: 'app-chrome' });
+  chrome.appendChild(el('path', { class: 'app-rule', d: 'M 140 132 H 1300' }));
+  label(chrome, 'app-brand', 'CASEWORK / CASE-017', 174, 92, 'app-brand');
+  label(chrome, 'app-location', '/case/017', 720, 92, 'app-location');
+  ['DETAIL', 'TABLE', 'ACTION', 'TIMELINE', 'MONITOR'].forEach((name) => {
+    const viewName = label(chrome, '', `VIEW / ${name}`, 1266, 92, `app-view-name app-view-name--${name.toLowerCase()}`);
+    viewName.setAttribute('text-anchor', 'end');
   });
+  g.appendChild(chrome);
 
-  label('app-meta-type', 'TYPE', 952, 224);
-  label('app-meta-type-value', 'Claim', 952, 248, 'app-meta-value');
-  label('app-meta-status', 'STATUS', 952, 294);
-  label('app-meta-status-value', 'Current', 952, 318, 'app-meta-value');
-  label('app-meta-source', 'SOURCE', 952, 364);
-  label('app-meta-source-value', 'Dembeck / Genette', 952, 388, 'app-meta-value');
-  label('app-meta-section', 'SECTION', 952, 434);
-  label('app-meta-section-value', 'Framing', 952, 458, 'app-meta-value');
+  const state = el('g', { id: 'app-state' });
+  label(state, 'app-state-title', 'PERSISTENT STATE / PUBLICATION CASE 017', 280, 696, 'app-state-title');
+  state.appendChild(el('path', { class: 'app-state-track', d: 'M 330 758 H 1110' }));
+  state.appendChild(el('path', { id: 'app-state-progress', class: 'app-state-progress', d: 'M 330 758 H 590' }));
+  const steps = [
+    ['RECEIVED', 330, 'complete'],
+    ['REVIEWED', 590, 'current'],
+    ['APPROVED', 850, 'pending'],
+    ['PUBLISHED', 1110, 'pending'],
+  ] as const;
+  steps.forEach(([copy, x, status], index) => {
+    const step = el('g', { class: `app-state-step app-state-step--${status}`, 'data-step': index });
+    step.appendChild(el('circle', { class: 'app-state-node', cx: x, cy: 758, r: 7 }));
+    label(step, `app-state-${copy.toLowerCase()}`, copy, x, 790, 'app-state-label');
+    step.setAttribute('text-anchor', 'middle');
+    state.appendChild(step);
+  });
+  label(state, 'app-state-current-reviewed', 'CURRENT / REVIEWED', 1110, 696, 'app-state-current app-state-reviewed');
+  label(state, 'app-state-current-approved', 'CURRENT / APPROVED', 1110, 696, 'app-state-current app-state-approved');
+  g.appendChild(state);
 
-  const missing = el('g', { id: 'app-missing-reason' });
-  const missingLabel = el('text', { class: 'app-missing-label', x: 952, y: 536 });
-  missingLabel.textContent = 'REASON / CONTEXT';
-  const missingLine = el('path', { class: 'app-missing-line', d: 'M 952 566 L 1148 566' });
-  const missingValue = el('text', { class: 'app-missing-value', x: 952, y: 594 });
-  missingValue.textContent = 'No relation in schema';
-  missing.appendChild(missingLabel);
-  missing.appendChild(missingLine);
-  missing.appendChild(missingValue);
-  g.appendChild(missing);
+  const views = el('g', { id: 'app-views' });
+  const frame = (parent: SVGElement, id: string) => {
+    parent.appendChild(el('path', { id, class: 'app-view-frame app-rule', d: 'M 260 164 H 1180 V 644 H 260 Z' }));
+    parent.appendChild(el('path', { class: 'app-view-rule app-rule', d: 'M 260 224 H 1180' }));
+  };
+  const status = (parent: SVGElement, x = 1138, y = 202) => {
+    const reviewed = label(parent, '', 'REVIEWED', x, y, 'app-status-value app-status-reviewed');
+    const approved = label(parent, '', 'APPROVED', x, y, 'app-status-value app-status-approved');
+    reviewed.setAttribute('text-anchor', 'end');
+    approved.setAttribute('text-anchor', 'end');
+  };
 
-  label('app-history-label', 'HISTORY', 952, 664);
-  label('app-history-old', 'Superseded · 12 Aug', 952, 694, 'app-history-item');
-  label('app-history-current', 'Current · 14 Aug', 952, 726, 'app-history-item');
+  const detail = el('g', { id: 'app-view-detail', class: 'app-view' });
+  frame(detail, 'app-detail-frame');
+  label(detail, '', 'DETAIL / CASE 017', 292, 202, 'app-view-heading');
+  status(detail);
+  label(detail, '', 'Publication review', 292, 282, 'app-view-title');
+  label(detail, '', 'TEXT', 292, 342, 'app-field-label');
+  label(detail, '', 'DE NATURA RERUM', 292, 371, 'app-field-value');
+  label(detail, '', 'OWNER', 292, 426, 'app-field-label');
+  label(detail, '', 'Editorial desk', 292, 455, 'app-field-value');
+  label(detail, '', 'NEXT STATE', 720, 342, 'app-field-label');
+  label(detail, '', 'Approved', 720, 371, 'app-field-value');
+  label(detail, '', 'UPDATED', 720, 426, 'app-field-label');
+  label(detail, '', '14 Aug / 10:42', 720, 455, 'app-field-value');
+  views.appendChild(detail);
+
+  const table = el('g', { id: 'app-view-table', class: 'app-view' });
+  frame(table, 'app-table-frame');
+  label(table, '', 'TABLE / PUBLICATION QUEUE', 292, 202, 'app-view-heading');
+  status(table);
+  ['CASE', 'TEXT', 'OWNER', 'STATUS'].forEach((copy, i) => {
+    label(table, '', copy, [292, 440, 760, 1050][i] ?? 292, 282, 'app-field-label');
+  });
+  table.appendChild(el('path', { class: 'app-table-rule app-rule', d: 'M 292 306 H 1144' }));
+  label(table, '', '017', 292, 352, 'app-table-value');
+  label(table, '', 'De natura rerum', 440, 352, 'app-table-value');
+  label(table, '', 'Editorial desk', 760, 352, 'app-table-value');
+  status(table, 1140, 352);
+  table.appendChild(el('path', { class: 'app-table-rule app-rule', d: 'M 292 382 H 1144' }));
+  label(table, '', 'ONE RECORD / SAME STATE', 292, 570, 'app-view-note');
+  views.appendChild(table);
+
+  const form = el('g', { id: 'app-view-form', class: 'app-view' });
+  frame(form, 'app-form-frame');
+  label(form, '', 'ACTION / REVIEW CASE 017', 292, 202, 'app-view-heading');
+  status(form);
+  label(form, '', 'Decision', 292, 286, 'app-field-label');
+  label(form, '', 'Approve for publication', 292, 320, 'app-field-value');
+  form.appendChild(el('path', { class: 'app-form-line app-rule', d: 'M 292 340 H 812' }));
+  label(form, '', 'This changes the persistent case state.', 292, 390, 'app-view-note');
+  const action = el('g', {
+    id: 'app-approve-action', class: 'app-action', role: 'button', tabindex: '-1',
+    'aria-label': 'Approve case 017, changing its persistent status from reviewed to approved',
+  });
+  action.appendChild(el('rect', { class: 'app-action-boundary', x: 292, y: 468, width: 214, height: 54 }));
+  label(action, '', 'APPROVE CASE', 399, 501, 'app-action-label').setAttribute('text-anchor', 'middle');
+  form.appendChild(action);
+  views.appendChild(form);
+
+  const timeline = el('g', { id: 'app-view-timeline', class: 'app-view' });
+  frame(timeline, 'app-timeline-frame');
+  label(timeline, '', 'TIMELINE / CASE 017', 292, 202, 'app-view-heading');
+  status(timeline);
+  const events = [
+    ['09:12', 'Received', 'complete'],
+    ['10:04', 'Reviewed', 'complete'],
+    ['10:42', 'Approved', 'current'],
+    ['—', 'Published', 'pending'],
+  ] as const;
+  events.forEach(([time, copy, eventStatus], i) => {
+    const y = 292 + i * 70;
+    timeline.appendChild(el('circle', { class: `app-event-node app-event-node--${eventStatus}`, cx: 318, cy: y - 5, r: 5 }));
+    label(timeline, '', time, 350, y, 'app-event-time');
+    label(timeline, '', copy, 470, y, 'app-event-label');
+  });
+  timeline.appendChild(el('path', { class: 'app-event-line app-rule', d: 'M 318 287 V 497' }));
+  views.appendChild(timeline);
+
+  const monitor = el('g', { id: 'app-view-monitor', class: 'app-view' });
+  monitor.appendChild(el('path', {
+    id: 'app-generated-main', class: 'app-view-frame app-rule', d: 'M 280 172 H 1160 V 626 H 280 Z',
+  }));
+  label(monitor, '', 'STATUS MONITOR / CASE 017', 312, 214, 'app-view-heading');
+  status(monitor, 1128, 214);
+  label(monitor, '', 'Approved for publication', 312, 306, 'app-monitor-title');
+  label(monitor, '', 'The same case state, composed as an operational monitor.', 312, 348, 'app-view-note');
+  const generatedAside = el('g', { id: 'app-generated-aside' });
+  generatedAside.appendChild(el('path', {
+    class: 'app-generated-aside-frame app-rule', d: 'M 900 250 H 1128 V 548 H 900 Z',
+  }));
+  label(generatedAside, '', 'GENERATED REGION', 928, 292, 'app-field-label');
+  label(generatedAside, '', 'STATUS', 928, 354, 'app-field-label');
+  label(generatedAside, '', 'APPROVED', 928, 386, 'app-generated-status');
+  label(generatedAside, '', 'NEXT', 928, 448, 'app-field-label');
+  label(generatedAside, '', 'PUBLISH', 928, 480, 'app-field-value');
+  monitor.appendChild(generatedAside);
+  views.appendChild(monitor);
+  g.appendChild(views);
+
+  const metatext = el('g', { id: 'app-metatext' });
+  metatext.appendChild(el('path', { class: 'app-metatext-boundary app-rule', d: 'M 174 164 H 486 V 626 H 174 Z' }));
+  label(metatext, '', 'METATEXT / FRAME SOURCE', 198, 204, 'app-code-heading');
+  const codeLines = [
+    ['&lt;article class="case"&gt;', 258],
+    ['.case {', 318],
+    ['  display: grid;', 350],
+    ['  grid-template-columns: 1fr;', 382],
+    ['}', 414],
+    ['if (state.status === "approved")', 486],
+    ['  expose("publish");', 518],
+  ] as const;
+  codeLines.forEach(([copy, y], i) => {
+    const className = i === 3 ? 'app-code app-code-before' : 'app-code';
+    label(metatext, '', copy.replaceAll('&lt;', '<').replaceAll('&gt;', '>'), 198, y, className);
+  });
+  label(metatext, 'app-code-after', '  grid-template-columns: 1fr 228px;', 198, 382, 'app-code app-code-after');
+  label(metatext, '', 'ONE LINE RECOMPOSES THE VIEW', 198, 580, 'app-code-note');
+  g.appendChild(metatext);
   return g as SVGGElement;
 }
 

@@ -339,90 +339,213 @@ text.gloss--ink {
 }
 
 /* --------------------------------------------------------------------------
-   Structured application
+   Application / state / metatext
    -------------------------------------------------------------------------- */
 
-.app-rule,
-.app-record-rule {
+.app-substrate {
+  fill: #0d171e;
+  stroke: #53616c;
+  stroke-width: 1;
+}
+
+.app-rule {
   fill: none;
-  stroke: #878982;
-  stroke-width: 0.8;
+  stroke: #52616b;
+  stroke-width: 0.85;
 }
 
 .app-brand,
-.app-label,
-.app-nav-item,
-.app-search,
-.app-record-kind,
-.app-record-status,
-.app-meta-value,
-.app-missing-label,
-.app-missing-value,
-.app-history-item {
+.app-location,
+.app-view-name,
+.app-state-title,
+.app-state-current,
+.app-state-label,
+.app-view-heading,
+.app-view-title,
+.app-field-label,
+.app-field-value,
+.app-table-value,
+.app-status-value,
+.app-view-note,
+.app-action-label,
+.app-event-time,
+.app-event-label,
+.app-monitor-title,
+.app-generated-status,
+.app-code-heading,
+.app-code-note {
   font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
-.app-brand {
+.app-brand,
+.app-view-heading {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 720;
+  letter-spacing: 0.13em;
+  fill: #d9e0df;
+}
+
+.app-location,
+.app-view-name,
+.app-state-title,
+.app-state-current,
+.app-field-label,
+.app-view-note,
+.app-code-heading,
+.app-code-note {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  fill: #7f9099;
+}
+
+.app-state-current,
+.app-view-name,
+.app-status-value {
+  text-anchor: end;
+}
+
+.app-state-track {
+  fill: none;
+  stroke: #35444d;
+  stroke-width: 2;
+}
+
+.app-state-progress {
+  fill: none;
+  stroke: #6e9d91;
+  stroke-width: 2.5;
+}
+
+.app-state-node {
+  fill: #0d171e;
+  stroke: #60717b;
+  stroke-width: 2;
+}
+
+.app-state-step--complete .app-state-node {
+  fill: #6e9d91;
+  stroke: #6e9d91;
+}
+
+.app-state-step--current .app-state-node {
+  fill: #d4ad5b;
+  stroke: #d4ad5b;
+}
+
+.app-state-label {
+  font-size: 9px;
   letter-spacing: 0.12em;
-  fill: #30332f;
+  fill: #667780;
 }
 
-.app-search {
-  font-size: 12px;
-  fill: #777a74;
+.app-state-step--complete .app-state-label {
+  fill: #9aa9b0;
 }
 
-.app-label,
-.app-record-kind,
-.app-record-status,
-.app-missing-label {
+.app-state-step--current .app-state-label {
+  font-weight: 720;
+  fill: #e8d5a8;
+}
+
+.app-view-frame {
+  fill: rgba(11, 21, 28, 0.82);
+  stroke: #5d6d77;
+}
+
+.app-view-title,
+.app-monitor-title {
+  font-family: ui-serif, Georgia, serif;
+  font-size: 28px;
+  fill: #e2e2da;
+}
+
+.app-field-label {
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  fill: #777a74;
 }
 
-.app-nav-item {
-  font-size: 13px;
-  fill: #5f625d;
-}
-
-.app-nav-item--active {
-  font-weight: 650;
-  fill: #2f655c;
-}
-
-.app-record-status {
-  fill: #2f655c;
-}
-
-.app-meta-value {
+.app-field-value,
+.app-table-value,
+.app-event-label {
   font-size: 14px;
-  fill: #30332f;
+  fill: #cbd3d2;
 }
 
-.app-missing-label {
-  fill: #8b514b;
+.app-status-value,
+.app-generated-status {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  fill: #d4ad5b;
 }
 
-.app-missing-line {
-  fill: none;
-  stroke: #a86c65;
-  stroke-width: 0.9;
-  stroke-dasharray: 3 4;
+.app-view-note,
+.app-event-time {
+  letter-spacing: 0.03em;
 }
 
-.app-missing-value {
-  font-size: 12px;
-  font-style: italic;
-  fill: #8b6b66;
+.app-action {
+  cursor: pointer;
+  outline: none;
 }
 
-.app-history-item {
-  font-size: 12px;
-  fill: #61645f;
+.app-action-boundary {
+  fill: rgba(212, 173, 91, 0.1);
+  stroke: #d4ad5b;
+  stroke-width: 1;
+}
+
+.app-action-label {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  fill: #e8d5a8;
+}
+
+.app-action:focus-visible .app-action-boundary {
+  stroke: #fff2c9;
+  stroke-width: 3;
+}
+
+.app-event-node {
+  fill: #0d171e;
+  stroke: #61717a;
+  stroke-width: 1.5;
+}
+
+.app-event-node--complete {
+  fill: #6e9d91;
+  stroke: #6e9d91;
+}
+
+.app-event-node--current {
+  fill: #d4ad5b;
+  stroke: #d4ad5b;
+}
+
+.app-metatext-boundary {
+  fill: rgba(5, 11, 15, 0.96);
+  stroke: #71818a;
+}
+
+.app-code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  fill: #b5c3c5;
+}
+
+.app-code-after {
+  fill: #e8d5a8;
+}
+
+.app-code-note {
+  font-size: 8px;
+  fill: #d4ad5b;
+}
+
+.app-generated-aside-frame {
+  fill: rgba(110, 157, 145, 0.06);
+  stroke: #6e9d91;
 }
 
 /* --------------------------------------------------------------------------
