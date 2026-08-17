@@ -57,6 +57,7 @@ export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline 
   }
 
   tl.to(refs.editorial, { opacity: 0, duration: 0.6 }, 0.35);
+  tl.to(refs.magazine, { opacity: 0, duration: 0.65 }, 0.25);
   // The application first reads as a solution. Its missing relation arrives
   // only after the rest has settled, without condemning the useful structure.
   tl.fromTo(refs.appMissingReason, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power1.out' }, 1.75);

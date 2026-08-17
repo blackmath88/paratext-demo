@@ -76,12 +76,14 @@ const fragments = acts.map((act) => {
   foreground.appendChild(p);
   return { act, node: p };
 });
+const openingRegimeEnd = acts.find((act) => act.id === 'magazine')?.end ?? 0;
 
 function updateFragments(progress: number): void {
   for (const { act, node } of fragments) {
     const span = act.end - act.start;
-    const from = act.start + span * 0.14;
-    const to = act.start + span * 0.52;
+    const isOpeningRegime = act.end <= openingRegimeEnd;
+    const from = act.start + span * (isOpeningRegime ? 0.04 : 0.14);
+    const to = act.start + span * (isOpeningRegime ? Math.min(0.94, act.settle + 0.16) : 0.52);
     node.classList.toggle('is-visible', progress >= from && progress <= to);
   }
 }

@@ -22,6 +22,7 @@ export const LEAF = { x: 470, y: 100, w: 500, h: 700 };
 export const ADMITTED_LEAF = { x: 320, y: 82, w: 800, h: 736 };
 
 export const COMPOSED_LEAF = { x: 350, y: 70, w: 740, h: 760 };
+export const MAGAZINE_LEAF = { x: 250, y: 54, w: 940, h: 792 };
 export const APP_FRAME = { x: 250, y: 62, w: 940, h: 776 };
 
 /** Body text metrics. `lh` is the manuscript leading; print will tighten it. */
@@ -387,6 +388,64 @@ export function buildEditorial(): SVGGElement {
   return g as SVGGElement;
 }
 
+/** A contemporary editorial spread: image, argument and apparatus share one field. */
+export function buildMagazine(): SVGGElement {
+  const g = el('g', { id: 'magazine', opacity: '0' });
+
+  const labels = el('g', { id: 'magazine-labels' });
+  const section = el('text', { class: 'magazine-label', x: 340, y: 108 });
+  section.textContent = 'ESSAY / FORM AND JUDGMENT';
+  const kicker = el('text', { class: 'magazine-kicker', x: 340, y: 252 });
+  kicker.textContent = 'ARGUMENT / TWO COLUMNS';
+  labels.appendChild(section);
+  labels.appendChild(kicker);
+  g.appendChild(labels);
+
+  const image = el('g', { id: 'magazine-image' });
+  image.appendChild(el('rect', { class: 'magazine-image-field', x: 820, y: 176, width: 290, height: 286 }));
+  image.appendChild(el('circle', { class: 'magazine-image-sun', cx: 1038, cy: 226, r: 104 }));
+  image.appendChild(el('path', { class: 'magazine-image-plane', d: 'M 820 392 L 925 244 L 1110 462 H 820 Z' }));
+  image.appendChild(el('path', { class: 'magazine-image-cut', d: 'M 864 176 L 958 176 L 874 462 L 820 462 Z' }));
+  g.appendChild(image);
+
+  const caption = el('g', { id: 'magazine-caption' });
+  const captionLabel = el('text', { class: 'magazine-caption-label', x: 820, y: 493 });
+  captionLabel.textContent = 'FIG. 01 / FORMA ET RATIO';
+  const captionText = el('text', { class: 'magazine-caption-text', x: 820, y: 515 });
+  captionText.textContent = 'Experientia testis; memoria custos.';
+  caption.appendChild(captionLabel);
+  caption.appendChild(captionText);
+  g.appendChild(caption);
+
+  const diagram = el('g', { id: 'magazine-diagram' });
+  const diagramLabel = el('text', { class: 'magazine-label', x: 820, y: 574 });
+  diagramLabel.textContent = 'RELATION / ONE READING FIELD';
+  diagram.appendChild(diagramLabel);
+  diagram.appendChild(el('path', { class: 'magazine-diagram-path', d: 'M 846 632 L 934 602 L 1034 632 L 934 680 Z' }));
+  const nodes = [
+    ['TEXTUS', 846, 632], ['IMAGO', 934, 602], ['RATIO', 1034, 632], ['LECTIO', 934, 680],
+  ] as const;
+  nodes.forEach(([text, x, y]) => {
+    diagram.appendChild(el('circle', { class: 'magazine-diagram-node', cx: x, cy: y, r: 5 }));
+    const label = el('text', { class: 'magazine-diagram-label', x, y: y + 20, 'text-anchor': 'middle' });
+    label.textContent = text;
+    diagram.appendChild(label);
+  });
+  g.appendChild(diagram);
+
+  const quote = el('g', { id: 'magazine-quote' });
+  quote.appendChild(el('path', { class: 'magazine-quote-rule', d: 'M 340 672 H 740' }));
+  const quoteLine1 = el('text', { class: 'magazine-quote', x: 340, y: 718 });
+  quoteLine1.textContent = '“Sed qui quaerit, inveniet;';
+  const quoteLine2 = el('text', { class: 'magazine-quote', x: 340, y: 758 });
+  quoteLine2.textContent = 'et qui attendit, intellegit.”';
+  quote.appendChild(quoteLine1);
+  quote.appendChild(quoteLine2);
+  g.appendChild(quote);
+
+  return g as SVGGElement;
+}
+
 /** Restrained software furniture; the historical page remains visible within it. */
 export function buildApplication(): SVGGElement {
   const g = el('g', { id: 'application', opacity: '0' });
@@ -460,7 +519,7 @@ export const FRAGMENT_WINDOWS: WindowGeometry[] = [
   { id: 'files', title: 'FILES', x: 970, y: 502, w: 340, h: 210 },
 ];
 
-/** Semantic tool ownership for Act 06. Never derive this from array order. */
+/** Semantic tool ownership for Act 07. Never derive this from array order. */
 export const FRAGMENT_ASSIGNMENTS: Record<string, { window: string; slot: number }> = {
   'q-frame': { window: 'memo', slot: 0 },
   'q-source': { window: 'memo', slot: 1 },

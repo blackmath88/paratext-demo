@@ -24,6 +24,7 @@
   --hairline: rgba(205, 196, 178, 0.16);
 
   --serif: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --hand: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
 
   --measure: 34rem;
@@ -44,7 +45,7 @@ body {
   margin: 0;
   background: var(--field);
   color: var(--on-field);
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
@@ -97,9 +98,9 @@ body {
 .masthead__title {
   margin: 0 0 1.75rem;
   font-size: clamp(2.75rem, 8vw, 6.5rem);
-  font-weight: 400;
+  font-weight: 300;
   line-height: 0.98;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
   color: var(--paper);
 }
 
@@ -176,6 +177,8 @@ body[data-mode='static'] .stage__scene {
   font-size: clamp(1.4rem, 2.4vw, 2.1rem);
   line-height: 1.18;
   color: var(--paper);
+  font-family: var(--sans);
+  font-weight: 350;
   opacity: 0;
   transform: translateY(0.6rem);
   transition: opacity 700ms ease, transform 700ms ease;
@@ -405,7 +408,8 @@ body[data-mode='static'] .frame-switcher {
 .act__thesis {
   margin: 0 0 1rem;
   font-size: 1.2rem;
-  font-style: italic;
+  font-style: normal;
+  font-weight: 450;
   color: var(--amber);
 }
 

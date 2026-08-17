@@ -98,7 +98,8 @@ intended conceptual revision. In short:
 The argument lives in HTML, not in SVG. Every act has a real section with a
 heading and prose; the scene carries `<title>`/`<desc>`; the navigator is a
 list of real anchors that works from the keyboard and leaves a usable URL
-  (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#application`,
-  `#fragments`, `#conversation`, `#tube`, `#recovery`, `#projections`). Under `prefers-reduced-motion: reduce` the
+  (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#magazine`,
+  `#application`, `#fragments`, `#conversation`, `#tube`, `#recovery`,
+  `#projections`, `#cost`, `#open`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
 and held rather than played.

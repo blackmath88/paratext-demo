@@ -16,6 +16,7 @@ import {
   buildAIConversation,
   buildDefs,
   buildEditorial,
+  buildMagazine,
   buildField,
   buildGlosses,
   buildFragments,
@@ -76,6 +77,13 @@ export type SceneRefs = {
   editorial: SVGGElement;
   editorialGrid: SVGGElement;
   editorialGridLines: SVGPathElement[];
+  magazine: SVGGElement;
+  magazineImage: SVGGElement;
+  magazineDiagram: SVGGElement;
+  magazineDiagramPaths: SVGPathElement[];
+  magazineCaption: SVGGElement;
+  magazineQuote: SVGGElement;
+  magazineLabels: SVGGElement;
   application: SVGGElement;
   appRules: SVGPathElement[];
   appRecords: SVGGElement[];
@@ -158,8 +166,9 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   desc.textContent =
     `The passage "${BODY_PROSE}" begins without a visible paper boundary. ` +
     'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
-    'Their irregular marks regularize into print, settle into editorial composition, and become ' +
-    'structured application records. That application separates into specialized tool windows. ' +
+    'Their irregular marks regularize into print, settle into editorial composition, and open into ' +
+    'a contemporary spread of text, image and diagram before becoming structured application records. ' +
+    'That application separates into specialized tool windows. ' +
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
     'recovers segmentation, apparatus, stable addresses and explicit supersession before the ' +
@@ -180,6 +189,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   page.appendChild(buildMarks());
   page.appendChild(buildPrint());
   page.appendChild(buildEditorial());
+  page.appendChild(buildMagazine());
   svg.appendChild(page);
 
   const surface = el('g', { id: 'surface' }) as SVGGElement;
@@ -229,6 +239,13 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     editorial: must(svg, '#editorial'),
     editorialGrid: must(svg, '#editorial-grid'),
     editorialGridLines: [...svg.querySelectorAll<SVGPathElement>('.editorial-grid-line')],
+    magazine: must(svg, '#magazine'),
+    magazineImage: must(svg, '#magazine-image'),
+    magazineDiagram: must(svg, '#magazine-diagram'),
+    magazineDiagramPaths: [...svg.querySelectorAll<SVGPathElement>('.magazine-diagram-path')],
+    magazineCaption: must(svg, '#magazine-caption'),
+    magazineQuote: must(svg, '#magazine-quote'),
+    magazineLabels: must(svg, '#magazine-labels'),
     application: must(svg, '#application'),
     appRules: [...svg.querySelectorAll<SVGPathElement>('.app-rule')],
     appRecords: [...svg.querySelectorAll<SVGGElement>('.app-record')],
@@ -369,6 +386,7 @@ export function resetScene(refs: SceneRefs): void {
   // printed page would appear the moment the act starts.
   refs.print.style.opacity = '0';
   refs.editorial.style.opacity = '0';
+  refs.magazine.style.opacity = '0';
   refs.application.style.opacity = '0';
   refs.fragments.style.opacity = '0';
   refs.operations.style.opacity = '0';

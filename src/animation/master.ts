@@ -20,6 +20,7 @@ import { actPage } from './actPage';
 import { actGlosses } from './actGlosses';
 import { actPrint } from './actPrint';
 import { actEditorial } from './actEditorial';
+import { actMagazine } from './actMagazine';
 import { actApplication } from './actApplication';
 import { actFragments } from './actFragments';
 import { actConversation } from './actConversation';
@@ -75,6 +76,7 @@ const BUILDERS = {
   glosses: actGlosses,
   print: actPrint,
   editorial: actEditorial,
+  magazine: actMagazine,
   application: actApplication,
   fragments: actFragments,
   conversation: actConversation,
@@ -139,7 +141,7 @@ export function buildMaster(
     };
   }
 
-  const scrollLength = mode === 'cinematic' ? '+=800%' : '+=460%';
+  const scrollLength = mode === 'cinematic' ? '+=860%' : '+=495%';
 
   const trigger = ScrollTrigger.create({
     animation: timeline,

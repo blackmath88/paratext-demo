@@ -172,11 +172,63 @@ text.gloss--ink {
 }
 
 .editorial-label {
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--sans);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
   fill: #786f60;
+}
+
+/* --------------------------------------------------------------------------
+   Magazine / editorial spread
+   -------------------------------------------------------------------------- */
+
+.magazine-label,
+.magazine-kicker,
+.magazine-caption-label,
+.magazine-caption-text,
+.magazine-diagram-label {
+  font-family: var(--sans);
+}
+
+.magazine-label,
+.magazine-kicker,
+.magazine-caption-label {
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.15em;
+  fill: #706b62;
+}
+
+.magazine-image-field { fill: #c9c2b5; }
+.magazine-image-sun { fill: #d4a24b; opacity: 0.82; }
+.magazine-image-plane { fill: #393c3a; }
+.magazine-image-cut { fill: #eee9df; opacity: 0.72; }
+
+.magazine-caption-text {
+  font-size: 11px;
+  fill: #4d4b46;
+}
+
+.magazine-diagram-path,
+.magazine-quote-rule {
+  fill: none;
+  stroke: #777269;
+  stroke-width: 0.8;
+}
+
+.magazine-diagram-node { fill: #9d3f38; }
+.magazine-diagram-label {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  fill: #625e57;
+}
+
+.magazine-quote {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-style: italic;
+  fill: #2b271f;
 }
 
 /* --------------------------------------------------------------------------
@@ -560,7 +612,7 @@ text.gloss--ink {
    -------------------------------------------------------------------------- */
 
 .open-question-text {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 34px;
   font-weight: 400;
   fill: #ded7c9;
