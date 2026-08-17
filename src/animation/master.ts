@@ -21,6 +21,7 @@ import { actGlosses } from './actGlosses';
 import { actPrint } from './actPrint';
 import { actEditorial } from './actEditorial';
 import { actMagazine } from './actMagazine';
+import { actHypertext } from './actHypertext';
 import { actApplication } from './actApplication';
 import { actFragments } from './actFragments';
 import { actConversation } from './actConversation';
@@ -33,7 +34,7 @@ import { actOpen } from './actOpen';
 gsap.registerPlugin(ScrollTrigger);
 
 /** Arbitrary internal time units; act spans are scaled into this. */
-const TOTAL = 14;
+const TOTAL = 15;
 
 function nearest(points: number[], value: number): number {
   // Preserve the true ends of the pinned range so snap can never pull a user
@@ -77,6 +78,7 @@ const BUILDERS = {
   print: actPrint,
   editorial: actEditorial,
   magazine: actMagazine,
+  hypertext: actHypertext,
   application: actApplication,
   fragments: actFragments,
   conversation: actConversation,
@@ -141,7 +143,10 @@ export function buildMaster(
     };
   }
 
-  const scrollLength = mode === 'cinematic' ? '+=860%' : '+=495%';
+  // Hypertext adds a deliberately long navigation sequence. Increasing the
+  // physical range preserves the established pace of earlier acts while the
+  // new digital threshold receives enough distance to read and settle.
+  const scrollLength = mode === 'cinematic' ? '+=1030%' : '+=620%';
 
   const trigger = ScrollTrigger.create({
     animation: timeline,
@@ -152,7 +157,7 @@ export function buildMaster(
     // hold with the scene rather than scrolling off it.
     pin: mode === 'cinematic' ? stage : false,
     pinSpacing: mode === 'cinematic',
-    scrub: mode === 'cinematic' ? 1 : 0.6,
+    scrub: mode === 'cinematic' ? 1.15 : 0.7,
     snap: {
       snapTo: (value) => nearest(settlePoints, value),
       duration: { min: 0.2, max: 0.6 },

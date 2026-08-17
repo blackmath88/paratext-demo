@@ -5,9 +5,22 @@ import { APP_FRAME, SEED } from '../scene/markup';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { tweenLeafFrame, tweenRule } from './frames';
+import { tweenMaterial } from './material';
 
 export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
+  tl.set(refs.page, { opacity: 1 }, 0);
+  tl.to([refs.leafGroup, refs.body, refs.rules, refs.print], {
+    opacity: 1, duration: 0.75, ease: 'power1.inOut',
+  }, 0.12);
+  tl.to(refs.hypertext, { opacity: 0, duration: 0.65, ease: 'power1.inOut' }, 0.08);
+  tweenMaterial(tl, refs, {
+    mode: 'screen',
+    fieldColor: '#0b0d10',
+    gridOpacity: 0,
+    dustOpacity: mode === 'cinematic' ? 0.08 : 0,
+    vignetteOpacity: 0.6,
+  }, { duration: 1.2, ease: 'power1.inOut' }, 0);
   tweenLeafFrame(tl, refs, { ...APP_FRAME, wobble: 0 }, {
     duration: 1.7,
     ease: 'power3.inOut',

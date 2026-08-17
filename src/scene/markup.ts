@@ -446,6 +446,177 @@ export function buildMagazine(): SVGGElement {
   return g as SVGGElement;
 }
 
+type HypertextPlace = {
+  id: string;
+  kind: string;
+  address: string;
+  title: string;
+  lines: readonly [string, string];
+  excerpt: string;
+  link: string;
+  x: number;
+  y: number;
+};
+
+/**
+ * Addressable textual places. Only one is primary at a time: topology is
+ * experienced by moving through these fields, never diagrammed as a graph.
+ */
+const HYPERTEXT_PLACES: readonly HypertextPlace[] = [
+  {
+    id: 'home', kind: 'HOME / EDITORIAL ORIGIN', address: '/home',
+    title: 'DE NATURA RERUM',
+    lines: ['The composed page remains recognizable.', 'One phrase now leads beyond its physical edge.'],
+    excerpt: 'Sed qui quaerit, inveniet; et qui attendit, intellegit.',
+    link: 'Enter the essay', x: 340, y: 158,
+  },
+  {
+    id: 'essay', kind: 'ESSAY / FORM AND JUDGMENT', address: '/essay/frame',
+    title: 'The frame constitutes a unity',
+    lines: ['A reading field can now extend through references', 'whose destinations are absent from this place.'],
+    excerpt: 'Quoniam natura rerum lex est occulta et mens humana parva.',
+    link: 'Follow claim C3', x: 388, y: 204,
+  },
+  {
+    id: 'claim', kind: 'CLAIM / C3', address: '/claim/c3',
+    title: 'Text is never apart from presentation',
+    lines: ['The claim has a stable location of its own.', 'It can be cited here without being copied here.'],
+    excerpt: 'Measure, position and sequence remain part of what can be read.',
+    link: 'Open reference 04', x: 452, y: 236,
+  },
+  {
+    id: 'reference', kind: 'REFERENCE / SOURCE 04', address: '/reference/source-04',
+    title: 'Epitext / peritext',
+    lines: ['The source is virtually adjacent to the claim.', 'No shared sheet or facing page is required.'],
+    excerpt: 'The outside can become structurally available to the text.',
+    link: 'Go to author record', x: 356, y: 188,
+  },
+  {
+    id: 'author', kind: 'AUTHOR / RECORD', address: '/author/genette',
+    title: 'Gérard Genette',
+    lines: ['Authorship becomes another returnable place', 'within the same textual universe.'],
+    excerpt: 'A threshold is both boundary and passage.',
+    link: 'Enter the archive', x: 486, y: 258,
+  },
+  {
+    id: 'archive', kind: 'ARCHIVE / 1974', address: '/archive/1974',
+    title: 'The remembered source',
+    lines: ['The route now exceeds any plausible material spread.', 'Distance is navigational rather than physical.'],
+    excerpt: 'Memoria custos: memory keeps what position alone cannot.',
+    link: 'Look up “paratext”', x: 318, y: 224,
+  },
+  {
+    id: 'definition', kind: 'DEFINITION / PARATEXT', address: '/definition/paratext',
+    title: 'The threshold of the text',
+    lines: ['A definition is reached by relation, not proximity.', 'Its address remains stable when the route continues.'],
+    excerpt: 'The frame separates, presents and makes passage possible.',
+    link: 'Read related text', x: 418, y: 176,
+  },
+  {
+    id: 'related', kind: 'RELATED TEXT / RECEPTION', address: '/related/reception',
+    title: 'A unity for reception',
+    lines: ['The reader is deep inside a route that the original', 'page could neither contain nor place beside itself.'],
+    excerpt: 'What is far in matter can be one step away in topology.',
+    link: 'Continue to source', x: 348, y: 268,
+  },
+  {
+    id: 'source', kind: 'SOURCE / THRESHOLD', address: '/source/threshold',
+    title: 'Physical adjacency becomes topology',
+    lines: ['Each place is primary while it is visited.', 'The route, not a picture of the route, holds them together.'],
+    excerpt: 'Et ratio iudex: relation gives the journey its shape.',
+    link: 'Related source', x: 438, y: 212,
+  },
+] as const;
+
+/** First digital substrate: navigable locations without application state. */
+export function buildHypertext(): SVGGElement {
+  const g = el('g', { id: 'hypertext', opacity: '0' });
+  g.appendChild(el('rect', {
+    id: 'hypertext-substrate', class: 'hypertext-substrate',
+    x: 140, y: 42, width: 1160, height: 816,
+  }));
+  g.appendChild(el('path', { class: 'hypertext-chrome-rule', d: 'M 140 132 H 1300' }));
+
+  const controls = el('g', { id: 'hypertext-controls' });
+  const back = el('text', { class: 'hypertext-control', x: 174, y: 98 });
+  back.textContent = '← BACK';
+  const home = el('text', { class: 'hypertext-control', x: 1266, y: 98, 'text-anchor': 'end' });
+  home.textContent = 'HOME';
+  controls.appendChild(back);
+  controls.appendChild(home);
+  for (let i = 0; i < HYPERTEXT_PLACES.length; i++) {
+    controls.appendChild(el('rect', {
+      class: 'hypertext-history-mark', x: 1116 + i * 12, y: 93, width: 6, height: 6,
+    }));
+  }
+  g.appendChild(controls);
+
+  const places = el('g', { id: 'hypertext-places' });
+  HYPERTEXT_PLACES.forEach((place, index) => {
+    const node = el('g', {
+      id: `hypertext-place-${place.id}`,
+      class: 'hypertext-place',
+      'data-depth': index,
+    });
+    const address = el('text', { class: 'hypertext-address', x: 340, y: 102 });
+    address.textContent = place.address;
+    const kind = el('text', { class: 'hypertext-kind', x: place.x, y: place.y - 38 });
+    kind.textContent = place.kind;
+    const title = el('text', { class: 'hypertext-title', x: place.x, y: place.y });
+    title.textContent = place.title;
+    const lineOne = el('text', { class: 'hypertext-body', x: place.x, y: place.y + 72 });
+    lineOne.textContent = place.lines[0];
+    const lineTwo = el('text', { class: 'hypertext-body', x: place.x, y: place.y + 100 });
+    lineTwo.textContent = place.lines[1];
+    const excerpt = el('text', { class: 'hypertext-excerpt', x: place.x, y: place.y + 176 });
+    excerpt.textContent = place.excerpt;
+    const link = el('text', {
+      class: 'hypertext-link', x: place.x, y: place.y + 272,
+      'data-link-x': place.x, 'data-link-y': place.y + 272,
+    });
+    link.textContent = `${place.link}  →`;
+    node.appendChild(address);
+    node.appendChild(kind);
+    node.appendChild(title);
+    node.appendChild(lineOne);
+    node.appendChild(lineTwo);
+    node.appendChild(excerpt);
+    node.appendChild(link);
+    places.appendChild(node);
+  });
+  g.appendChild(places);
+
+  const focus = el('rect', {
+    id: 'hypertext-focus', class: 'hypertext-focus', x: 328, y: 409,
+    width: 210, height: 34, rx: 2,
+  });
+  g.appendChild(focus);
+  const pointer = el('path', {
+    id: 'hypertext-pointer', class: 'hypertext-pointer',
+    d: 'M 0 0 L 0 22 L 6 16 L 11 27 L 16 24 L 11 14 L 20 14 Z',
+  });
+  g.appendChild(pointer);
+
+  const actions = el('g', { id: 'hypertext-actions' });
+  ['BACK', 'BACK', 'BACK', 'BACK', 'HOME'].forEach((copy, i) => {
+    const action = el('text', {
+      class: `hypertext-action hypertext-action--${i === 4 ? 'home' : 'back'}`,
+      x: 720, y: 810, 'text-anchor': 'middle',
+    });
+    action.textContent = i === 4 ? 'HOME  /  RETURN TO ORIGIN' : `← ${copy}`;
+    actions.appendChild(action);
+  });
+  g.appendChild(actions);
+
+  const status = el('text', {
+    id: 'hypertext-status', class: 'hypertext-status', x: 1260, y: 818,
+    'text-anchor': 'end',
+  });
+  status.textContent = 'RETURNED / 9 PLACES IN HISTORY';
+  g.appendChild(status);
+  return g as SVGGElement;
+}
+
 /** Restrained software furniture; the historical page remains visible within it. */
 export function buildApplication(): SVGGElement {
   const g = el('g', { id: 'application', opacity: '0' });

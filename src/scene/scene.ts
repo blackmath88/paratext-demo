@@ -17,6 +17,7 @@ import {
   buildDefs,
   buildEditorial,
   buildMagazine,
+  buildHypertext,
   buildField,
   buildGlosses,
   buildFragments,
@@ -84,6 +85,15 @@ export type SceneRefs = {
   magazineCaption: SVGGElement;
   magazineQuote: SVGGElement;
   magazineLabels: SVGGElement;
+  hypertext: SVGGElement;
+  hypertextSubstrate: SVGRectElement;
+  hypertextPlaces: SVGGElement[];
+  hypertextControls: SVGGElement;
+  hypertextHistoryMarks: SVGRectElement[];
+  hypertextFocus: SVGRectElement;
+  hypertextPointer: SVGPathElement;
+  hypertextActions: SVGTextElement[];
+  hypertextStatus: SVGTextElement;
   application: SVGGElement;
   appRules: SVGPathElement[];
   appRecords: SVGGElement[];
@@ -167,7 +177,9 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     `The passage "${BODY_PROSE}" begins without a visible paper boundary. ` +
     'Its page resolves around it; readers then annotate from outside until the page expands to admit them. ' +
     'Their irregular marks regularize into print, settle into editorial composition, and open into ' +
-    'a contemporary spread of text, image and diagram before becoming structured application records. ' +
+    'a contemporary spread of text, image and diagram. One phrase then becomes actionable, and the ' +
+    'reader moves through addressable textual places before returning home through digital history. ' +
+    'The same material then becomes structured application records. ' +
     'That application separates into specialized tool windows. ' +
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
@@ -193,6 +205,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
   svg.appendChild(page);
 
   const surface = el('g', { id: 'surface' }) as SVGGElement;
+  surface.appendChild(buildHypertext());
   surface.appendChild(buildApplication());
   surface.appendChild(buildFragments());
   surface.appendChild(buildConversation());
@@ -246,6 +259,15 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     magazineCaption: must(svg, '#magazine-caption'),
     magazineQuote: must(svg, '#magazine-quote'),
     magazineLabels: must(svg, '#magazine-labels'),
+    hypertext: must(svg, '#hypertext'),
+    hypertextSubstrate: must(svg, '#hypertext-substrate'),
+    hypertextPlaces: [...svg.querySelectorAll<SVGGElement>('.hypertext-place')],
+    hypertextControls: must(svg, '#hypertext-controls'),
+    hypertextHistoryMarks: [...svg.querySelectorAll<SVGRectElement>('.hypertext-history-mark')],
+    hypertextFocus: must(svg, '#hypertext-focus'),
+    hypertextPointer: must(svg, '#hypertext-pointer'),
+    hypertextActions: [...svg.querySelectorAll<SVGTextElement>('.hypertext-action')],
+    hypertextStatus: must(svg, '#hypertext-status'),
     application: must(svg, '#application'),
     appRules: [...svg.querySelectorAll<SVGPathElement>('.app-rule')],
     appRecords: [...svg.querySelectorAll<SVGGElement>('.app-record')],
@@ -387,6 +409,7 @@ export function resetScene(refs: SceneRefs): void {
   refs.print.style.opacity = '0';
   refs.editorial.style.opacity = '0';
   refs.magazine.style.opacity = '0';
+  refs.hypertext.style.opacity = '0';
   refs.application.style.opacity = '0';
   refs.fragments.style.opacity = '0';
   refs.operations.style.opacity = '0';

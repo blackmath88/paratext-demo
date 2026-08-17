@@ -5,8 +5,10 @@ linguistic regimes frame text and structured work.
 
 One body of text persists through the whole piece. It is never replaced: its
 presentation discloses a page boundary, outside annotations force that boundary
-to expand, and those notes regularize into printed apparatus. The same context
-then passes through software and fragmentation before Part II introduces AI
+to expand, and those notes regularize into printed apparatus and editorial
+composition. Hypertext then replaces physical adjacency with addressable,
+navigable places before the same context passes through application structure
+and fragmentation and the later sequence introduces AI
 conversation and reveals its long chronological stream.
 
 > Language may become the universal input. It does not have to become the
@@ -16,12 +18,10 @@ conversation and reveals its long chronological stream.
 chronological tube, recovers apparatus, recomposes into live frames, names the
 cost of unsolicited framing, and ends with the viewer choosing the frame.
 
-The next conceptual revision is documented—but not implemented—in
+The larger conceptual revision is documented in
 [`docs/animation-paradigm-structure.md`](./docs/animation-paradigm-structure.md).
-It reorganizes the argument as three framing regimes separated by a Digital
-shift and an AI shift. Runtime act names, order, narration, and visuals remain
-unchanged until a dedicated implementation pass resolves the open decisions in
-that brief.
+The material-to-digital shift is now implemented through the Magazine →
+Hypertext transition; the later regime changes remain intentionally unchanged.
 
 ## Develop
 
@@ -78,7 +78,7 @@ intended conceptual revision. In short:
 - `src/data/acts.ts` owns act metadata and the normalized timeline boundaries.
   The master timeline and the navigator both read those numbers, so they cannot
   drift apart. Re-pace the piece by editing that file.
-- `src/data/operations.ts` defines stable work-unit identities for Acts 05–08;
+- `src/data/operations.ts` defines stable work-unit identities for the later digital acts;
   the essay extends the same operation type, and both artifacts project those
   semantic records rather than treating layout as the source of truth.
 - `src/essay/` contains the v12 essay runtime, styling, and its explicit station
@@ -99,7 +99,7 @@ The argument lives in HTML, not in SVG. Every act has a real section with a
 heading and prose; the scene carries `<title>`/`<desc>`; the navigator is a
 list of real anchors that works from the keyboard and leaves a usable URL
   (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#magazine`,
-  `#application`, `#fragments`, `#conversation`, `#tube`, `#recovery`,
+  `#hypertext`, `#application`, `#fragments`, `#conversation`, `#tube`, `#recovery`,
   `#projections`, `#cost`, `#open`). Under `prefers-reduced-motion: reduce` the
 piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
 and held rather than played.

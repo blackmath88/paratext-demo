@@ -189,6 +189,19 @@ body[data-mode='static'] .stage__scene {
   transform: translateY(0);
 }
 
+.fragment--bridge {
+  max-width: 18rem;
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-weight: 450;
+  letter-spacing: 0.015em;
+  color: #b8c2c9;
+}
+
+.fragment--hypertext,
+.fragment--hypertext-bridge {
+  bottom: 7vh;
+}
+
 body[data-mode='compact'] .fragment {
   bottom: auto;
   top: 60vh;
@@ -196,6 +209,11 @@ body[data-mode='compact'] .fragment {
   right: var(--gutter);
   max-width: none;
   font-size: 1.35rem;
+}
+
+body[data-mode='compact'] .stage__foreground {
+  position: fixed;
+  z-index: 3;
 }
 
 body[data-mode='static'] .stage__foreground {
@@ -413,6 +431,15 @@ body[data-mode='static'] .frame-switcher {
   color: var(--amber);
 }
 
+.act__bridge {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 550;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-field-dim);
+}
+
 .act__body {
   margin: 0;
   color: var(--on-field);
@@ -420,6 +447,70 @@ body[data-mode='static'] .frame-switcher {
 
 .act--planned {
   opacity: 0.45;
+}
+
+.hypertext-static {
+  display: none;
+}
+
+body[data-mode='static'] .hypertext-static {
+  grid-column: 2;
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.6rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid rgba(174, 184, 192, 0.35);
+  background: #10171d;
+  color: #dfe4e7;
+  font-family: var(--sans);
+}
+
+.hypertext-static__bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(174, 184, 192, 0.28);
+  color: #87939d;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hypertext-static__bar code {
+  color: #aeb8c0;
+  font-size: 0.72rem;
+}
+
+.hypertext-static__kind,
+.hypertext-static small {
+  margin: 0;
+  color: #788792;
+  font-size: 0.65rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hypertext-static strong {
+  font-size: 1.55rem;
+  font-weight: 420;
+}
+
+.hypertext-static p:not(.hypertext-static__kind) {
+  margin: 0;
+  color: #adb6bc;
+}
+
+.hypertext-static a {
+  width: max-content;
+  color: #d4ad5b;
+  text-underline-offset: 0.25em;
+}
+
+.hypertext-static small {
+  justify-self: end;
+  margin-top: 0.8rem;
 }
 
 .colophon {
@@ -443,6 +534,10 @@ body[data-mode='static'] .frame-switcher {
 
   .act__number {
     grid-row: auto;
+  }
+
+  body[data-mode='static'] .hypertext-static {
+    grid-column: 1;
   }
 }
 

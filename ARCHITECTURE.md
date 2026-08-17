@@ -4,7 +4,8 @@ This document describes the currently implemented scene graph, timeline model,
 and responsive strategy. The intended next conceptual revision—three framing
 regimes separated by Digital and AI paradigm shifts—is recorded separately in
 [`docs/animation-paradigm-structure.md`](./docs/animation-paradigm-structure.md).
-That brief is not implemented and does not override current runtime facts.
+Its first material-to-digital paradigm break is implemented by the Hypertext
+act; the remaining brief continues to describe future work.
 
 ---
 
@@ -47,6 +48,7 @@ svg#scene
     ├── g#print         title, caput, folio, footnotes   (Act 3)
     └── g#editorial     construction grid and labels    (Act 4)
 └── g#surface      ← software/screen carrier; sibling of #page
+    ├── g#hypertext     addressable textual places and history
     ├── g#application
     ├── g#fragments
     ├── g#ai-conversation
@@ -57,8 +59,9 @@ svg#scene
 
 `#surface` is a sibling of `#page` so software geometry is authored directly
 in the 1440×900 viewBox and cannot inherit transforms used to settle the codex.
-Page-owned text and rules remain continuous through the transition; Editorial
-returns their carrier to identity before the software surface takes over.
+Page-owned text and rules remain continuous through Editorial and Magazine.
+Hypertext begins at the Magazine footprint, then expands into the first
+screen-native substrate before the software surface takes over.
 
 The scene also owns two explicit mutable models. `materialState` is the source
 for the field colour, grid, dust and vignette; only `tweenMaterial()` writes its
