@@ -36,6 +36,9 @@ gsap.registerPlugin(ScrollTrigger);
 /** Arbitrary internal time units; act spans are scaled into this. */
 const TOTAL = 15;
 
+/** Snap is suspended while an explicit control is moving the playhead. */
+let snapHeldUntil = 0;
+
 function nearest(points: number[], value: number): number {
   // Preserve the true ends of the pinned range so snap can never pull a user
   // back into the piece while they are trying to leave it.
@@ -92,8 +95,13 @@ const BUILDERS = {
 export type Master = {
   timeline: gsap.core.Timeline;
   trigger: ScrollTrigger | undefined;
-  /** Scroll to a normalized master progress. Smooth unless motion is reduced. */
-  seek(progress: number, smooth: boolean): void;
+  /**
+   * Scroll to a normalized master progress. Smooth unless motion is reduced.
+   * `holdSnap` suspends settle-point snapping for the duration of the move, for
+   * targets that are deliberately not a settle point — otherwise snap silently
+   * overrides the destination.
+   */
+  seek(progress: number, smooth: boolean, holdSnap?: boolean): void;
   destroy(): void;
 };
 
@@ -111,7 +119,14 @@ export function buildMaster(
   gsap.set(refs.page, { x: 0, y: 0, scale: 1, transformOrigin: '50% 46%' });
   gsap.set(refs.surface, { x: 0, y: 0, scale: 1 });
 
-  const timeline = gsap.timeline({ paused: mode === 'static' });
+  // Everything downstream — foreground copy, navigator, frame switcher — reads
+  // the progress the scene is *rendering*, not the progress the scroll bar is
+  // at. Under `scrub` those differ by up to a full second, which is exactly how
+  // long the captions were arriving before the images they annotate.
+  const timeline = gsap.timeline({
+    paused: mode === 'static',
+    onUpdate: () => onProgress(timeline.progress()),
+  });
 
   for (const act of acts) {
     const build = BUILDERS[act.id as keyof typeof BUILDERS];
@@ -156,25 +171,29 @@ export function buildMaster(
     // hold with the scene rather than scrolling off it.
     pin: mode === 'cinematic' ? stage : false,
     pinSpacing: mode === 'cinematic',
-    scrub: mode === 'cinematic' ? 1.15 : 0.7,
+    // Enough smoothing to keep wheel steps from reading as jumps, not so much
+    // that the scene visibly trails the hand.
+    scrub: mode === 'cinematic' ? 0.85 : 0.6,
     snap: {
-      snapTo: (value) => nearest(settlePoints, value),
+      snapTo: (value) => (performance.now() < snapHeldUntil ? value : nearest(settlePoints, value)),
       duration: { min: 0.2, max: 0.6 },
       delay: 0.1,
       ease: 'power1.inOut',
       inertia: false,
     },
     invalidateOnRefresh: true,
-    onUpdate: (self) => onProgress(self.progress),
   });
 
   return {
     timeline,
     trigger,
-    seek: (progress, smooth) => {
+    seek: (progress, smooth, holdSnap = false) => {
       const clamped = gsap.utils.clamp(0, 1, progress);
       const start = trigger.start;
       const target = start + (trigger.end - start) * clamped;
+      // Long enough to outlast the scroll itself plus ScrollTrigger's snap
+      // delay; snap resumes on the reader's next scroll either way.
+      if (holdSnap) snapHeldUntil = performance.now() + (smooth ? 1800 : 700);
       if (scrollTo) scrollTo(target, !smooth);
       else window.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
     },

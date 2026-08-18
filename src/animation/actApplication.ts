@@ -17,7 +17,8 @@ export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline 
   // changes function without pretending that a new physical page arrived.
   tl.set(refs.application, { opacity: 1 }, 0);
   tl.set(refs.appSubstrate, { opacity: 0 }, 0);
-  tl.set([refs.appChrome, refs.appState, refs.appMetatext], { opacity: 0 }, 0);
+  tl.set([refs.appChrome, refs.appMetatext], { opacity: 0 }, 0);
+  tl.set(refs.appState, { opacity: 0, y: 18 }, 0);
   tl.set(refs.appViewLayers, { opacity: 0, x: 0, y: 0 }, 0);
   tl.set(refs.appViewNames, { opacity: 0 }, 0);
   tl.set(refs.appStatusReviewed, { opacity: 1 }, 0);
@@ -26,7 +27,11 @@ export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline 
   tl.set(refs.appStateApproved, { opacity: 0 }, 0);
   tl.set(refs.appCodeAfter, { opacity: 0 }, 0);
   tl.set(refs.appGeneratedAside, { opacity: 0 }, 0);
-  tl.to(refs.hypertext, { opacity: 0, duration: 0.72, ease: 'power1.inOut' }, 0);
+  // The two substrates are the same rectangle in nearly the same colour, so the
+  // panel never blinks — but the hypertext *contents* must be gone before this
+  // act's chrome arrives, or the previous act's places and history read as part
+  // of the application.
+  tl.to(refs.hypertext, { opacity: 0, duration: 0.42, ease: 'power1.inOut' }, 0);
   tl.fromTo(refs.appSubstrate, {
     attr: { x: 140, y: 42, width: 1160, height: 816 },
     fill: '#10171d',
@@ -45,10 +50,10 @@ export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline 
     vignetteOpacity: 0.18,
   }, { duration: 1.1, ease: 'power1.inOut' }, 0);
 
-  tl.to(refs.appChrome, { opacity: 1, duration: 0.55 }, 0.35);
-  tl.to(refs.appState, { opacity: 1, duration: 0.65, y: 0, ease: 'power2.out' }, 0.5);
-  if (detail) tl.to(detail, { opacity: 1, duration: 0.65, ease: 'power2.out' }, 0.85);
-  if (detailName) tl.to(detailName, { opacity: 1, duration: 0.35 }, 0.85);
+  tl.to(refs.appChrome, { opacity: 1, duration: 0.55 }, 0.5);
+  tl.to(refs.appState, { opacity: 1, duration: 0.65, y: 0, ease: 'power2.out' }, 0.62);
+  if (detail) tl.to(detail, { opacity: 1, duration: 0.65, ease: 'power2.out' }, 0.95);
+  if (detailName) tl.to(detailName, { opacity: 1, duration: 0.35 }, 0.95);
 
   // Different views arrive sequentially, but the state spine never leaves.
   if (detail && table) {
@@ -96,11 +101,16 @@ export function actApplication(refs: SceneRefs, mode: Mode): gsap.core.Timeline 
   }
 
   // Metatext acts on the current view instead of appearing as a detached demo.
+  // The source panel occupies the left third of the frame, so the monitor
+  // yields that space as the panel opens rather than being covered by it and
+  // sliding out from underneath afterwards.
   tl.to(refs.appMetatext, { opacity: 1, duration: 0.55, ease: 'power2.out' }, 6.5);
-  tl.to(refs.appCodeBefore, { opacity: 0, duration: 0.25 }, 7.05);
-  tl.to(refs.appCodeAfter, { opacity: 1, duration: 0.35 }, 7.16);
-  tl.to(refs.appGeneratedMain, { attr: { d: 'M 520 172 H 1160 V 626 H 520 Z' }, duration: 0.8, ease: 'power3.inOut' }, 7.08);
-  if (monitorCopy) tl.to(monitorCopy, { x: 250, duration: 0.8, ease: 'power3.inOut' }, 7.08);
-  tl.to(refs.appGeneratedAside, { opacity: 1, duration: 0.48, ease: 'power2.out' }, 7.62);
+  tl.to(refs.appGeneratedMain, { attr: { d: 'M 520 172 H 1160 V 626 H 520 Z' }, duration: 0.7, ease: 'power3.inOut' }, 6.5);
+  if (monitorCopy) tl.to(monitorCopy, { x: 250, duration: 0.7, ease: 'power3.inOut' }, 6.5);
+  // The edit then has exactly one visible consequence: `1fr` becomes
+  // `1fr 228px`, and the 228-wide generated region appears.
+  tl.to(refs.appCodeBefore, { opacity: 0, duration: 0.25 }, 7.3);
+  tl.to(refs.appCodeAfter, { opacity: 1, duration: 0.35 }, 7.41);
+  tl.to(refs.appGeneratedAside, { opacity: 1, duration: 0.48, ease: 'power2.out' }, 7.72);
   return tl;
 }

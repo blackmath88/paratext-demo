@@ -181,12 +181,16 @@ body[data-mode='static'] .stage__scene {
   font-weight: 350;
   opacity: 0;
   transform: translateY(0.6rem);
-  transition: opacity 700ms ease, transform 700ms ease;
+  /* Leaving is quick and immediate; arriving waits for the slot to be empty.
+     Every line shares this one position, so a symmetric fade prints the
+     outgoing line across the incoming one on every handoff. */
+  transition: opacity 260ms ease, transform 260ms ease;
 }
 
 .fragment.is-visible {
   opacity: 1;
   transform: translateY(0);
+  transition: opacity 460ms ease 280ms, transform 460ms ease 280ms;
 }
 
 .fragment--bridge {

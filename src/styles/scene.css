@@ -487,6 +487,8 @@ text.gloss--ink {
 .app-action {
   cursor: pointer;
   outline: none;
+  /* Enabled by main.ts only while the action view is on screen. */
+  pointer-events: none;
 }
 
 .app-action-boundary {

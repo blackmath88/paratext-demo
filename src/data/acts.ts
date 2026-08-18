@@ -37,6 +37,13 @@ export type Act = {
   thesis: string;
   /** Optional threshold line shown briefly before the act thesis. */
   bridge?: string;
+  /**
+   * Normalized local window for the thesis line. Defaults are derived from
+   * `settle`; acts carrying a bridge or beats set it explicitly so the whole
+   * caption score for the act reads in one place — and so no two lines are
+   * ever scheduled into the same foreground slot at once.
+   */
+  thesisAt?: { from: number; to: number };
   /** Optional sequential lines within an act, timed as normalized local ranges. */
   beats?: { text: string; from: number; to: number }[];
   /** Longer copy — the accessible/reduced-motion carrier of the argument. */
@@ -132,6 +139,9 @@ export const acts: Act[] = [
     shortTitle: 'Hypertext',
     bridge: 'Then the frame changes nature.',
     thesis: 'The page no longer has to contain the text.',
+    // The bridge holds through the substrate change; the thesis lands on the
+    // first link that leads off the page.
+    thesisAt: { from: 0.13, to: 0.94 },
     body: 'Text folds into a virtual space of many dimensions. Addressable places become navigable without physical proximity, and history makes the route reversible.',
     start: 0.305738476,
     end: 0.437441204,
@@ -144,9 +154,14 @@ export const acts: Act[] = [
     title: 'Application',
     shortTitle: 'Application',
     thesis: 'The frame becomes a window onto state.',
+    // Three lines, three stretches of choreography: the views arriving over one
+    // state spine, the action changing that state, and the source panel. The
+    // gaps between them are the handoff — long enough for one line to clear
+    // before the next arrives in the same slot.
+    thesisAt: { from: 0.035, to: 0.24 },
     beats: [
-      { text: 'We can monitor it. Change it. Act through it.', from: 0.29, to: 0.61 },
-      { text: 'And now the frame itself is written in language.', from: 0.64, to: 0.93 },
+      { text: 'We can monitor it. Change it. Act through it.', from: 0.3, to: 0.62 },
+      { text: 'And now the frame itself is written in language.', from: 0.68, to: 0.95 },
     ],
     body: 'Persistent state outlives any one view. We can monitor it, change it and act through it. The same case remains visible as detail, table, action, timeline and monitor; then metatext changes how the frame itself is composed.',
     start: 0.437441204,
