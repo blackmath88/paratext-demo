@@ -40,8 +40,17 @@ export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   tl.to(refs.printNotes, { opacity: 0.12, duration: 0.8 }, 0.6);
 
   // The earlier document persists and is claimed by the draft window rather
-  // than being replaced by a mock document.
-  tl.fromTo([refs.body, refs.printTitle, refs.printCaput], { opacity: 0 }, { opacity: 1, duration: 0.55 }, 0.42);
+  // than being replaced by a mock document. Hypertext faded it out, so it has
+  // to be brought back — but `immediateRender: false` is not optional here:
+  // GSAP renders a fromTo's start values the moment the tween is *created*,
+  // and every act timeline is built up front at boot. Without it this line
+  // blanks the manuscript for the whole first half of the piece.
+  tl.fromTo(
+    [refs.body, refs.printTitle, refs.printCaput],
+    { opacity: 0 },
+    { opacity: 1, duration: 0.55, immediateRender: false },
+    0.42,
+  );
   tl.to(refs.body, { x: 530, y: -80, scale: 0.52, transformOrigin: '466px 264px', duration: 1.55, ease: 'power3.inOut' }, 0.25);
   tl.to(refs.printTitle, { x: 530, y: -52, scale: 0.7, transformOrigin: '466px 206px', duration: 1.5, ease: 'power3.inOut' }, 0.25);
   tl.to(refs.printCaput, { opacity: 0.35, x: 530, y: -48, scale: 0.7, transformOrigin: '466px 234px', duration: 1.4 }, 0.3);
