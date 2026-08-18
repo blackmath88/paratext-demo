@@ -69,29 +69,38 @@ const costSettle = cost
  * operating a slider.
  *
  * Every line becomes a cue with an absolute window on the master timeline, and
- * at most one cue is ever marked visible. All the lines occupy the same slot in
- * the lower-left corner, so two live windows would print one line across the
- * other — which is what a threshold line overlapping its own act's thesis used
- * to do.
+ * at most one cue is ever marked visible. All the lines share one slot per
+ * regime, so two live windows would print one line across the other.
+ *
+ * The windows themselves live in `acts.ts`, scored against each act's actual
+ * choreography. Nothing here decides *when* a sentence is true.
  */
 type Cue = { node: HTMLElement; from: number; to: number };
 
 const openingRegimeEnd = acts.find((act) => act.id === 'magazine')?.end ?? 0;
-const BRIDGE_AT = { from: 0.004, to: 0.1 };
+const digitalRegimeEnd = acts.find((act) => act.id === 'fragments')?.end ?? 0;
 
-/** Local window for an act's thesis line, unless the act declares its own. */
-function thesisWindow(act: Act): { from: number; to: number } {
-  if (act.thesisAt) return act.thesisAt;
-  // The opening acts are short, so their line holds through the plateau. The
-  // later, longer acts state themselves and then give the image the frame back.
-  return act.end <= openingRegimeEnd
-    ? { from: 0.04, to: Math.min(0.94, act.settle + 0.16) }
-    : { from: 0.14, to: 0.52 };
+/**
+ * Three caption zones, not fifteen. The narrator sits outside the artifact
+ * being depicted, and where "outside" is depends on what the scene currently
+ * occupies — paper, an application window, or a conversational field.
+ */
+function regimeOf(act: Act): 'material' | 'digital' | 'language' {
+  if (act.end <= openingRegimeEnd) return 'material';
+  if (act.end <= digitalRegimeEnd) return 'digital';
+  return 'language';
 }
+
+/**
+ * Defensive fallback only. Every act in `acts.ts` declares its own window; an
+ * act that forgets to gets a plausible middle rather than nothing at all.
+ */
+const DEFAULT_THESIS_AT = { from: 0.14, to: 0.52 };
 
 function addCue(act: Act, text: string, at: { from: number; to: number }, className: string): Cue {
   const p = document.createElement('p');
   p.className = `fragment ${className}`;
+  p.dataset.regime = regimeOf(act);
   p.setAttribute('aria-hidden', 'true');
   p.textContent = text;
   foreground!.appendChild(p);
@@ -101,9 +110,12 @@ function addCue(act: Act, text: string, at: { from: number; to: number }, classN
 
 const cues: Cue[] = acts.flatMap((act) => [
   ...(act.bridge
-    ? [addCue(act, act.bridge, BRIDGE_AT, `fragment--bridge fragment--${act.id}-bridge`)]
+    ? [addCue(act, act.bridge, act.bridgeAt ?? DEFAULT_THESIS_AT, `fragment--bridge fragment--${act.id}-bridge`)]
     : []),
-  addCue(act, act.thesis, thesisWindow(act), `fragment--${act.id}`),
+  // `foreground: false` means the scene states the act itself, or its beats do.
+  ...(act.foreground === false
+    ? []
+    : [addCue(act, act.thesis, act.thesisAt ?? DEFAULT_THESIS_AT, `fragment--${act.id}`)]),
   ...(act.beats ?? []).map((beat, index) =>
     addCue(act, beat.text, beat, `fragment--beat fragment--${act.id}-beat-${index}`)),
 ]);

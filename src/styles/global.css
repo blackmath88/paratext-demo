@@ -171,50 +171,72 @@ body[data-mode='static'] .stage__scene {
 .fragment {
   position: absolute;
   left: var(--gutter);
-  bottom: 12vh;
   margin: 0;
-  max-width: 15rem;
-  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
   line-height: 1.18;
   color: var(--paper);
   font-family: var(--sans);
   font-weight: 350;
   opacity: 0;
   transform: translateY(0.6rem);
-  /* Leaving is quick and immediate; arriving waits for the slot to be empty.
-     Every line shares this one position, so a symmetric fade prints the
-     outgoing line across the incoming one on every handoff. */
-  transition: opacity 260ms ease, transform 260ms ease;
+  /* Leaving is quick and immediate; arriving waits only long enough for the
+     slot to be empty. Every line in a regime shares one position, so a
+     symmetric fade would print the outgoing line across the incoming one —
+     but a long arrival delay reads as the narration lagging the image. */
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .fragment.is-visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 460ms ease 280ms, transform 460ms ease 280ms;
+  transition: opacity 380ms ease 190ms, transform 380ms ease 190ms;
 }
 
+/* Three caption zones, set by the regime the act belongs to. The narrator is
+   always outside the artifact being depicted, so the zone moves when what is
+   depicted changes — paper, then an application window, then a field of
+   language. Nothing is positioned per act. */
+
+/* Material: the editorial caption corner, clear of the leaf and of the
+   magazine pull quote (scene x 340, y 718). */
+.fragment[data-regime='material'] {
+  bottom: 12vh;
+  max-width: 15rem;
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+}
+
+/* Digital: system chrome under the window. Held narrow and low so it clears
+   the application state spine (labels at scene x 330+, y 790) and the
+   hypertext Back/Home affordances (scene x 720, y 810). */
+.fragment[data-regime='digital'] {
+  bottom: 5.5vh;
+  max-width: 14rem;
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+}
+
+/* Language: the conversational field has far less chrome, so the narrator can
+   sit higher and breathe. Clear of the AI prompt line (scene x 410, y 786). */
+.fragment[data-regime='language'] {
+  bottom: 8vh;
+  max-width: 16rem;
+  font-size: clamp(1.15rem, 1.7vw, 1.5rem);
+}
+
+/* The threshold line and the sequential beats are the narrator speaking more
+   quietly than a thesis: same slot, lower contrast. */
 .fragment--bridge {
-  max-width: 18rem;
-  font-size: clamp(1rem, 1.35vw, 1.2rem);
   font-weight: 450;
   letter-spacing: 0.015em;
   color: #b8c2c9;
 }
 
-.fragment--hypertext,
-.fragment--hypertext-bridge,
-.fragment--application,
 .fragment--beat {
-  bottom: 7vh;
-}
-
-.fragment--beat {
-  max-width: 19rem;
-  font-size: clamp(1.1rem, 1.65vw, 1.45rem);
   color: #c7d0d2;
 }
 
-body[data-mode='compact'] .fragment {
+/* Compact collapses the three zones back into one: the scene is only 58vh
+   tall here, so there is no "outside the artifact" to move between. */
+body[data-mode='compact'] .fragment,
+body[data-mode='compact'] .fragment[data-regime] {
   bottom: auto;
   top: 60vh;
   left: var(--gutter);
