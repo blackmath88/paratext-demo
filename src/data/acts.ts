@@ -27,8 +27,22 @@ export type ActId =
   | 'cost'
   | 'open';
 
+export type SegmentId = 'written' | 'networked' | 'computational' | 'ai';
+
+export type Chapter = {
+  id: SegmentId;
+  number: string;
+  title: string;
+  subtitle: string;
+  support?: string;
+  introActId: ActId;
+};
+
 export type Act = {
   id: ActId;
+  segment: SegmentId;
+  /** Marks the first act in a major regime so the runtime can plate it. */
+  chapterIntro?: boolean;
   /** Two-digit label shown in the margin navigator. */
   number: string;
   title: string;
@@ -75,6 +89,8 @@ export type Act = {
 export const acts: Act[] = [
   {
     id: 'bare',
+    segment: 'written',
+    chapterIntro: true,
     number: '00',
     title: 'Presentation',
     shortTitle: 'Presentation',
@@ -90,6 +106,7 @@ export const acts: Act[] = [
   },
   {
     id: 'page',
+    segment: 'written',
     number: '01',
     title: 'Page',
     shortTitle: 'Page',
@@ -106,6 +123,7 @@ export const acts: Act[] = [
   },
   {
     id: 'glosses',
+    segment: 'written',
     number: '02',
     title: 'Outside voice',
     shortTitle: 'Gloss',
@@ -123,6 +141,7 @@ export const acts: Act[] = [
   },
   {
     id: 'print',
+    segment: 'written',
     number: '03',
     title: 'Apparatus / print',
     shortTitle: 'Print',
@@ -141,6 +160,7 @@ export const acts: Act[] = [
   },
   {
     id: 'editorial',
+    segment: 'written',
     number: '04',
     title: 'Editorial composition',
     shortTitle: 'Editorial',
@@ -158,6 +178,7 @@ export const acts: Act[] = [
   },
   {
     id: 'magazine',
+    segment: 'written',
     number: '05',
     title: 'Editorial spread',
     shortTitle: 'Magazine',
@@ -175,6 +196,8 @@ export const acts: Act[] = [
   },
   {
     id: 'hypertext',
+    segment: 'networked',
+    chapterIntro: true,
     number: '06',
     title: 'Hypertext',
     shortTitle: 'Hypertext',
@@ -198,6 +221,8 @@ export const acts: Act[] = [
   },
   {
     id: 'application',
+    segment: 'computational',
+    chapterIntro: true,
     number: '07',
     title: 'Application',
     shortTitle: 'Application',
@@ -224,6 +249,7 @@ export const acts: Act[] = [
   },
   {
     id: 'fragments',
+    segment: 'computational',
     number: '08',
     title: 'Fragmented frames',
     shortTitle: 'Fragments',
@@ -246,6 +272,8 @@ export const acts: Act[] = [
   },
   {
     id: 'conversation',
+    segment: 'ai',
+    chapterIntro: true,
     number: '09',
     title: 'AI / Conversation',
     shortTitle: 'AI',
@@ -264,6 +292,7 @@ export const acts: Act[] = [
   },
   {
     id: 'tube',
+    segment: 'ai',
     number: '10',
     title: 'The tube',
     shortTitle: 'The tube',
@@ -290,6 +319,7 @@ export const acts: Act[] = [
   },
   {
     id: 'recovery',
+    segment: 'ai',
     number: '11',
     title: 'Recovery',
     shortTitle: 'Recovery',
@@ -313,6 +343,7 @@ export const acts: Act[] = [
   },
   {
     id: 'projections',
+    segment: 'ai',
     number: '12',
     title: 'Projections',
     shortTitle: 'Projections',
@@ -331,6 +362,7 @@ export const acts: Act[] = [
   },
   {
     id: 'cost',
+    segment: 'ai',
     number: '13',
     title: 'The cost',
     shortTitle: 'Cost',
@@ -349,6 +381,7 @@ export const acts: Act[] = [
   },
   {
     id: 'open',
+    segment: 'ai',
     number: '14',
     title: 'Which frame now?',
     shortTitle: 'Open',
@@ -364,6 +397,51 @@ export const acts: Act[] = [
     implemented: true,
   },
 ];
+
+export const chapters: Chapter[] = [
+  {
+    id: 'written',
+    number: '01',
+    title: 'WRITTEN',
+    subtitle: 'Text is never just there.',
+    support: 'It is somewhere. Separated from the world around it. Framed.',
+    introActId: 'bare',
+  },
+  {
+    id: 'networked',
+    number: '02',
+    title: 'NETWORKED',
+    subtitle: 'The page stops being the container.',
+    support: 'Text acquires addresses, links and virtual adjacency.',
+    introActId: 'hypertext',
+  },
+  {
+    id: 'computational',
+    number: '03',
+    title: 'COMPUTATIONAL',
+    subtitle: 'The frame changes nature.',
+    support: 'It can now hold state, action and behaviour.',
+    introActId: 'application',
+  },
+  {
+    id: 'ai',
+    number: '04',
+    title: 'AI AGE',
+    subtitle: 'Then the interface collapses back into language.',
+    support: 'DYNAMIC FRAMING',
+    introActId: 'conversation',
+  },
+];
+
+export function chapterBySegment(segment: SegmentId): Chapter {
+  const chapter = chapters.find((item) => item.id === segment);
+  if (!chapter) throw new Error(`Missing chapter for segment: ${segment}`);
+  return chapter;
+}
+
+export function chapterForAct(act: Act): Chapter {
+  return chapterBySegment(act.segment);
+}
 
 export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [];
 

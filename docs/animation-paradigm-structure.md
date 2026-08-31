@@ -1,62 +1,71 @@
 # Animation paradigm structure
 
-This document records the intended next conceptual revision of the scroll
-animation. It is a design brief, not a description of behavior already in the
-runtime and not authorization to implement it.
+This document records the final conceptual revision of the scroll animation.
+It is a design brief and an implementation note for the current runtime.
 
-The current animation remains the implementation source of truth for act IDs,
-order, copy, timing, geometry, and responsive behavior. Those facts live in
-`src/data/acts.ts`, `src/animation/`, and `ARCHITECTURE.md`.
+The source of truth for act IDs, order, copy, timing, geometry and responsive
+behavior remains `src/data/acts.ts`, `src/animation/`, and `ARCHITECTURE.md`.
 
 ## Governing revision
 
-The animation should no longer read as one continuous accumulation of framing
-devices. It should read as three regimes separated by two paradigm shifts:
+The piece now reads as four major regimes plus an open ending:
 
-1. **Material / editorial framing**
-2. **Computational / digital framing**
-3. **Linguistic / AI framing**
+1. **WRITTEN**
+2. **NETWORKED**
+3. **COMPUTATIONAL**
+4. **AI AGE / DYNAMIC FRAMING**
+5. **OPEN**
 
-The shifts are not ordinary act seams. Eventually the presentation substrate
-itself should change so the viewer feels that the frame has acquired different
-physics.
+The interaction rule is now explicit:
 
-This revision preserves the governing continuity constraint: one field of
-material and semantic operations persists. A change of substrate must transform
-that field, not replace it with slides.
+> scroll initiates authored transitions between stable stations.
 
-## Current implementation versus intended direction
+Scroll selects a direction and commits a move. Once committed, the authored
+transition completes smoothly to the next station and then holds.
 
-The implemented runtime currently contains:
+This supersedes the earlier continuous-scrub assumption. The runtime no longer
+depends on every wheel or trackpad delta micromanaging the animation.
 
-`Presentation → Page → Gloss → Print → Editorial → Application → Fragments →
-AI Conversation → Tube → Recovery → Projections → Cost → Open`
+The continuity constraint still holds: one field of material and semantic
+operations persists. The substrate may change, but it must transform that field
+rather than replacing it with unrelated slides.
 
-The revised direction proposes a clearer conceptual sequence:
+## Current runtime sequence
+
+The implemented runtime now contains:
+
+`Presentation → Page → Gloss → Print → Editorial → Magazine → Hypertext →
+Application → Fragments / Specialisation → AI Conversation → Tube → Recovery →
+Projections → Cost → Open`
+
+The structure is grouped into the final chapter model:
 
 ```text
-MATERIAL / EDITORIAL
-Presentation → Page → Gloss → Print → Editorial
+INTRO
+A HISTORY OF FRAMING
 
-             PARADIGM SHIFT I — DIGITAL
+01 — WRITTEN
+Presentation → Page → Gloss → Print → Editorial → Magazine
 
-COMPUTATIONAL / DIGITAL
-Hypertext → Application (+ metatext) → Specialized frames → Fragmentation
+02 — NETWORKED
+Hypertext
 
-             PARADIGM SHIFT II — AI
+03 — COMPUTATIONAL
+Application → Fragments / Specialisation
 
-LINGUISTIC / AI
-AI Conversation → Tube → Recovery → Projections → Cost → Open
+04 — AI AGE / DYNAMIC FRAMING
+AI Conversation → Tube → Recovery → Projections → Cost
+
+OPEN
+Which frame now?
 ```
 
-Hypertext is not currently a runtime animation act. Application and Fragments
-already exist, but their conceptual emphasis will need revision. Metatext may
-live inside Application rather than becoming an act. No runtime names, numbers,
-or ranges should change until those choices are explicitly made.
+The chapter boundaries should be legible in the presentation itself, not just
+in metadata. Large interstitial plates belong only at the major regime breaks.
 
 ---
 
-## Regime I — Material / editorial framing
+## Regime I — WRITTEN
 
 Emotional register: **maturity**.
 
@@ -102,7 +111,40 @@ material/editorial framing.
 
 ---
 
-## Paradigm shift I — Digital
+## Regime II — NETWORKED
+
+The page stops being the container.
+
+Hypertext is the singular break here. It is enough on its own.
+
+## Regime III — COMPUTATIONAL
+
+The frame changes nature.
+
+Application should feel powerful before fragmentation reveals the cost of
+specialisation.
+
+## Regime IV — AI AGE / DYNAMIC FRAMING
+
+Then the interface collapses back into language.
+
+AI Conversation should feel like relief. Tube reveals the old chronological
+structure. Recovery restores apparatus. Projections prove that the same source
+can compose several frames. Cost complicates the claim rather than diluting it.
+
+## Open ending
+
+The final scene is quiet:
+
+`Which frame now?`
+
+No further explanation is required.
+
+## Superseded note
+
+The earlier assumption that the final interaction should remain a continuous
+scrub through one long timeline is superseded by the authored station model
+above.
 
 Possible transition line: **Then the frame changes nature.**
 

@@ -8,8 +8,7 @@
  * with the keyboard, and leaves a usable URL behind.
  */
 
-import { acts, actAt, actById, plannedActs, settlePoints } from '../data/acts';
-import type { Master } from '../animation/master';
+import { acts, actAt, actById, plannedActs, type Act } from '../data/acts';
 
 export type Navigation = {
   update(progress: number): void;
@@ -18,19 +17,33 @@ export type Navigation = {
 
 export function buildNavigation(
   mount: HTMLElement,
-  master: Master,
+  requestAct: (act: Act, smooth: boolean) => void,
   initialHash = location.hash.replace('#', ''),
 ): Navigation {
   const nav = document.createElement('nav');
   nav.className = 'actnav';
   nav.setAttribute('aria-label', 'Acts');
 
+  const header = document.createElement('div');
+  header.className = 'actnav__header';
+
+  const chapterLine = document.createElement('p');
+  chapterLine.className = 'actnav__chapter';
+
+  const stationLine = document.createElement('p');
+  stationLine.className = 'actnav__station';
+
+  const thesisLine = document.createElement('p');
+  thesisLine.className = 'actnav__thesis';
+
+  header.append(chapterLine, stationLine, thesisLine);
+
   const list = document.createElement('ol');
   list.className = 'actnav__list';
 
   const entries = new Map<string, HTMLAnchorElement>();
 
-  for (const [index, act] of acts.entries()) {
+  for (const act of acts) {
     const item = document.createElement('li');
     item.className = 'actnav__item';
 
@@ -44,15 +57,9 @@ export function buildNavigation(
 
     link.addEventListener('click', (e) => {
       // Land on the same stable argument state used by scroll snapping.
-      const target = settlePoints[index] ?? act.start;
-      if (master.trigger) {
-        e.preventDefault();
-        master.seek(target, true);
-        history.replaceState(null, '', `#${act.id}`);
-      } else {
-        // Static mode keeps native anchor navigation: no Lenis and no motion.
-        master.seek(target, false);
-      }
+      e.preventDefault();
+      requestAct(act, true);
+      history.replaceState(null, '', `#${act.id}`);
     });
 
     item.appendChild(link);
@@ -72,7 +79,7 @@ export function buildNavigation(
     list.appendChild(item);
   }
 
-  nav.appendChild(list);
+  nav.append(header, list);
   mount.appendChild(nav);
 
   let currentId = '';
@@ -81,6 +88,12 @@ export function buildNavigation(
     const act = actAt(progress);
     if (act.id === currentId) return;
     currentId = act.id;
+    const chapterNumber = act.segment === 'written' ? '01' : act.segment === 'networked' ? '02' : act.segment === 'computational' ? '03' : '04';
+    const chapterTitle = act.segment === 'written' ? 'WRITTEN' : act.segment === 'networked' ? 'NETWORKED' : act.segment === 'computational' ? 'COMPUTATIONAL' : 'AI AGE';
+    header.hidden = act.id === 'open';
+    chapterLine.textContent = `${chapterNumber} · ${chapterTitle}`;
+    stationLine.textContent = act.title;
+    thesisLine.textContent = act.thesis;
     for (const [id, link] of entries) {
       link.classList.toggle('is-current', id === act.id);
       if (id === act.id) link.setAttribute('aria-current', 'true');
@@ -95,9 +108,10 @@ export function buildNavigation(
   const applyHash = (id = location.hash.replace('#', '')) => {
     const act = actById(id);
     if (!act) return;
-    const index = acts.indexOf(act);
-    master.seek(settlePoints[index] ?? act.start, false);
-    if (!master.trigger) document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
+    requestAct(act, false);
+    if (!document.body.dataset.mode || document.body.dataset.mode === 'static') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
+    }
   };
 
   const onHashChange = () => applyHash();

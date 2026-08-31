@@ -96,10 +96,9 @@ export type Master = {
   timeline: gsap.core.Timeline;
   trigger: ScrollTrigger | undefined;
   /**
-   * Scroll to a normalized master progress. Smooth unless motion is reduced.
-   * `holdSnap` suspends settle-point snapping for the duration of the move, for
-   * targets that are deliberately not a settle point — otherwise snap silently
-   * overrides the destination.
+   * Seek to a normalized master progress. Smooth unless motion is reduced.
+   * `holdSnap` suspends settle-point snapping for the duration of a deliberate
+   * move so authored transitions can complete without being re-targeted.
    */
   seek(progress: number, smooth: boolean, holdSnap?: boolean): void;
   destroy(): void;
@@ -120,9 +119,9 @@ export function buildMaster(
   gsap.set(refs.surface, { x: 0, y: 0, scale: 1 });
 
   // Everything downstream — foreground copy, navigator, frame switcher — reads
-  // the progress the scene is *rendering*, not the progress the scroll bar is
-  // at. Under `scrub` those differ by up to a full second, which is exactly how
-  // long the captions were arriving before the images they annotate.
+  // the progress the scene is rendering, not a raw scroll delta. The scene
+  // still follows the scroll position, but the smoothing is intentionally
+  // restrained so committed station changes finish cleanly.
   const timeline = gsap.timeline({
     paused: mode === 'static',
     onUpdate: () => onProgress(timeline.progress()),
@@ -171,12 +170,12 @@ export function buildMaster(
     // hold with the scene rather than scrolling off it.
     pin: mode === 'cinematic' ? stage : false,
     pinSpacing: mode === 'cinematic',
-    // Enough smoothing to keep wheel steps from reading as jumps, not so much
-    // that the scene visibly trails the hand.
-    scrub: mode === 'cinematic' ? 0.85 : 0.6,
+    // The wheel controller already commits one authored move at a time, so the
+    // remaining smoothing only needs to keep the scene from feeling mechanical.
+    scrub: mode === 'cinematic' ? 0.3 : 0.18,
     snap: {
       snapTo: (value) => (performance.now() < snapHeldUntil ? value : nearest(settlePoints, value)),
-      duration: { min: 0.2, max: 0.6 },
+      duration: { min: 0.15, max: 0.45 },
       delay: 0.1,
       ease: 'power1.inOut',
       inertia: false,

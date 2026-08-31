@@ -21,7 +21,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import gsap from 'gsap';
 import Lenis from 'lenis';
 import { buildMaster, type Master, type ScrollTo } from './animation/master';
-import { acts, settlePoints, type Act } from './data/acts';
+import { acts, actAt, settlePoints, chapterForAct, type Act } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
 import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
 import { buildScene, type SceneRefs } from './scene/scene';
@@ -60,79 +60,143 @@ const costSettle = cost
   : 1;
 
 // ---------------------------------------------------------------------------
-// Foreground editorial fragments
+// Foreground story layer
 // ---------------------------------------------------------------------------
 
-/**
- * Sparse, and deliberately not scrubbed. The scene is continuous; the copy
- * arrives and leaves. Scrubbing text opacity to scroll makes reading feel like
- * operating a slider.
- *
- * Every line becomes a cue with an absolute window on the master timeline, and
- * at most one cue is ever marked visible. All the lines share one slot per
- * regime, so two live windows would print one line across the other.
- *
- * The windows themselves live in `acts.ts`, scored against each act's actual
- * choreography. Nothing here decides *when* a sentence is true.
- */
-type Cue = { node: HTMLElement; from: number; to: number };
+type StoryOverlay = {
+  update(progress: number): void;
+  setTransitioning(active: boolean): void;
+  destroy(): void;
+};
 
-const openingRegimeEnd = acts.find((act) => act.id === 'magazine')?.end ?? 0;
-const digitalRegimeEnd = acts.find((act) => act.id === 'fragments')?.end ?? 0;
-
-/**
- * Three caption zones, not fifteen. The narrator sits outside the artifact
- * being depicted, and where "outside" is depends on what the scene currently
- * occupies — paper, an application window, or a conversational field.
- */
-function regimeOf(act: Act): 'material' | 'digital' | 'language' {
-  if (act.end <= openingRegimeEnd) return 'material';
-  if (act.end <= digitalRegimeEnd) return 'digital';
-  return 'language';
-}
-
-/**
- * Defensive fallback only. Every act in `acts.ts` declares its own window; an
- * act that forgets to gets a plausible middle rather than nothing at all.
- */
-const DEFAULT_THESIS_AT = { from: 0.14, to: 0.52 };
-
-function addCue(act: Act, text: string, at: { from: number; to: number }, className: string): Cue {
-  const p = document.createElement('p');
-  p.className = `fragment ${className}`;
-  p.dataset.regime = regimeOf(act);
-  p.setAttribute('aria-hidden', 'true');
-  p.textContent = text;
-  foreground!.appendChild(p);
+function beatAt(act: Act, progress: number): string | undefined {
+  if (!act.beats || act.beats.length === 0) return undefined;
   const span = act.end - act.start;
-  return { node: p, from: act.start + span * at.from, to: act.start + span * at.to };
+  const local = span > 0 ? (progress - act.start) / span : 0;
+  for (const beat of act.beats) {
+    if (local >= beat.from && local <= beat.to) return beat.text;
+  }
+  return undefined;
 }
 
-const cues: Cue[] = acts.flatMap((act) => [
-  ...(act.bridge
-    ? [addCue(act, act.bridge, act.bridgeAt ?? DEFAULT_THESIS_AT, `fragment--bridge fragment--${act.id}-bridge`)]
-    : []),
-  // `foreground: false` means the scene states the act itself, or its beats do.
-  ...(act.foreground === false
-    ? []
-    : [addCue(act, act.thesis, act.thesisAt ?? DEFAULT_THESIS_AT, `fragment--${act.id}`)]),
-  ...(act.beats ?? []).map((beat, index) =>
-    addCue(act, beat.text, beat, `fragment--beat fragment--${act.id}-beat-${index}`)),
-]);
+function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
+  const layer = document.createElement('div');
+  layer.className = 'story-layer';
+  layer.setAttribute('aria-hidden', 'true');
 
-let visibleCue: Cue | undefined;
+  const station = document.createElement('section');
+  station.className = 'story-station';
 
-function updateFragments(progress: number): void {
-  // Last match wins, so a bridge yields to its thesis and a thesis to its
-  // beats even where the authored windows touch.
-  let active: Cue | undefined;
-  for (const cue of cues) {
-    if (progress >= cue.from && progress <= cue.to) active = cue;
-  }
-  if (active === visibleCue) return;
-  visibleCue?.node.classList.remove('is-visible');
-  active?.node.classList.add('is-visible');
-  visibleCue = active;
+  const stationChapter = document.createElement('p');
+  stationChapter.className = 'story-station__chapter';
+
+  const stationTitle = document.createElement('h2');
+  stationTitle.className = 'story-station__title';
+
+  const stationCopy = document.createElement('p');
+  stationCopy.className = 'story-station__copy';
+
+  station.append(stationChapter, stationTitle, stationCopy);
+
+  const chapterPlate = document.createElement('section');
+  chapterPlate.className = 'chapter-plate';
+  chapterPlate.hidden = true;
+
+  const plateNumber = document.createElement('p');
+  plateNumber.className = 'chapter-plate__number';
+
+  const plateTitle = document.createElement('h2');
+  plateTitle.className = 'chapter-plate__title';
+
+  const plateSubtitle = document.createElement('p');
+  plateSubtitle.className = 'chapter-plate__subtitle';
+
+  const plateSupport = document.createElement('p');
+  plateSupport.className = 'chapter-plate__support';
+
+  const plateHint = document.createElement('p');
+  plateHint.className = 'chapter-plate__hint';
+  plateHint.textContent = 'scroll';
+
+  chapterPlate.append(plateNumber, plateTitle, plateSubtitle, plateSupport, plateHint);
+
+  const hint = document.createElement('p');
+  hint.className = 'scroll-hint';
+  hint.hidden = true;
+  hint.textContent = 'scroll to continue';
+
+  layer.append(station, chapterPlate, hint);
+  mount.append(layer);
+
+  let transitioning = false;
+  let hintTimer: number | undefined;
+
+  const hideHint = () => {
+    if (hintTimer !== undefined) window.clearTimeout(hintTimer);
+    hintTimer = undefined;
+    hint.hidden = true;
+  };
+
+  const showHint = () => {
+    if (transitioning) return;
+    if (hintTimer !== undefined) window.clearTimeout(hintTimer);
+    hintTimer = window.setTimeout(() => {
+      if (!transitioning) hint.hidden = false;
+    }, 320);
+  };
+
+  const update = (progress: number) => {
+    const act = actAt(progress);
+    if (act.id === 'open') {
+      station.hidden = true;
+      chapterPlate.hidden = true;
+      hideHint();
+      return;
+    }
+
+    const chapter = chapterForAct(act);
+    const index = acts.indexOf(act);
+    const settle = settlePoints[index] ?? act.start;
+    const activeBeat = beatAt(act, progress);
+    const chapterPlateActive = Boolean(
+      act.chapterIntro
+      && (mode === 'static' || progress < settle - 0.002),
+    );
+
+    station.hidden = false;
+    station.classList.toggle('is-quiet', chapterPlateActive);
+    stationChapter.textContent = `${chapter.number} · ${chapter.title}`;
+    stationTitle.textContent = act.title;
+    stationCopy.textContent = activeBeat ?? act.thesis;
+    stationCopy.classList.toggle('is-beat', Boolean(activeBeat));
+
+    chapterPlate.hidden = !chapterPlateActive;
+    if (chapterPlateActive) {
+      plateNumber.textContent = chapter.number;
+      plateTitle.textContent = chapter.title;
+      plateSubtitle.textContent = chapter.subtitle;
+      plateSupport.textContent = chapter.support ?? '';
+    }
+
+    if (transitioning || chapterPlateActive || Math.abs(progress - settle) > 0.004) {
+      hideHint();
+    } else {
+      showHint();
+    }
+  };
+
+  return {
+    update,
+    setTransitioning(active: boolean) {
+      transitioning = active;
+      if (active) hideHint();
+      else showHint();
+    },
+    destroy() {
+      hideHint();
+      layer.remove();
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -143,16 +207,40 @@ let master: Master | undefined;
 let navigation: Navigation | undefined;
 let frameSwitcher: FrameSwitcher | undefined;
 let staticObserver: IntersectionObserver | undefined;
+let storyOverlay: StoryOverlay | undefined;
 let renderedProgress = 0;
 let resizeAnchorId: string | undefined;
 let resizeAnchorTimer: number | undefined;
 let lenis: Lenis | undefined;
 let lenisTick: ((time: number) => void) | undefined;
 const application = acts.find((act) => act.id === 'application');
+let transitionReleaseAt = 0;
+let transitionTargetIndex: number | undefined;
+let wheelAccumulated = 0;
+let wheelLocked = false;
 
 /** Local position in an act, as a master-timeline progress. */
 function localPoint(act: Act, at: number): number {
   return act.start + (act.end - act.start) * at;
+}
+
+function progressForAct(act: Act): number {
+  const index = acts.indexOf(act);
+  return settlePoints[index] ?? act.start;
+}
+
+function beginTransition(targetProgress: number, smooth: boolean, targetIndex?: number): void {
+  transitionTargetIndex = targetIndex;
+  const animated = smooth && mode !== 'static';
+  transitionReleaseAt = performance.now() + (animated ? 900 : 0);
+  wheelAccumulated = 0;
+  wheelLocked = animated;
+  storyOverlay?.setTransitioning(animated);
+  master?.seek(targetProgress, animated, true);
+  if (!animated) {
+    wheelLocked = false;
+    storyOverlay?.setTransitioning(false);
+  }
 }
 
 // The action view is on screen from 0.31 and the scripted approval fires at
@@ -163,10 +251,8 @@ const ACTION_TARGET = 0.48;
 
 function performApplicationAction(): void {
   if (!master || !application) return;
-  // Scroll rather than jump: the point of the control is to watch the state
-  // change, and the target is deliberately not a settle point, so snapping is
-  // held off until the move has finished.
-  master.seek(localPoint(application, ACTION_TARGET), true, true);
+  // The action is authored as a deliberate internal move, not a new station.
+  beginTransition(localPoint(application, ACTION_TARGET), true);
 }
 
 refs.appAction.addEventListener('click', performApplicationAction);
@@ -206,6 +292,16 @@ window.addEventListener('resize', () => {
 
 function onProgress(progress: number): void {
   renderedProgress = progress;
+  storyOverlay?.update(progress);
+  const currentAct = actAt(progress);
+  const currentIndex = acts.indexOf(currentAct);
+  const settledProgress = settlePoints[currentIndex] ?? currentAct.start;
+  if (wheelLocked && performance.now() >= transitionReleaseAt) {
+    if (transitionTargetIndex === undefined || currentIndex === transitionTargetIndex || Math.abs(progress - settledProgress) < 0.004) {
+      wheelLocked = false;
+      storyOverlay?.setTransitioning(false);
+    }
+  }
   const actionAvailable = Boolean(application
     && progress >= localPoint(application, ACTION_AVAILABLE.from)
     && progress <= localPoint(application, ACTION_AVAILABLE.to));
@@ -223,7 +319,66 @@ function onProgress(progress: number): void {
     progress >= projectionsSettle - 0.001 && !costIsMoving,
     authoredFrame,
   );
-  updateFragments(progress);
+}
+
+function currentStationIndex(progress: number): number {
+  return acts.indexOf(actAt(progress));
+}
+
+function requestAct(act: Act, smooth: boolean): void {
+  if (!master) return;
+  beginTransition(progressForAct(act), smooth, acts.indexOf(act));
+}
+
+function handleWheel(event: WheelEvent): void {
+  if (!master?.trigger || mode === 'static' || !master.trigger.isActive) return;
+  if (wheelLocked && performance.now() < transitionReleaseAt) {
+    event.preventDefault();
+    return;
+  }
+
+  const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+  if (!delta) return;
+  event.preventDefault();
+
+  const normalized = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+    ? delta * 22
+    : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+      ? delta * window.innerHeight
+      : delta;
+
+  if (wheelAccumulated && Math.sign(normalized) !== Math.sign(wheelAccumulated)) {
+    wheelAccumulated = 0;
+  }
+  wheelAccumulated += normalized;
+
+  const threshold = mode === 'compact' ? 84 : 120;
+  if (Math.abs(wheelAccumulated) < threshold) return;
+
+  const direction = wheelAccumulated > 0 ? 1 : -1;
+  wheelAccumulated = 0;
+  const index = currentStationIndex(renderedProgress);
+  const nextIndex = Math.max(0, Math.min(acts.length - 1, index + direction));
+  if (nextIndex === index) return;
+  const nextAct = acts[nextIndex];
+  if (!nextAct) return;
+  requestAct(nextAct, true);
+}
+
+function handleKeydown(event: KeyboardEvent): void {
+  if (!master?.trigger || mode === 'static' || !master.trigger.isActive) return;
+  const advanceKeys = ['PageDown', 'ArrowDown', ' '];
+  const retreatKeys = ['PageUp', 'ArrowUp'];
+  if (!advanceKeys.includes(event.key) && !retreatKeys.includes(event.key)) return;
+  event.preventDefault();
+  if (wheelLocked && performance.now() < transitionReleaseAt) return;
+  const direction = advanceKeys.includes(event.key) ? 1 : -1;
+  const index = currentStationIndex(renderedProgress);
+  const nextIndex = Math.max(0, Math.min(acts.length - 1, index + direction));
+  if (nextIndex === index) return;
+  const nextAct = acts[nextIndex];
+  if (!nextAct) return;
+  requestAct(nextAct, true);
 }
 
 /**
@@ -254,9 +409,12 @@ function boot(initialProgress = 0): void {
   const scrollTo = attachSmoothScroll();
   master = buildMaster(refs, mode, stage!, onProgress, scrollTo);
   frameSwitcher = buildFrameSwitcher(frameSwitcherMount!, refs, mode);
-  navigation = buildNavigation(navMount!, master, startupActId);
+  storyOverlay = buildStoryOverlay(foreground!);
+  navigation = buildNavigation(navMount!, requestAct, startupActId);
   startupActId = undefined;
   if (mode === 'static') attachStaticObserver(master);
+  window.addEventListener('wheel', handleWheel, { passive: false });
+  window.addEventListener('keydown', handleKeydown, { passive: false });
   ScrollTrigger.refresh();
   if (initialProgress > 0) {
     requestAnimationFrame(() => {
@@ -274,10 +432,14 @@ function boot(initialProgress = 0): void {
 function teardown(): void {
   staticObserver?.disconnect();
   staticObserver = undefined;
+  window.removeEventListener('wheel', handleWheel);
+  window.removeEventListener('keydown', handleKeydown);
   navigation?.destroy();
   navigation = undefined;
   frameSwitcher?.destroy();
   frameSwitcher = undefined;
+  storyOverlay?.destroy();
+  storyOverlay = undefined;
   master?.destroy();
   master = undefined;
   detachSmoothScroll();

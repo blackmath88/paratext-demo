@@ -71,21 +71,23 @@ renamed.
 See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the implemented scene graph,
 timeline model, and responsive strategy. See the
 [`animation paradigm brief`](./docs/animation-paradigm-structure.md) for the
-intended conceptual revision. In short:
+final chapter model and interaction rule. In short:
 
 - `src/scene/` builds the SVG **once** and hands back typed refs.
 - `src/animation/` may only transform what already exists — act modules have no
   access to the document, which is what structurally enforces "one object
   evolving" rather than eight slides.
-- `src/data/acts.ts` owns act metadata and the normalized timeline boundaries.
-  The master timeline and the navigator both read those numbers, so they cannot
-  drift apart. Re-pace the piece by editing that file.
+- `src/data/acts.ts` owns act metadata, chapter metadata, and the normalized
+  timeline boundaries. The master timeline and the navigator both read those
+  numbers, so they cannot drift apart. Re-pace the piece by editing that file.
 - `src/data/operations.ts` defines stable work-unit identities for the later digital acts;
   the essay extends the same operation type, and both artifacts project those
   semantic records rather than treating layout as the source of truth.
 - `src/essay/` contains the v12 essay runtime, styling, and its explicit station
   and operation data. A station belongs in this artifact only when it is real
   on this content; animation milestones are not copied into the dial.
+- The animation now uses authored station transitions: scroll initiates motion,
+  then the runtime completes the move smoothly to the next settled station.
 
 ## Reference
 
@@ -103,5 +105,5 @@ list of real anchors that works from the keyboard and leaves a usable URL
   (`#bare`, `#page`, `#glosses`, `#print`, `#editorial`, `#magazine`,
   `#hypertext`, `#application`, `#fragments`, `#conversation`, `#tube`, `#recovery`,
   `#projections`, `#cost`, `#open`). Under `prefers-reduced-motion: reduce` the
-piece renders as stacked, non-scrubbed plates — the same act timelines, seeked
-and held rather than played.
+piece renders as stacked plates with chapter headings and station prose rather
+than a continuously scrubbed timeline.
