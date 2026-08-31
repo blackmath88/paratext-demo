@@ -163,8 +163,10 @@ function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
       && (mode === 'static' || progress < settle - 0.002),
     );
 
-    station.hidden = false;
-    station.classList.toggle('is-quiet', chapterPlateActive);
+    // A chapter plate owns the whole field. Keeping the station beneath it
+    // produces two simultaneous narrator voices (and, at narrower ratios,
+    // literal text-on-text collisions).
+    station.hidden = chapterPlateActive;
     stationChapter.textContent = `${chapter.number} · ${chapter.title}`;
     stationTitle.textContent = act.title;
     stationCopy.textContent = activeBeat ?? act.thesis;

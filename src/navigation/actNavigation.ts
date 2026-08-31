@@ -33,10 +33,7 @@ export function buildNavigation(
   const stationLine = document.createElement('p');
   stationLine.className = 'actnav__station';
 
-  const thesisLine = document.createElement('p');
-  thesisLine.className = 'actnav__thesis';
-
-  header.append(chapterLine, stationLine, thesisLine);
+  header.append(chapterLine, stationLine);
 
   const list = document.createElement('ol');
   list.className = 'actnav__list';
@@ -93,7 +90,6 @@ export function buildNavigation(
     header.hidden = act.id === 'open';
     chapterLine.textContent = `${chapterNumber} · ${chapterTitle}`;
     stationLine.textContent = act.title;
-    thesisLine.textContent = act.thesis;
     for (const [id, link] of entries) {
       link.classList.toggle('is-current', id === act.id);
       if (id === act.id) link.setAttribute('aria-current', 'true');

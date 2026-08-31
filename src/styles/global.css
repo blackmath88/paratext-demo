@@ -181,11 +181,9 @@ body[data-mode='static'] .stage__scene {
   max-width: min(24rem, calc(100vw - 2 * var(--gutter)));
   color: var(--paper);
   font-family: var(--sans);
-  transition: opacity 240ms ease;
-}
-
-.story-station.is-quiet {
-  opacity: 0.55;
+  padding: 0.8rem 0.95rem 0.9rem;
+  background: rgba(6, 7, 9, 0.88);
+  border-left: 1px solid var(--hairline);
 }
 
 .story-station__chapter {
@@ -223,6 +221,8 @@ body[data-mode='static'] .stage__scene {
   align-content: center;
   justify-items: start;
   padding: 12vh var(--gutter) 11vh;
+  z-index: 3;
+  background: var(--field);
   color: var(--paper);
 }
 
@@ -436,13 +436,6 @@ body[data-mode='static'] .stage__foreground {
   line-height: 1.1;
 }
 
-.actnav__thesis {
-  margin: 0;
-  color: var(--amber);
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
 .actnav__list {
   margin: 0;
   padding: 0;
@@ -530,10 +523,6 @@ body[data-mode='compact'] .actnav__header {
 
 body[data-mode='compact'] .actnav__station {
   font-size: 0.98rem;
-}
-
-body[data-mode='compact'] .actnav__thesis {
-  max-width: min(22rem, calc(100vw - 2 * var(--gutter)));
 }
 
 body[data-mode='compact'] .actnav__title,
