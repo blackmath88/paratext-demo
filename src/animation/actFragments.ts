@@ -18,13 +18,26 @@ export function actFragments(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   });
   // Coincident frames begin transparent; otherwise six stacked fills flash as
   // a false new surface before separation has occurred.
-  tl.to(refs.fragmentFrames, { fill: 'rgba(233, 231, 223, 0.055)', duration: 0.65, stagger: 0.04 }, 0.9);
+  const surfaces = [
+    '#191415',
+    '#111a20',
+    '#1b1912',
+    '#1b1514',
+    '#111b18',
+    '#141620',
+  ];
+  refs.fragmentFrames.forEach((frame, i) => {
+    tl.to(frame, { fill: surfaces[i] ?? surfaces[0]!, duration: 0.65 }, 0.9 + i * 0.04);
+  });
   tl.from(refs.fragmentWindows.map((window) => window.querySelector('.fragment-window-rule')), {
     opacity: 0, duration: 0.55, stagger: 0.07,
   }, 1.15);
   tl.from(refs.fragmentWindows.map((window) => window.querySelector('.fragment-window-title')), {
     opacity: 0, duration: 0.45, stagger: 0.06,
   }, 1.25);
+  tl.from(refs.fragmentWindows.map((window) => window.querySelector('.fragment-window-chrome')), {
+    opacity: 0, duration: 0.55, stagger: 0.06,
+  }, 1.3);
 
   // The coherent application separates into local tool regions before its
   // shared shell recedes. The critique begins here, not in the application act.

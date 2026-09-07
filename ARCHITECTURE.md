@@ -86,13 +86,11 @@ surface, not from software inheriting codex transforms.
 
 ## 3. Timeline model
 
-One GSAP master timeline, scrubbed by one ScrollTrigger. No act owns a
-ScrollTrigger of its own.
+One paused GSAP master timeline, driven by one authored transport. No act owns
+playback of its own.
 
 ```
-scroll position
-      ↓
-  ScrollTrigger (pin, scrub 1, end "+=800%")
+transport (autoplay / Back / Pause / Next)
       ↓
   master progress 0.0 ─────────────────────── 1.0
       ↓
@@ -109,16 +107,16 @@ master
 Rules that keep this honest:
 
 - **Each act module returns a detached `gsap.timeline()`.** It never touches
-  the master, never sets a ScrollTrigger, never reads `window`. This makes acts
+  the master, owns transport state, or reads `window`. This makes acts
   independently testable and re-orderable, and it is what lets reduced-motion
-  mode reuse them by seeking instead of scrubbing.
+  mode reuse them by seeking instead of playing.
 - **Transitions belong to the act that is arriving**, not to a separate
   "transition" module. `actPrint` opens by regularizing Act 2's marginalia —
   it owns the 2→3 move, because that move *is* the argument of Act 3.
 - Each act declares its own `settle` ratio in `data/acts.ts`. The master fits
   choreography to that portion of the range and appends a real hold tail for
-  the remainder. Scroll snapping, review links, and reduced-motion seeks all
-  target that same completed state. Most material acts currently resolve at
+  the remainder. Autoplay, navigation links, and reduced-motion seeks all target
+  that same completed state. Most material acts currently resolve at
   70%; Conversation, Tube, Recovery, Projections, Cost, and Open deliberately
   use different ratios.
 - Act boundaries are declared once, as normalized progress, in `data/acts.ts`.
@@ -171,13 +169,13 @@ debounced resize:
 
 | Mode | Trigger | Behaviour |
 |---|---|---|
-| `cinematic` | `≥ 900px` and fine pointer and motion allowed | Full pinned scene, 800vh scrub, parallax planes, margin navigator |
-| `compact` | `< 900px` | Scene sticky at the top ~55vh, act text flows beneath it, shorter scrub per act, parallax reduced to two planes, navigator collapses to a horizontal rule of act ticks |
-| `static` | `prefers-reduced-motion: reduce` | No pin, no scrub. Each act renders as a stacked section; the scene is seeked to that act's end progress and held. Full text content, keyboard navigable |
+| `cinematic` | `≥ 900px` and fine pointer and motion allowed | Full-viewport autoplay, parallax planes, margin navigator and transport controls |
+| `compact` | `< 900px` | Full-viewport autoplay with a reduced scene, compact navigation and the same transport controls |
+| `static` | `prefers-reduced-motion: reduce` | No autoplay. Each act renders as a stacked section; the scene is seeked to that act's end progress and held. Full text content, keyboard navigable |
 
 `compact` is not the desktop timeline squeezed. The master timeline is rebuilt
-with a different pin/scrub configuration and acts read `mode` to drop layers
-they cannot afford. The narrative order and the protagonist are identical.
+and acts read `mode` to drop layers they cannot afford. The narrative order,
+transport and protagonist are identical.
 
 `static` reuses the exact same act timelines — it seeks to each act's declared
 settle point and never plays. This is why act modules must be
@@ -200,10 +198,11 @@ The meaning of the piece lives in HTML, not in SVG:
 - The `<svg>` carries `role="img"` with `<title>`/`<desc>`, and is
   `aria-hidden` where it merely restates the HTML.
 - The navigator is a `<nav>` of real links to `#bare`, `#glosses`, `#print`.
-  It works with the keyboard, works with JS-driven smooth scrolling, and works
-  as plain anchors if the timeline never boots.
-- Scroll is never trapped: the pin is a normal ScrollTrigger pin and the page
-  continues past the end of the piece.
+  It works with the keyboard, pauses autoplay when selected, and works as plain
+  anchors if the timeline never boots.
+- The transport exposes Back, Pause/Play, and Next as real buttons. Space
+  toggles playback; Left and Right move between authored stations.
+- Autoplay pauses while the stage or browser tab is not visible.
 
 ---
 
@@ -223,7 +222,7 @@ src/
     markup.ts             SVG element builders (pure, no side effects)
     scene.ts              builds the scene once, returns typed SceneRefs
   animation/
-    master.ts             ScrollTrigger + master assembly per mode
+    master.ts             paused master assembly + playhead movement
     actBare.ts
     actGlosses.ts
     actPrint.ts

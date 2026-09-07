@@ -17,10 +17,7 @@ import '@fontsource/caveat/latin-600.css';
 import './styles/global.css';
 import './styles/scene.css';
 
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import gsap from 'gsap';
-import Lenis from 'lenis';
-import { buildMaster, type Master, type ScrollTo } from './animation/master';
+import { buildMaster, type Master } from './animation/master';
 import { acts, actAt, settlePoints, chapterForAct, type Act } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
 import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
@@ -32,8 +29,19 @@ const sceneMount = document.querySelector<HTMLElement>('#scene-mount');
 const navMount = document.querySelector<HTMLElement>('#nav-mount');
 const foreground = document.querySelector<HTMLElement>('#foreground');
 const frameSwitcherMount = document.querySelector<HTMLElement>('#frame-switcher');
+const enterButton = document.querySelector<HTMLButtonElement>('#enter-animation');
+const transport = document.querySelector<HTMLElement>('#transport');
+const backButton = document.querySelector<HTMLButtonElement>('#transport-back');
+const playButton = document.querySelector<HTMLButtonElement>('#transport-play');
+const nextButton = document.querySelector<HTMLButtonElement>('#transport-next');
+const transportStatus = document.querySelector<HTMLElement>('#transport-status');
+const transportPrompt = document.querySelector<HTMLElement>('#transport-prompt');
 
-if (!stage || !sceneMount || !navMount || !foreground || !frameSwitcherMount) {
+if (
+  !stage || !sceneMount || !navMount || !foreground || !frameSwitcherMount
+  || !enterButton || !transport || !backButton || !playButton || !nextButton
+  || !transportStatus || !transportPrompt
+) {
   throw new Error('main: required mount points are missing from the document');
 }
 
@@ -65,7 +73,6 @@ const costSettle = cost
 
 type StoryOverlay = {
   update(progress: number): void;
-  setTransitioning(active: boolean): void;
   destroy(): void;
 };
 
@@ -87,6 +94,10 @@ function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
   const station = document.createElement('section');
   station.className = 'story-station';
 
+  const stationVoice = document.createElement('p');
+  stationVoice.className = 'story-station__voice';
+  stationVoice.innerHTML = '<span class="story-station__voice-dot"></span>Narration';
+
   const stationChapter = document.createElement('p');
   stationChapter.className = 'story-station__chapter';
 
@@ -96,106 +107,41 @@ function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
   const stationCopy = document.createElement('p');
   stationCopy.className = 'story-station__copy';
 
-  station.append(stationChapter, stationTitle, stationCopy);
+  const stationBody = document.createElement('p');
+  stationBody.className = 'story-station__body';
 
-  const chapterPlate = document.createElement('section');
-  chapterPlate.className = 'chapter-plate';
-  chapterPlate.hidden = true;
-
-  const plateNumber = document.createElement('p');
-  plateNumber.className = 'chapter-plate__number';
-
-  const plateTitle = document.createElement('h2');
-  plateTitle.className = 'chapter-plate__title';
-
-  const plateSubtitle = document.createElement('p');
-  plateSubtitle.className = 'chapter-plate__subtitle';
-
-  const plateSupport = document.createElement('p');
-  plateSupport.className = 'chapter-plate__support';
-
-  const plateHint = document.createElement('p');
-  plateHint.className = 'chapter-plate__hint';
-  plateHint.textContent = 'scroll';
-
-  chapterPlate.append(plateNumber, plateTitle, plateSubtitle, plateSupport, plateHint);
-
-  const hint = document.createElement('p');
-  hint.className = 'scroll-hint';
-  hint.hidden = true;
-  hint.textContent = 'scroll to continue';
-
-  layer.append(station, chapterPlate, hint);
+  station.append(stationVoice, stationChapter, stationTitle, stationCopy, stationBody);
+  layer.append(station);
   mount.append(layer);
-
-  let transitioning = false;
-  let hintTimer: number | undefined;
-
-  const hideHint = () => {
-    if (hintTimer !== undefined) window.clearTimeout(hintTimer);
-    hintTimer = undefined;
-    hint.hidden = true;
-  };
-
-  const showHint = () => {
-    if (transitioning) return;
-    if (hintTimer !== undefined) window.clearTimeout(hintTimer);
-    hintTimer = window.setTimeout(() => {
-      if (!transitioning) hint.hidden = false;
-    }, 320);
-  };
 
   const update = (progress: number) => {
     const act = actAt(progress);
     if (act.id === 'open') {
       station.hidden = true;
-      chapterPlate.hidden = true;
-      hideHint();
       return;
     }
 
     const chapter = chapterForAct(act);
-    const index = acts.indexOf(act);
-    const settle = settlePoints[index] ?? act.start;
     const activeBeat = beatAt(act, progress);
-    const chapterPlateActive = Boolean(
-      act.chapterIntro
-      && (mode === 'static' || progress < settle - 0.002),
-    );
 
-    // A chapter plate owns the whole field. Keeping the station beneath it
-    // produces two simultaneous narrator voices (and, at narrower ratios,
-    // literal text-on-text collisions).
-    station.hidden = chapterPlateActive;
-    stationChapter.textContent = `${chapter.number} · ${chapter.title}`;
+    station.hidden = false;
+    stationChapter.textContent = `${chapter.number} · ${chapter.title} / ${act.number}`;
     stationTitle.textContent = act.title;
     stationCopy.textContent = activeBeat ?? act.thesis;
     stationCopy.classList.toggle('is-beat', Boolean(activeBeat));
-
-    chapterPlate.hidden = !chapterPlateActive;
-    if (chapterPlateActive) {
-      plateNumber.textContent = chapter.number;
-      plateTitle.textContent = chapter.title;
-      plateSubtitle.textContent = chapter.subtitle;
-      plateSupport.textContent = chapter.support ?? '';
-    }
-
-    if (transitioning || chapterPlateActive || Math.abs(progress - settle) > 0.004) {
-      hideHint();
-    } else {
-      showHint();
+    const firstSentence = act.body.match(/^.*?[.!?](?:\s|$)/)?.[0].trim() ?? act.body;
+    stationBody.textContent = firstSentence;
+    station.classList.toggle('is-chapter-intro', Boolean(act.chapterIntro));
+    if (station.dataset.act !== act.id) {
+      station.dataset.act = act.id;
+      station.classList.remove('is-entering');
+      requestAnimationFrame(() => station.classList.add('is-entering'));
     }
   };
 
   return {
     update,
-    setTransitioning(active: boolean) {
-      transitioning = active;
-      if (active) hideHint();
-      else showHint();
-    },
     destroy() {
-      hideHint();
       layer.remove();
     },
   };
@@ -213,13 +159,12 @@ let storyOverlay: StoryOverlay | undefined;
 let renderedProgress = 0;
 let resizeAnchorId: string | undefined;
 let resizeAnchorTimer: number | undefined;
-let lenis: Lenis | undefined;
-let lenisTick: ((time: number) => void) | undefined;
 const application = acts.find((act) => act.id === 'application');
-let transitionReleaseAt = 0;
-let transitionTargetIndex: number | undefined;
-let wheelAccumulated = 0;
-let wheelLocked = false;
+let playbackTargetIndex = 0;
+let playing = false;
+let stageVisible = false;
+let hasStarted = false;
+let holdTimer: number | undefined;
 
 /** Local position in an act, as a master-timeline progress. */
 function localPoint(act: Act, at: number): number {
@@ -231,18 +176,124 @@ function progressForAct(act: Act): number {
   return settlePoints[index] ?? act.start;
 }
 
-function beginTransition(targetProgress: number, smooth: boolean, targetIndex?: number): void {
-  transitionTargetIndex = targetIndex;
-  const animated = smooth && mode !== 'static';
-  transitionReleaseAt = performance.now() + (animated ? 900 : 0);
-  wheelAccumulated = 0;
-  wheelLocked = animated;
-  storyOverlay?.setTransitioning(animated);
-  master?.seek(targetProgress, animated, true);
-  if (!animated) {
-    wheelLocked = false;
-    storyOverlay?.setTransitioning(false);
+const PLAYBACK_SECONDS = 92;
+const MIN_TRANSITION_SECONDS = 1.8;
+const DEFAULT_HOLD_MS = 2800;
+const HOLD_MS: Partial<Record<Act['id'], number>> = {
+  bare: 3400,
+  hypertext: 3600,
+  application: 3600,
+  conversation: 3400,
+  open: 0,
+};
+
+function clearPlaybackTimer(): void {
+  if (holdTimer !== undefined) window.clearTimeout(holdTimer);
+  holdTimer = undefined;
+}
+
+function transitionDuration(act: Act, targetProgress: number): number {
+  const remaining = Math.abs(targetProgress - renderedProgress);
+  const authored = (act.end - act.start) * act.settle * PLAYBACK_SECONDS;
+  const proportional = remaining * PLAYBACK_SECONDS;
+  return Math.max(MIN_TRANSITION_SECONDS, Math.min(authored, proportional));
+}
+
+function updateTransport(): void {
+  const displayIndex = Math.max(0, playbackTargetIndex);
+  const displayAct = acts[displayIndex] ?? acts[0];
+  playButton!.textContent = playing ? 'Pause' : 'Play';
+  playButton!.setAttribute('aria-label', playing ? 'Pause animation' : 'Play animation');
+  playButton!.setAttribute('aria-pressed', playing ? 'true' : 'false');
+  backButton!.disabled = displayIndex <= 0;
+  nextButton!.disabled = displayIndex >= acts.length - 1;
+  transportStatus!.textContent = `${displayAct?.number ?? '00'} / ${acts[acts.length - 1]?.number ?? '14'}`;
+  transport!.dataset.state = playing ? 'playing' : 'paused';
+  stage!.dataset.playback = playing ? 'playing' : 'paused';
+  transportPrompt!.hidden = hasStarted || !stageVisible;
+}
+
+function scheduleAdvance(index: number): void {
+  clearPlaybackTimer();
+  if (!playing || !stageVisible || document.hidden || mode === 'static') return;
+  if (index >= acts.length - 1) {
+    playing = false;
+    updateTransport();
+    return;
   }
+  const act = acts[index];
+  holdTimer = window.setTimeout(
+    () => transitionToAct(index + 1),
+    HOLD_MS[act?.id ?? 'bare'] ?? DEFAULT_HOLD_MS,
+  );
+}
+
+function transitionToAct(index: number, immediate = false): void {
+  if (!master) return;
+  clearPlaybackTimer();
+  const boundedIndex = Math.max(0, Math.min(acts.length - 1, index));
+  const act = acts[boundedIndex];
+  if (!act) return;
+  playbackTargetIndex = boundedIndex;
+  const target = progressForAct(act);
+
+  if (immediate || mode === 'static') {
+    master.seek(target);
+    updateTransport();
+    if (playing) scheduleAdvance(boundedIndex);
+    return;
+  }
+
+  // Plateaus exist to hold a resolved state. Skip the outgoing plateau before
+  // an automatic forward move so it does not become a second, invisible delay.
+  const currentIndex = acts.indexOf(actAt(renderedProgress));
+  const currentAct = acts[currentIndex];
+  if (boundedIndex > currentIndex && currentAct && renderedProgress >= progressForAct(currentAct)) {
+    master.seek(currentAct.end);
+  }
+
+  master.moveTo(target, transitionDuration(act, target), () => {
+    updateTransport();
+    if (playing) scheduleAdvance(boundedIndex);
+  });
+  updateTransport();
+}
+
+function resumePlayback(): void {
+  if (!master || !playing || !stageVisible || document.hidden || mode === 'static') return;
+  const targetAct = acts[playbackTargetIndex];
+  if (!targetAct) return;
+  const target = progressForAct(targetAct);
+  if (Math.abs(renderedProgress - target) < 0.001) {
+    scheduleAdvance(playbackTargetIndex);
+  } else {
+    transitionToAct(playbackTargetIndex);
+  }
+}
+
+function setPlaying(next: boolean): void {
+  if (mode === 'static') return;
+  if (
+    next
+    && playbackTargetIndex >= acts.length - 1
+    && Math.abs(renderedProgress - progressForAct(acts[acts.length - 1]!)) < 0.001
+  ) {
+    playbackTargetIndex = 0;
+    master?.seek(0);
+  }
+  playing = next;
+  clearPlaybackTimer();
+  if (!next) {
+    master?.pause();
+  }
+  updateTransport();
+  if (next) resumePlayback();
+}
+
+function requestTransportAct(index: number): void {
+  hasStarted = true;
+  setPlaying(false);
+  transitionToAct(index);
 }
 
 // The action view is on screen from 0.31 and the scripted approval fires at
@@ -253,8 +304,9 @@ const ACTION_TARGET = 0.48;
 
 function performApplicationAction(): void {
   if (!master || !application) return;
-  // The action is authored as a deliberate internal move, not a new station.
-  beginTransition(localPoint(application, ACTION_TARGET), true);
+  setPlaying(false);
+  const target = localPoint(application, ACTION_TARGET);
+  master.moveTo(target, 1.2);
 }
 
 refs.appAction.addEventListener('click', performApplicationAction);
@@ -264,28 +316,22 @@ refs.appAction.addEventListener('keydown', (event) => {
   performApplicationAction();
 });
 
-/** Lenis exists only while an animated master exists. */
-function attachSmoothScroll(): ScrollTo | undefined {
-  if (mode === 'static') return undefined;
+backButton.addEventListener('click', () => requestTransportAct(playbackTargetIndex - 1));
+nextButton.addEventListener('click', () => requestTransportAct(playbackTargetIndex + 1));
+playButton.addEventListener('click', () => {
+  hasStarted = true;
+  setPlaying(!playing);
+});
+enterButton.addEventListener('click', () => {
+  stage.scrollIntoView({
+    behavior: mode === 'static' ? 'auto' : 'smooth',
+    block: 'start',
+  });
+  window.setTimeout(() => playButton.focus({ preventScroll: true }), mode === 'static' ? 0 : 700);
+});
 
-  lenis = new Lenis({ autoRaf: false });
-  lenis.on('scroll', ScrollTrigger.update);
-  lenisTick = (time) => lenis?.raf(time * 1000);
-  gsap.ticker.add(lenisTick);
-  gsap.ticker.lagSmoothing(0);
-
-  return (target, immediate) => lenis?.scrollTo(target, { immediate });
-}
-
-function detachSmoothScroll(): void {
-  if (lenisTick) gsap.ticker.remove(lenisTick);
-  lenisTick = undefined;
-  lenis?.destroy();
-  lenis = undefined;
-}
-
-// Capture the stable act before ScrollTrigger remaps scroll coordinates. The
-// anchor expires if the resize does not actually cross a responsive mode.
+// Capture the stable act before responsive reconstruction. The anchor expires
+// if the resize does not actually cross a presentation mode.
 window.addEventListener('resize', () => {
   resizeAnchorId = location.hash.replace('#', '');
   if (resizeAnchorTimer !== undefined) window.clearTimeout(resizeAnchorTimer);
@@ -294,16 +340,8 @@ window.addEventListener('resize', () => {
 
 function onProgress(progress: number): void {
   renderedProgress = progress;
+  stage!.dataset.act = actAt(progress).id;
   storyOverlay?.update(progress);
-  const currentAct = actAt(progress);
-  const currentIndex = acts.indexOf(currentAct);
-  const settledProgress = settlePoints[currentIndex] ?? currentAct.start;
-  if (wheelLocked && performance.now() >= transitionReleaseAt) {
-    if (transitionTargetIndex === undefined || currentIndex === transitionTargetIndex || Math.abs(progress - settledProgress) < 0.004) {
-      wheelLocked = false;
-      storyOverlay?.setTransitioning(false);
-    }
-  }
   const actionAvailable = Boolean(application
     && progress >= localPoint(application, ACTION_AVAILABLE.from)
     && progress <= localPoint(application, ACTION_AVAILABLE.to));
@@ -321,66 +359,28 @@ function onProgress(progress: number): void {
     progress >= projectionsSettle - 0.001 && !costIsMoving,
     authoredFrame,
   );
-}
-
-function currentStationIndex(progress: number): number {
-  return acts.indexOf(actAt(progress));
+  updateTransport();
 }
 
 function requestAct(act: Act, smooth: boolean): void {
   if (!master) return;
-  beginTransition(progressForAct(act), smooth, acts.indexOf(act));
-}
-
-function handleWheel(event: WheelEvent): void {
-  if (!master?.trigger || mode === 'static' || !master.trigger.isActive) return;
-  if (wheelLocked && performance.now() < transitionReleaseAt) {
-    event.preventDefault();
-    return;
-  }
-
-  const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
-  if (!delta) return;
-  event.preventDefault();
-
-  const normalized = event.deltaMode === WheelEvent.DOM_DELTA_LINE
-    ? delta * 22
-    : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
-      ? delta * window.innerHeight
-      : delta;
-
-  if (wheelAccumulated && Math.sign(normalized) !== Math.sign(wheelAccumulated)) {
-    wheelAccumulated = 0;
-  }
-  wheelAccumulated += normalized;
-
-  const threshold = mode === 'compact' ? 84 : 120;
-  if (Math.abs(wheelAccumulated) < threshold) return;
-
-  const direction = wheelAccumulated > 0 ? 1 : -1;
-  wheelAccumulated = 0;
-  const index = currentStationIndex(renderedProgress);
-  const nextIndex = Math.max(0, Math.min(acts.length - 1, index + direction));
-  if (nextIndex === index) return;
-  const nextAct = acts[nextIndex];
-  if (!nextAct) return;
-  requestAct(nextAct, true);
+  hasStarted = true;
+  setPlaying(false);
+  transitionToAct(acts.indexOf(act), !smooth);
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (!master?.trigger || mode === 'static' || !master.trigger.isActive) return;
-  const advanceKeys = ['PageDown', 'ArrowDown', ' '];
-  const retreatKeys = ['PageUp', 'ArrowUp'];
-  if (!advanceKeys.includes(event.key) && !retreatKeys.includes(event.key)) return;
+  if (!stageVisible || mode === 'static') return;
+  const target = event.target as HTMLElement | null;
+  if (target?.matches('button, a, input, textarea, select')) return;
+  if (!['ArrowLeft', 'ArrowRight', ' '].includes(event.key)) return;
   event.preventDefault();
-  if (wheelLocked && performance.now() < transitionReleaseAt) return;
-  const direction = advanceKeys.includes(event.key) ? 1 : -1;
-  const index = currentStationIndex(renderedProgress);
-  const nextIndex = Math.max(0, Math.min(acts.length - 1, index + direction));
-  if (nextIndex === index) return;
-  const nextAct = acts[nextIndex];
-  if (!nextAct) return;
-  requestAct(nextAct, true);
+  if (event.key === ' ') {
+    setPlaying(!playing);
+    return;
+  }
+  const direction = event.key === 'ArrowRight' ? 1 : -1;
+  requestTransportAct(playbackTargetIndex + direction);
 }
 
 /**
@@ -400,7 +400,7 @@ function attachStaticObserver(current: Master): void {
       const act = acts.find((a) => a.id === id);
       if (!act) return;
       const index = acts.indexOf(act);
-      current.seek(settlePoints[index] ?? act.start, false);
+      current.seek(settlePoints[index] ?? act.start);
     },
     { threshold: [0.25, 0.6] },
   );
@@ -408,19 +408,16 @@ function attachStaticObserver(current: Master): void {
 }
 
 function boot(initialProgress = 0): void {
-  const scrollTo = attachSmoothScroll();
-  master = buildMaster(refs, mode, stage!, onProgress, scrollTo);
+  master = buildMaster(refs, mode, onProgress);
   frameSwitcher = buildFrameSwitcher(frameSwitcherMount!, refs, mode);
   storyOverlay = buildStoryOverlay(foreground!);
   navigation = buildNavigation(navMount!, requestAct, startupActId);
   startupActId = undefined;
   if (mode === 'static') attachStaticObserver(master);
-  window.addEventListener('wheel', handleWheel, { passive: false });
   window.addEventListener('keydown', handleKeydown, { passive: false });
-  ScrollTrigger.refresh();
   if (initialProgress > 0) {
     requestAnimationFrame(() => {
-      master?.seek(initialProgress, false);
+      master?.seek(initialProgress);
       requestAnimationFrame(() => {
         master?.timeline.progress(initialProgress);
         onProgress(initialProgress);
@@ -429,12 +426,15 @@ function boot(initialProgress = 0): void {
   } else {
     onProgress(0);
   }
+  transport!.hidden = mode === 'static';
+  updateTransport();
+  if (playing) resumePlayback();
 }
 
 function teardown(): void {
+  clearPlaybackTimer();
   staticObserver?.disconnect();
   staticObserver = undefined;
-  window.removeEventListener('wheel', handleWheel);
   window.removeEventListener('keydown', handleKeydown);
   navigation?.destroy();
   navigation = undefined;
@@ -444,10 +444,37 @@ function teardown(): void {
   storyOverlay = undefined;
   master?.destroy();
   master = undefined;
-  detachSmoothScroll();
 }
 
 boot();
+
+function suspendPlayback(): void {
+  clearPlaybackTimer();
+  master?.pause();
+}
+
+function handlePlaybackAvailability(): void {
+  if (!playing) return;
+  if (stageVisible && !document.hidden) resumePlayback();
+  else suspendPlayback();
+}
+
+const stageObserver = new IntersectionObserver(
+  ([entry]) => {
+    stageVisible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.45);
+    if (!stageVisible) {
+      suspendPlayback();
+      updateTransport();
+      return;
+    }
+    updateTransport();
+    handlePlaybackAvailability();
+  },
+  { threshold: [0, 0.45, 0.75] },
+);
+stageObserver.observe(stage);
+
+document.addEventListener('visibilitychange', handlePlaybackAvailability);
 
 onModeChange((next) => {
   const activeId = resizeAnchorId ?? location.hash.replace('#', '');
@@ -462,9 +489,5 @@ onModeChange((next) => {
   teardown();
   boot(progress);
 });
-
-// Fonts change text metrics, which changes nothing we measure — but ScrollTrigger
-// measures the document, and webfont swap can change its height.
-document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
 document.documentElement.classList.add('is-ready');

@@ -1,9 +1,10 @@
 /**
  * The single master timeline.
  *
- * One ScrollTrigger drives one timeline. No act owns a trigger of its own, so
- * there is exactly one source of truth for "where are we" — which is what lets
- * the navigator, the hash and the scene stay in agreement.
+ * One paused timeline owns the whole piece. The transport moves its playhead;
+ * no act owns playback of its own, so there is exactly one source of truth for
+ * "where are we" — which is what lets the controls, navigator, hash and scene
+ * stay in agreement.
  *
  * Each act timeline is scaled to the span declared in `data/acts.ts`. That
  * makes the data authoritative: to re-pace the piece you edit the numbers in
@@ -11,8 +12,7 @@
  */
 
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { acts, settlePoints } from '../data/acts';
+import { acts } from '../data/acts';
 import { resetScene, type SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
 import { actBare } from './actBare';
@@ -31,22 +31,8 @@ import { actProjections } from './actProjections';
 import { actCost } from './actCost';
 import { actOpen } from './actOpen';
 
-gsap.registerPlugin(ScrollTrigger);
-
 /** Arbitrary internal time units; act spans are scaled into this. */
 const TOTAL = 15;
-
-/** Snap is suspended while an explicit control is moving the playhead. */
-let snapHeldUntil = 0;
-
-function nearest(points: number[], value: number): number {
-  // Preserve the true ends of the pinned range so snap can never pull a user
-  // back into the piece while they are trying to leave it.
-  if (value <= 0.002 || value >= 0.998 || points.length === 0) return value;
-  return points.reduce((closest, point) =>
-    Math.abs(point - value) < Math.abs(closest - value) ? point : closest,
-  );
-}
 
 function fitWithPlateau(
   child: gsap.core.Timeline,
@@ -94,36 +80,29 @@ const BUILDERS = {
 
 export type Master = {
   timeline: gsap.core.Timeline;
-  trigger: ScrollTrigger | undefined;
-  /**
-   * Seek to a normalized master progress. Smooth unless motion is reduced.
-   * `holdSnap` suspends settle-point snapping for the duration of a deliberate
-   * move so authored transitions can complete without being re-targeted.
-   */
-  seek(progress: number, smooth: boolean, holdSnap?: boolean): void;
+  /** Place the playhead immediately at a normalized master progress. */
+  seek(progress: number): void;
+  /** Animate the playhead to a normalized progress in authored wall-clock time. */
+  moveTo(progress: number, duration: number, onComplete?: () => void): void;
+  /** Stop an in-flight move without changing the rendered progress. */
+  pause(): void;
   destroy(): void;
 };
-
-export type ScrollTo = (target: number, immediate: boolean) => void;
 
 export function buildMaster(
   refs: SceneRefs,
   mode: Mode,
-  stage: HTMLElement,
   onProgress: (progress: number) => void,
-  scrollTo?: ScrollTo,
 ): Master {
   gsap.set(refs.svg.querySelectorAll('*'), { clearProps: 'all' });
   resetScene(refs);
   gsap.set(refs.page, { x: 0, y: 0, scale: 1, transformOrigin: '50% 46%' });
   gsap.set(refs.surface, { x: 0, y: 0, scale: 1 });
 
-  // Everything downstream — foreground copy, navigator, frame switcher — reads
-  // the progress the scene is rendering, not a raw scroll delta. The scene
-  // still follows the scroll position, but the smoothing is intentionally
-  // restrained so committed station changes finish cleanly.
+  // Everything downstream — foreground copy, navigator, frame switcher and
+  // transport — reads the progress the scene is actually rendering.
   const timeline = gsap.timeline({
-    paused: mode === 'static',
+    paused: true,
     onUpdate: () => onProgress(timeline.progress()),
   });
 
@@ -140,64 +119,44 @@ export function buildMaster(
   // choreography finishes early — progress 1.0 means the latest stable state.
   timeline.to({ hold: 0 }, { hold: 1, duration: 0.001 }, TOTAL);
 
-  if (mode === 'static') {
-    // Reduced motion: the same timeline, seeked and held. Never played.
-    timeline.progress(0);
-    onProgress(0);
-    return {
-      timeline,
-      trigger: undefined,
-      seek: (progress) => {
-        timeline.progress(gsap.utils.clamp(0, 1, progress));
-        onProgress(progress);
-      },
-      destroy: () => {
-        timeline.kill();
-      },
-    };
-  }
+  let movement: gsap.core.Tween | undefined;
 
-  // The two digital acts add deliberately legible navigation and state
-  // sequences. The longer physical range preserves the established act pace.
-  const scrollLength = mode === 'cinematic' ? '+=1095%' : '+=660%';
-
-  const trigger = ScrollTrigger.create({
-    animation: timeline,
-    trigger: stage,
-    start: 'top top',
-    end: scrollLength,
-    // The whole stage pins, so the foreground copy and the margin navigator
-    // hold with the scene rather than scrolling off it.
-    pin: mode === 'cinematic' ? stage : false,
-    pinSpacing: mode === 'cinematic',
-    // The wheel controller already commits one authored move at a time, so the
-    // remaining smoothing only needs to keep the scene from feeling mechanical.
-    scrub: mode === 'cinematic' ? 0.3 : 0.18,
-    snap: {
-      snapTo: (value) => (performance.now() < snapHeldUntil ? value : nearest(settlePoints, value)),
-      duration: { min: 0.15, max: 0.45 },
-      delay: 0.1,
-      ease: 'power1.inOut',
-      inertia: false,
-    },
-    invalidateOnRefresh: true,
-  });
+  const seek = (progress: number) => {
+    movement?.kill();
+    movement = undefined;
+    const clamped = gsap.utils.clamp(0, 1, progress);
+    timeline.progress(clamped);
+    onProgress(clamped);
+  };
 
   return {
     timeline,
-    trigger,
-    seek: (progress, smooth, holdSnap = false) => {
+    seek,
+    moveTo: (progress, duration, onComplete) => {
+      movement?.kill();
       const clamped = gsap.utils.clamp(0, 1, progress);
-      const start = trigger.start;
-      const target = start + (trigger.end - start) * clamped;
-      // Long enough to outlast the scroll itself plus ScrollTrigger's snap
-      // delay; snap resumes on the reader's next scroll either way.
-      if (holdSnap) snapHeldUntil = performance.now() + (smooth ? 1800 : 700);
-      if (scrollTo) scrollTo(target, !smooth);
-      else window.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
+      if (mode === 'static' || duration <= 0) {
+        seek(clamped);
+        onComplete?.();
+        return;
+      }
+      movement = gsap.to(timeline, {
+        progress: clamped,
+        duration,
+        ease: 'none',
+        overwrite: true,
+        onComplete: () => {
+          movement = undefined;
+          onComplete?.();
+        },
+      });
+    },
+    pause: () => {
+      movement?.kill();
+      movement = undefined;
     },
     destroy: () => {
-      trigger.kill();
+      movement?.kill();
       timeline.kill();
     },
   };

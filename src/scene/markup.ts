@@ -797,11 +797,11 @@ export type WindowGeometry = { id: string; title: string; x: number; y: number; 
 
 export const FRAGMENT_WINDOWS: WindowGeometry[] = [
   { id: 'memo', title: 'VOICE MEMO', x: 110, y: 96, w: 350, h: 220 },
-  { id: 'research', title: 'RESEARCH', x: 545, y: 68, w: 350, h: 252 },
-  { id: 'draft', title: 'DRAFT', x: 980, y: 112, w: 330, h: 220 },
-  { id: 'sources', title: 'PDF / SOURCES', x: 146, y: 500, w: 326, h: 214 },
-  { id: 'chat', title: 'CHAT', x: 548, y: 438, w: 348, h: 264 },
-  { id: 'files', title: 'FILES', x: 970, y: 502, w: 340, h: 210 },
+  { id: 'research', title: 'BROWSER / RESEARCH', x: 545, y: 68, w: 350, h: 252 },
+  { id: 'draft', title: 'DRAFT EDITOR', x: 980, y: 112, w: 330, h: 220 },
+  { id: 'sources', title: 'PDF VIEWER', x: 146, y: 500, w: 326, h: 214 },
+  { id: 'chat', title: 'MAIL / THREAD', x: 548, y: 438, w: 348, h: 264 },
+  { id: 'files', title: 'FILE MANAGER', x: 970, y: 502, w: 340, h: 210 },
 ];
 
 /** Semantic tool ownership for Act 07. Never derive this from array order. */
@@ -835,6 +835,57 @@ export function framePath(x: number, y: number, w: number, h: number): string {
   return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`;
 }
 
+function buildFragmentChrome(win: WindowGeometry): SVGGElement {
+  const chrome = el('g', { class: `fragment-window-chrome fragment-window-chrome--${win.id}` });
+  const x = win.x;
+  const y = win.y;
+  const right = x + win.w - 20;
+
+  if (win.id === 'memo') {
+    chrome.appendChild(el('circle', { class: 'fragment-ui-accent', cx: right, cy: y + 18, r: 5 }));
+    [0, 1, 2].forEach((step) => {
+      const height = [7, 14, 9][step] ?? 7;
+      chrome.appendChild(el('path', {
+        class: 'fragment-ui-wave',
+        d: `M ${right - 50 + step * 10} ${y + 18 - height / 2} V ${y + 18 + height / 2}`,
+      }));
+    });
+  } else if (win.id === 'research') {
+    chrome.appendChild(el('rect', {
+      class: 'fragment-ui-field',
+      x: right - 92,
+      y: y + 10,
+      width: 92,
+      height: 15,
+      rx: 7,
+    }));
+  } else if (win.id === 'draft') {
+    chrome.appendChild(el('path', {
+      class: 'fragment-ui-line',
+      d: `M ${right - 18} ${y + 23} L ${right - 4} ${y + 9} L ${right} ${y + 13} L ${right - 14} ${y + 27} Z`,
+    }));
+  } else if (win.id === 'sources') {
+    chrome.appendChild(el('rect', {
+      class: 'fragment-ui-page',
+      x: right - 12,
+      y: y + 8,
+      width: 12,
+      height: 18,
+    }));
+  } else if (win.id === 'chat') {
+    chrome.appendChild(el('path', {
+      class: 'fragment-ui-line',
+      d: `M ${right - 20} ${y + 11} H ${right} V ${y + 25} H ${right - 20} Z M ${right - 20} ${y + 12} L ${right - 10} ${y + 20} L ${right} ${y + 12}`,
+    }));
+  } else {
+    chrome.appendChild(el('path', {
+      class: 'fragment-ui-folder',
+      d: `M ${right - 24} ${y + 12} H ${right - 14} L ${right - 10} ${y + 16} H ${right} V ${y + 26} H ${right - 24} Z`,
+    }));
+  }
+  return chrome;
+}
+
 /** Six competent frames, initially coincident with the single application. */
 export function buildFragments(): SVGGElement {
   const g = el('g', { id: 'fragments', opacity: '0' });
@@ -849,6 +900,7 @@ export function buildFragments(): SVGGElement {
     const title = el('text', { class: 'fragment-window-title', x: win.x + 18, y: win.y + 23 });
     title.textContent = win.title;
     group.appendChild(title);
+    group.appendChild(buildFragmentChrome(win));
     g.appendChild(group);
   }
   const relations = el('g', { id: 'fragment-relations' });
@@ -869,7 +921,9 @@ export function buildFragments(): SVGGElement {
       d: `M ${from.x + 4} ${from.y - 4} C ${bend} ${from.y - 4} ${bend} ${to.y - 4} ${to.x + 4} ${to.y - 4}`,
     }));
   });
-  g.appendChild(relations);
+  // Relations belong to the gaps, not on top of tool content. Paint them
+  // behind opaque windows so only their stranded spans remain visible.
+  g.insertBefore(relations, g.firstChild);
   return g as SVGGElement;
 }
 

@@ -6,7 +6,7 @@
     <title>A History of Framing</title>
     <meta
       name="description"
-      content="A scroll-led editorial animation tracing written, networked, computational and AI framing as one authored piece."
+      content="An autoplaying editorial animation tracing written, networked, computational and AI framing as one authored piece."
     />
     <meta name="color-scheme" content="dark" />
   </head>
@@ -19,7 +19,10 @@
       <p class="masthead__dek">
         How text learns to wear interfaces.
       </p>
-      <p class="masthead__hint" aria-hidden="true">Scroll</p>
+      <button class="masthead__enter" id="enter-animation" type="button">
+        <span>Enter the animation</span>
+        <span class="masthead__enter-arrow" aria-hidden="true">↓</span>
+      </button>
     </header>
 
     <!-- The pinned scene. One page, transformed continuously across every act. -->
@@ -33,6 +36,13 @@
         <button type="button" data-frame="thread" disabled>Thread</button>
         <button type="button" data-frame="structure" disabled>Structure</button>
         <button type="button" data-frame="spec" disabled>Spec</button>
+      </div>
+      <div class="transport" id="transport" role="group" aria-label="Animation controls">
+        <p class="transport__prompt" id="transport-prompt">Press Play to begin</p>
+        <button type="button" id="transport-back">← Back</button>
+        <button class="transport__play" type="button" id="transport-play" aria-pressed="false">Play</button>
+        <button type="button" id="transport-next">Next →</button>
+        <span class="transport__status" id="transport-status" aria-live="polite">00 / 14</span>
       </div>
     </div>
 
@@ -237,7 +247,7 @@
 
     <footer class="colophon">
       <p>
-        A History of Framing. Built with Vite, TypeScript, SVG and GSAP ScrollTrigger. The Latin
+        A History of Framing. Built with Vite, TypeScript, SVG and GSAP. The Latin
         is a pseudo-classical passage on inquiry, patience and judgment; it is the same text
         throughout.
       </p>

@@ -560,6 +560,30 @@ text.gloss--ink {
   stroke-width: 1;
 }
 
+.fragment-window[data-window='memo'] .fragment-window-frame {
+  stroke: #b07970;
+}
+
+.fragment-window[data-window='research'] .fragment-window-frame {
+  stroke: #6f9ab2;
+}
+
+.fragment-window[data-window='draft'] .fragment-window-frame {
+  stroke: #c4a963;
+}
+
+.fragment-window[data-window='sources'] .fragment-window-frame {
+  stroke: #a8796b;
+}
+
+.fragment-window[data-window='chat'] .fragment-window-frame {
+  stroke: #68988a;
+}
+
+.fragment-window[data-window='files'] .fragment-window-frame {
+  stroke: #7b85a8;
+}
+
 .fragment-window-rule {
   fill: none;
   stroke: #777a74;
@@ -579,6 +603,46 @@ text.gloss--ink {
   font-weight: 700;
   letter-spacing: 0.13em;
   fill: #bbb6aa;
+}
+
+.fragment-window-chrome {
+  opacity: 0.42;
+}
+
+.fragment-ui-line,
+.fragment-ui-wave,
+.fragment-ui-folder,
+.fragment-ui-page {
+  fill: none;
+  stroke: #a6a39a;
+  stroke-width: 1;
+}
+
+.fragment-ui-wave {
+  stroke: #c48478;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.fragment-ui-accent {
+  fill: #c48478;
+  stroke: #c48478;
+}
+
+.fragment-ui-field {
+  fill: rgba(111, 154, 178, 0.14);
+  stroke: #6f9ab2;
+  stroke-width: 0.7;
+}
+
+.fragment-ui-page {
+  fill: rgba(239, 230, 210, 0.05);
+  stroke: #a8796b;
+}
+
+.fragment-ui-folder {
+  fill: rgba(123, 133, 168, 0.14);
+  stroke: #7b85a8;
 }
 
 .fragment-relation {

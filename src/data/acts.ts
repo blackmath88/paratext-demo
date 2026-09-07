@@ -3,8 +3,8 @@
  *
  * `start`/`end` are normalized positions on the master timeline (0..1). They
  * are the single source of truth: the master timeline places act sub-timelines
- * at these positions, and the navigator resolves scroll position back to an act
- * from the same numbers. Nothing else may hardcode a timeline offset.
+ * at these positions, and the transport resolves rendered progress back to an
+ * act from the same numbers. Nothing else may hardcode a timeline offset.
  *
  * Adjacent ranges share exact seams. The arriving act owns the transition, so
  * motion remains continuous without two timelines writing the same geometry.

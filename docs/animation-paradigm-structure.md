@@ -1,6 +1,6 @@
 # Animation paradigm structure
 
-This document records the final conceptual revision of the scroll animation.
+This document records the final conceptual revision of the autoplaying animation.
 It is a design brief and an implementation note for the current runtime.
 
 The source of truth for act IDs, order, copy, timing, geometry and responsive
@@ -18,13 +18,14 @@ The piece now reads as four major regimes plus an open ending:
 
 The interaction rule is now explicit:
 
-> scroll initiates authored transitions between stable stations.
+> autoplay carries authored transitions between stable stations; the viewer can
+> pause, go back, or advance at any time.
 
-Scroll selects a direction and commits a move. Once committed, the authored
-transition completes smoothly to the next station and then holds.
+The transport commits a move. The authored transition completes smoothly to the
+next station, holds for reading, and then continues when playback is active.
 
-This supersedes the earlier continuous-scrub assumption. The runtime no longer
-depends on every wheel or trackpad delta micromanaging the animation.
+This supersedes both continuous scrubbing and wheel-triggered station jumps. The
+runtime no longer depends on wheel or trackpad deltas to pace the animation.
 
 The continuity constraint still holds: one field of material and semantic
 operations persists. The substrate may change, but it must transform that field

@@ -80,6 +80,9 @@ export function buildNavigation(
   mount.appendChild(nav);
 
   let currentId = '';
+  let hashSyncReady = document.readyState === 'complete';
+  const enableHashSync = () => { hashSyncReady = true; };
+  if (!hashSyncReady) window.addEventListener('load', enableHashSync, { once: true });
 
   const update = (progress: number) => {
     const act = actAt(progress);
@@ -95,7 +98,10 @@ export function buildNavigation(
       if (id === act.id) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     }
-    if (location.hash !== `#${act.id}`) {
+    // Do not introduce an act hash during the initial load task. Browsers may
+    // still perform native anchor placement then, which would skip both the
+    // landing and animation and land in the plain-text carrier below.
+    if (hashSyncReady && location.hash !== `#${act.id}`) {
       history.replaceState(null, '', `#${act.id}`);
     }
   };
@@ -113,7 +119,7 @@ export function buildNavigation(
   const onHashChange = () => applyHash();
   window.addEventListener('hashchange', onHashChange);
 
-  // Defer so ScrollTrigger has measured before we scroll into position.
+  // Defer until the master timeline has been built.
   let initialHashTimer: number | undefined;
   const applyInitialHash = () => {
     // Native anchor placement happens at the end of the load task even though
@@ -131,6 +137,7 @@ export function buildNavigation(
     destroy: () => {
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('load', applyInitialHash);
+      window.removeEventListener('load', enableHashSync);
       if (initialHashTimer !== undefined) window.clearTimeout(initialHashTimer);
       nav.remove();
     },

@@ -1,9 +1,9 @@
 /**
  * Presentation mode. Decided once at boot, re-evaluated on a debounced resize.
  *
- * `compact` is not the desktop timeline squeezed into a phone — it is a
- * different pin/scrub configuration over the same act timelines. `static` is
- * the same timelines again, seeked and held rather than played.
+ * `compact` is not the desktop composition squeezed into a phone — it is a
+ * reduced scene configuration over the same act timelines. `static` is the
+ * same timelines again, seeked and held rather than played.
  */
 
 export type Mode = 'cinematic' | 'compact' | 'static';

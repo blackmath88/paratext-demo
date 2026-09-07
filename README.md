@@ -1,6 +1,6 @@
 # A History of Framing
 
-A scroll-driven editorial animation about how material, computational, and
+A transport-driven editorial animation about how material, computational, and
 linguistic regimes frame text and structured work.
 
 One body of text persists through the whole piece. It is never replaced: its
@@ -34,7 +34,7 @@ npm run dev
 
 The single Vite workflow serves both first-class artifacts:
 
-- `/` — the scroll-driven animation
+- `/` — the autoplaying animation
 - `/essay.html` — the performative essay, integrated from the v12 standalone
 
 With the default GitHub Pages base these become `/paratext-demo/` and
@@ -86,8 +86,9 @@ final chapter model and interaction rule. In short:
 - `src/essay/` contains the v12 essay runtime, styling, and its explicit station
   and operation data. A station belongs in this artifact only when it is real
   on this content; animation milestones are not copied into the dial.
-- The animation now uses authored station transitions: scroll initiates motion,
-  then the runtime completes the move smoothly to the next settled station.
+- The animation uses authored station transitions and readable holds. The
+  landing aligns the stage, then a clear Play prompt starts it; Back,
+  Pause/Play, and Next provide direct control.
 
 ## Reference
 
