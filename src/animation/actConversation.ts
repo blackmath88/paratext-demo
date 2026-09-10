@@ -7,7 +7,7 @@ import { tweenFrame } from './frames';
 import { tweenMaterial } from './material';
 import { tweenOperation } from './operations';
 
-const CHAT_FRAME = { x: 360, y: 88, w: 720, h: 724 };
+const CHAT_FRAME = { x: 280, y: 68, w: 880, h: 744 };
 
 export function actConversation(refs: SceneRefs, mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
@@ -37,7 +37,9 @@ export function actConversation(refs: SceneRefs, mode: Mode): gsap.core.Timeline
   // Let the specialized frames finish converging before the calm language UI
   // becomes the new focus. The relief depends on reading these as two beats.
   tl.set(refs.aiConversation, { opacity: 1 }, 1.5);
-  tl.from(refs.aiConversation.querySelectorAll('.ai-screen-rule, .ai-screen-title, .ai-screen-status'), {
+  tl.from(refs.aiConversation.querySelectorAll(
+    '.ai-screen-rule, .ai-screen-title, .ai-screen-status, .ai-sidebar-surface, .ai-sidebar-brand, .ai-sidebar-section, .ai-sidebar-item, .ai-sidebar-account',
+  ), {
     opacity: 0, duration: 0.45, stagger: 0.06,
   }, 1.52);
   tl.to(refs.fragmentWindows[0] ?? {}, { opacity: 0, duration: 0.35 }, 1.02);
@@ -47,8 +49,8 @@ export function actConversation(refs: SceneRefs, mode: Mode): gsap.core.Timeline
   tl.set(refs.operations, { attr: { 'clip-path': 'url(#clip-chat)' } }, 0.82);
   refs.operationNodes.forEach((node, i) => {
     const visible = i < 4;
-    const targetX = node.dataset.role === 'user' ? 470 : 410;
-    const targetY = 220 + i * 128;
+    const targetX = node.dataset.role === 'user' ? 650 : 590;
+    const targetY = 205 + i * 124;
     tweenOperation(tl, refs, i, {
       x: targetX,
       y: targetY,

@@ -18,7 +18,7 @@ import './styles/global.css';
 import './styles/scene.css';
 
 import { buildMaster, type Master } from './animation/master';
-import { acts, actAt, settlePoints, chapterForAct, type Act } from './data/acts';
+import { acts, actAnnotations, actAt, settlePoints, eraForAct, type Act } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
 import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
 import { buildScene, type SceneRefs } from './scene/scene';
@@ -86,6 +86,10 @@ function beatAt(act: Act, progress: number): string | undefined {
   return undefined;
 }
 
+function rangeProgress(value: number, from: number, to: number): number {
+  return Math.max(0, Math.min(1, (value - from) / (to - from)));
+}
+
 function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
   const layer = document.createElement('div');
   layer.className = 'story-layer';
@@ -111,21 +115,84 @@ function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
   stationBody.className = 'story-station__body';
 
   station.append(stationVoice, stationChapter, stationTitle, stationCopy, stationBody);
-  layer.append(station);
+
+  const annotation = document.createElement('aside');
+  annotation.className = 'story-annotation';
+  const annotationLabel = document.createElement('span');
+  annotationLabel.className = 'story-annotation__label';
+  annotationLabel.textContent = 'Why the frame changes';
+  const annotationCopy = document.createElement('p');
+  annotationCopy.className = 'story-annotation__copy';
+  annotation.append(annotationLabel, annotationCopy);
+
+  const threshold = document.createElement('section');
+  threshold.className = 'paradigm-threshold';
+  threshold.hidden = true;
+
+  const monolith = document.createElement('div');
+  monolith.className = 'paradigm-threshold__monolith';
+
+  const thresholdTitle = document.createElement('p');
+  thresholdTitle.className = 'paradigm-threshold__title';
+
+  const thresholdTurn = document.createElement('p');
+  thresholdTurn.className = 'paradigm-threshold__turn';
+
+  threshold.append(monolith, thresholdTitle, thresholdTurn);
+  layer.append(station, annotation, threshold);
   mount.append(layer);
 
   const update = (progress: number) => {
     const act = actAt(progress);
+    const span = act.end - act.start;
+    const local = span > 0 ? (progress - act.start) / span : 0;
+    const thresholdConfig = act.threshold;
+    const thresholdActive = Boolean(thresholdConfig && local < thresholdConfig.until);
+    threshold.hidden = !thresholdActive;
+    if (thresholdActive && thresholdConfig) {
+      const enter = rangeProgress(local, 0, thresholdConfig.until * 0.16);
+      const leaveFrom = thresholdConfig.until * 0.84;
+      const leave = 1 - rangeProgress(local, leaveFrom, thresholdConfig.until);
+      threshold.dataset.variant = thresholdConfig.variant;
+      thresholdTitle.textContent = thresholdConfig.title;
+      thresholdTurn.textContent = thresholdConfig.turn;
+      threshold.style.opacity = String(Math.min(enter, leave));
+      monolith.style.opacity = String(
+        rangeProgress(local, thresholdConfig.until * 0.14, thresholdConfig.until * 0.34) * leave,
+      );
+      monolith.style.transform = `translate(-50%, -50%) scaleY(${
+        0.12 + rangeProgress(local, thresholdConfig.until * 0.12, thresholdConfig.until * 0.42) * 0.88
+      })`;
+      thresholdTitle.style.opacity = String(
+        rangeProgress(local, thresholdConfig.until * 0.28, thresholdConfig.until * 0.44)
+        * (1 - rangeProgress(local, thresholdConfig.until * 0.58, thresholdConfig.until * 0.76)),
+      );
+      thresholdTurn.style.opacity = String(
+        rangeProgress(local, thresholdConfig.until * 0.62, thresholdConfig.until * 0.78) * leave,
+      );
+    }
+
     if (act.id === 'open') {
       station.hidden = true;
+      annotation.hidden = true;
       return;
     }
 
-    const chapter = chapterForAct(act);
+    const era = eraForAct(act);
     const activeBeat = beatAt(act, progress);
 
-    station.hidden = false;
-    stationChapter.textContent = `${chapter.number} · ${chapter.title} / ${act.number}`;
+    station.hidden = thresholdActive;
+    const annotationConfig = actAnnotations[act.id];
+    annotation.hidden = thresholdActive || !annotationConfig;
+    annotationCopy.textContent = annotationConfig?.text ?? '';
+    annotationLabel.textContent = annotationConfig?.label ?? 'Why the frame changes';
+    annotation.dataset.placement = annotationConfig?.placement ?? 'middle-right';
+    if (annotation.dataset.act !== act.id) {
+      annotation.dataset.act = act.id;
+      annotation.classList.remove('is-entering');
+      requestAnimationFrame(() => annotation.classList.add('is-entering'));
+    }
+    stationChapter.textContent = `${era.number} · ${era.title} / ${act.number}`;
     stationTitle.textContent = act.title;
     stationCopy.textContent = activeBeat ?? act.thesis;
     stationCopy.classList.toggle('is-beat', Boolean(activeBeat));
@@ -184,7 +251,17 @@ const HOLD_MS: Partial<Record<Act['id'], number>> = {
   hypertext: 3600,
   application: 3600,
   conversation: 3400,
+  recovery: 4800,
+  projections: 5400,
+  cost: 4600,
   open: 0,
+};
+const TRANSITION_SECONDS: Partial<Record<Act['id'], number>> = {
+  conversation: 10,
+  tube: 7,
+  recovery: 9,
+  projections: 10,
+  cost: 8,
 };
 
 function clearPlaybackTimer(): void {
@@ -194,9 +271,10 @@ function clearPlaybackTimer(): void {
 
 function transitionDuration(act: Act, targetProgress: number): number {
   const remaining = Math.abs(targetProgress - renderedProgress);
-  const authored = (act.end - act.start) * act.settle * PLAYBACK_SECONDS;
-  const proportional = remaining * PLAYBACK_SECONDS;
-  return Math.max(MIN_TRANSITION_SECONDS, Math.min(authored, proportional));
+  const choreographySpan = (act.end - act.start) * act.settle;
+  const authored = TRANSITION_SECONDS[act.id] ?? choreographySpan * PLAYBACK_SECONDS;
+  const remainingRatio = choreographySpan > 0 ? Math.min(1, remaining / choreographySpan) : 1;
+  return Math.max(MIN_TRANSITION_SECONDS, authored * remainingRatio);
 }
 
 function updateTransport(): void {
@@ -340,7 +418,9 @@ window.addEventListener('resize', () => {
 
 function onProgress(progress: number): void {
   renderedProgress = progress;
-  stage!.dataset.act = actAt(progress).id;
+  const activeAct = actAt(progress);
+  stage!.dataset.act = activeAct.id;
+  stage!.dataset.era = eraForAct(activeAct).id;
   storyOverlay?.update(progress);
   const actionAvailable = Boolean(application
     && progress >= localPoint(application, ACTION_AVAILABLE.from)

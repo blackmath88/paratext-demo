@@ -116,7 +116,7 @@ export function buildDefs(): SVGDefsElement {
   vignette.appendChild(el('stop', { offset: '100%', 'stop-color': '#050607', 'stop-opacity': '0.92' }));
 
   const chatClip = el('clipPath', { id: 'clip-chat' });
-  chatClip.appendChild(el('rect', { id: 'chat-clip-rect', x: 390, y: 150, width: 660, height: 590 }));
+  chatClip.appendChild(el('rect', { id: 'chat-clip-rect', x: 540, y: 138, width: 570, height: 580 }));
 
   return el('defs', {}, [grain, ink, vignette, chatClip]) as SVGDefsElement;
 }
@@ -986,44 +986,106 @@ export function buildConversation(): SVGGElement {
 export function buildReframe(): SVGGElement {
   const g = el('g', { id: 'reframe', opacity: '0' });
   const overview = el('g', { id: 'reframe-overview' });
-  const clusterLabel = (text: string, x: number, y: number) => {
-    const label = el('text', { class: 'reframe-cluster-label', x, y });
-    label.textContent = text;
-    overview.appendChild(label);
+  const addText = (
+    parent: Element,
+    className: string,
+    text: string,
+    x: number,
+    y: number,
+    anchor?: 'middle' | 'end',
+  ) => {
+    const node = el('text', {
+      class: className,
+      x,
+      y,
+      ...(anchor ? { 'text-anchor': anchor } : {}),
+    });
+    node.textContent = text;
+    parent.appendChild(node);
   };
-  clusterLabel('FRAME', 180, 158);
-  clusterLabel('PARATEXT', 180, 358);
-  clusterLabel('COMPOSITION', 500, 158);
-  clusterLabel('APPLICATION', 500, 358);
-  clusterLabel('CONTEXT', 790, 158);
-  clusterLabel('ARTIFACT', 790, 358);
 
-  const relations = el('g', { id: 'reframe-relations' });
-  relations.appendChild(el('path', { class: 'reframe-relation reframe-relation--supersedes', d: 'M 504 478 C 470 500 470 522 504 524' }));
-  relations.appendChild(el('path', { class: 'reframe-relation', d: 'M 184 232 C 340 152 420 152 504 186' }));
-  relations.appendChild(el('path', { class: 'reframe-relation', d: 'M 794 232 C 920 270 960 360 1032 410' }));
-  overview.appendChild(relations);
-
-  const projectionBranch = el('g', { id: 'projection-branches' });
-  projectionBranch.appendChild(el('path', { class: 'projection-trunk', d: 'M 930 470 H 1000 M 1000 202 V 622' }));
-  const projections = [
-    { id: 'essay', label: 'ESSAY', y: 202 },
-    { id: 'thread', label: 'THREAD', y: 342 },
-    { id: 'structure', label: 'STRUCTURE', y: 482 },
-    { id: 'spec', label: 'SPEC', y: 622 },
-  ];
-  projections.forEach((projection) => {
-    const port = el('g', { class: 'projection-port', 'data-frame': projection.id });
-    port.appendChild(el('path', { class: 'projection-port-line', d: `M 1000 ${projection.y} H 1220` }));
-    const name = el('text', { class: 'projection-port-label', x: 1030, y: projection.y - 12 });
-    name.textContent = projection.label;
-    const note = el('text', { class: 'projection-port-note', x: 1030, y: projection.y + 18 });
-    note.textContent = 'same operations / different unity';
-    port.appendChild(name);
-    port.appendChild(note);
-    projectionBranch.appendChild(port);
+  const before = el('g', { class: 'delta-before' });
+  before.appendChild(el('path', {
+    class: 'delta-model-panel delta-model-panel--before',
+    d: framePath(270, 172, 390, 508),
+  }));
+  addText(before, 'delta-model-kicker', 'CONVENTIONAL / VS CODE + GIT', 300, 208);
+  addText(before, 'delta-model-title', 'The work and its conversation separate', 300, 244);
+  const beforeSteps = [
+    ['01', 'LOCAL WORKTREE', 'Edit in VS Code'],
+    ['02', 'COMMIT + PUSH', 'Package the local change'],
+    ['03', 'PULL REQUEST', 'Open a delivery and review gate'],
+    ['04', 'REVIEW CONVERSATION', 'Discussion arrives around the proposed change'],
+  ] as const;
+  beforeSteps.forEach(([number, title, note], index) => {
+    const y = 306 + index * 82;
+    addText(before, 'delta-step-number', number, 300, y);
+    addText(before, 'delta-step-title', title, 344, y);
+    addText(before, 'delta-step-note', note, 344, y + 23);
+    if (index < beforeSteps.length - 1) {
+      before.appendChild(el('path', {
+        class: 'delta-step-line',
+        d: `M 316 ${y + 17} V ${y + 59}`,
+      }));
+    }
   });
-  overview.appendChild(projectionBranch);
+  addText(before, 'delta-model-warning', 'The PR becomes the place where context is reconstructed.', 300, 646);
+  overview.appendChild(before);
+
+  const pivot = el('g', { class: 'delta-pivot' });
+  pivot.appendChild(el('path', {
+    class: 'delta-pivot-arrow',
+    d: 'M 682 414 H 746 M 730 400 L 746 414 L 730 428',
+  }));
+  addText(pivot, 'delta-pivot-label', 'MOVE THE CONVERSATION', 714, 374, 'middle');
+  addText(pivot, 'delta-pivot-label', 'INTO THE WORK', 714, 454, 'middle');
+  overview.appendChild(pivot);
+
+  const after = el('g', { class: 'delta-after' });
+  after.appendChild(el('path', {
+    class: 'delta-model-panel delta-model-panel--after',
+    d: framePath(768, 172, 410, 508),
+  }));
+  addText(after, 'delta-model-kicker', 'DELTA / SHARED WORKING STATE', 798, 208);
+  addText(after, 'delta-model-title', 'The thread is where development happens', 798, 244);
+
+  after.appendChild(el('path', {
+    class: 'delta-db-node',
+    d: framePath(840, 282, 266, 70),
+  }));
+  addText(after, 'delta-db-title', 'DELTA DB', 973, 312, 'middle');
+  addText(after, 'delta-db-note', 'shared file state / source of truth', 973, 334, 'middle');
+
+  after.appendChild(el('path', {
+    class: 'delta-model-relation',
+    d: 'M 973 352 V 382 M 866 382 H 1080 M 866 382 V 408 M 1080 382 V 408',
+  }));
+  after.appendChild(el('path', {
+    class: 'delta-checkout-node',
+    d: framePath(798, 408, 136, 62),
+  }));
+  after.appendChild(el('path', {
+    class: 'delta-checkout-node',
+    d: framePath(1012, 408, 136, 62),
+  }));
+  addText(after, 'delta-checkout-title', 'YOUR CHECKOUT', 866, 435, 'middle');
+  addText(after, 'delta-checkout-note', 'coherent view', 866, 455, 'middle');
+  addText(after, 'delta-checkout-title', 'AGENT CHECKOUT', 1080, 435, 'middle');
+  addText(after, 'delta-checkout-note', 'coherent view', 1080, 455, 'middle');
+
+  after.appendChild(el('path', {
+    class: 'delta-model-relation',
+    d: 'M 866 470 V 500 M 1080 470 V 500',
+  }));
+  after.appendChild(el('path', {
+    class: 'delta-thread-node',
+    d: framePath(798, 500, 350, 112),
+  }));
+  addText(after, 'delta-thread-title', 'THREAD / DEVELOPMENT ROOM', 820, 530);
+  addText(after, 'delta-thread-note', 'Conversation, decisions, code and review stay together', 820, 560);
+  addText(after, 'delta-thread-note', 'while people and agents change the same project.', 820, 584);
+  addText(after, 'delta-model-success', 'A pull request can deliver work. It no longer has to contain the work conversation.', 798, 646);
+  overview.appendChild(after);
   g.appendChild(overview);
 
   const furniture = el('g', { id: 'frame-furniture' });
@@ -1036,10 +1098,10 @@ export function buildReframe(): SVGGElement {
     });
     furniture.appendChild(group);
   };
-  frameGroup('essay', [['INTENDED ORDER', 270, 118], ['HELD CONTEXT', 950, 178]]);
-  frameGroup('thread', [['CHRONOLOGICAL ORIGIN', 250, 112]]);
-  frameGroup('structure', [['QUESTIONS', 190, 140], ['CLAIMS', 470, 140], ['SOURCES / TOOLS', 750, 140], ['DECISIONS', 1010, 140]]);
-  frameGroup('spec', [['ENGINEERING-RELEVANT DECISIONS', 260, 138], ['HELD CONTEXT', 850, 158]]);
+  frameGroup('essay', [['CHECKOUT / REVIEW', 270, 118], ['SHARED FILE STATE', 950, 178]]);
+  frameGroup('thread', [['CHECKOUT / THREAD AND WORK', 250, 112]]);
+  frameGroup('structure', [['QUESTIONS', 190, 140], ['CLAIMS', 470, 140], ['FILES', 750, 140], ['DECISIONS', 1010, 140]]);
+  frameGroup('spec', [['CHECKOUT / CODE', 260, 138], ['DELTA DB / SOURCE OF TRUTH', 850, 158]]);
   g.appendChild(furniture);
 
   const current = el('text', { id: 'reframe-current', class: 'reframe-current', x: 1220, y: 92, 'text-anchor': 'end' });
@@ -1051,35 +1113,107 @@ export function buildReframe(): SVGGElement {
 /** Part II screen furniture. Operations remain the actual conversation turns. */
 export function buildAIConversation(): SVGGElement {
   const g = el('g', { id: 'ai-conversation', opacity: '0' });
-  g.appendChild(el('path', { id: 'ai-screen-frame', class: 'ai-screen-frame', d: framePath(360, 88, 720, 724) }));
-  g.appendChild(el('path', { class: 'ai-screen-rule', d: 'M 360 142 H 1080' }));
-  const title = el('text', { class: 'ai-screen-title', x: 390, y: 122 });
-  title.textContent = 'CONVERSATION';
-  const status = el('text', { class: 'ai-screen-status', x: 1050, y: 122, 'text-anchor': 'end' });
-  status.textContent = 'READY';
+  g.appendChild(el('path', { id: 'ai-screen-frame', class: 'ai-screen-frame', d: framePath(280, 68, 880, 744) }));
+  g.appendChild(el('path', { class: 'ai-sidebar-surface', d: framePath(280, 68, 238, 744) }));
+  g.appendChild(el('path', { class: 'ai-screen-rule', d: 'M 518 124 H 1160' }));
+
+  const brand = el('text', { class: 'ai-sidebar-brand', x: 306, y: 103 });
+  brand.textContent = 'ChatGPT';
+  g.appendChild(brand);
+
+  const sidebarItems = [
+    ['＋', 'New chat', 148, 'primary'],
+    ['⌕', 'Search chats', 184, ''],
+    ['◫', 'Projects', 220, ''],
+    ['•', 'A history of framing', 286, 'active'],
+    ['•', 'Interface research', 322, ''],
+    ['•', 'Editorial animation', 358, ''],
+  ] as const;
+  sidebarItems.forEach(([icon, copy, y, state]) => {
+    const item = el('g', { class: `ai-sidebar-item${state ? ` is-${state}` : ''}` });
+    const iconNode = el('text', { class: 'ai-sidebar-icon', x: 307, y });
+    iconNode.textContent = icon;
+    const copyNode = el('text', { class: 'ai-sidebar-label', x: 334, y });
+    copyNode.textContent = copy;
+    item.append(iconNode, copyNode);
+    if (state === 'active') {
+      const menu = el('text', { class: 'ai-sidebar-menu', x: 490, y, 'text-anchor': 'end' });
+      menu.textContent = '•••';
+      item.appendChild(menu);
+    }
+    g.appendChild(item);
+  });
+
+  const chatsLabel = el('text', { class: 'ai-sidebar-section', x: 306, y: 260 });
+  chatsLabel.textContent = 'CHATS';
+  g.appendChild(chatsLabel);
+
+  const account = el('text', { class: 'ai-sidebar-account', x: 306, y: 778 });
+  account.textContent = 'A  Achim';
+  g.appendChild(account);
+
+  const title = el('text', { class: 'ai-screen-title', x: 548, y: 103 });
+  title.textContent = 'ChatGPT  ▾';
+  const status = el('text', { class: 'ai-screen-status', x: 1128, y: 103, 'text-anchor': 'end' });
+  status.textContent = 'Temporary chat';
   g.appendChild(title);
   g.appendChild(status);
 
   const input = el('g', { id: 'ai-input' });
-  input.appendChild(el('path', { class: 'ai-input-line', d: 'M 390 758 H 1050' }));
-  const prompt = el('text', { class: 'ai-input-text', x: 410, y: 786 });
-  prompt.textContent = 'Describe the change you want…';
+  input.appendChild(el('path', {
+    class: 'ai-input-line',
+    d: 'M 560 728 H 1092 Q 1112 728 1112 748 V 778 Q 1112 798 1092 798 H 560 Q 540 798 540 778 V 748 Q 540 728 560 728 Z',
+  }));
+  const prompt = el('text', { class: 'ai-input-text', x: 568, y: 769 });
+  prompt.textContent = 'Message ChatGPT';
   input.appendChild(prompt);
+  input.appendChild(el('circle', { class: 'ai-input-send', cx: 1080, cy: 763, r: 17 }));
+  const send = el('text', { class: 'ai-input-send-mark', x: 1080, y: 769, 'text-anchor': 'middle' });
+  send.textContent = '↑';
+  input.appendChild(send);
   g.appendChild(input);
 
   const scrollbar = el('g', { id: 'ai-scrollbar' });
-  scrollbar.appendChild(el('path', { class: 'ai-scroll-track', d: 'M 1058 164 V 730' }));
-  scrollbar.appendChild(el('path', { id: 'ai-scroll-thumb', class: 'ai-scroll-thumb', d: 'M 1058 172 V 310' }));
+  scrollbar.appendChild(el('path', { class: 'ai-scroll-track', d: 'M 1142 142 V 704' }));
+  scrollbar.appendChild(el('path', { id: 'ai-scroll-thumb', class: 'ai-scroll-thumb', d: 'M 1142 152 V 290' }));
   g.appendChild(scrollbar);
 
   const tube = el('g', { id: 'ai-tube', opacity: '0' });
-  tube.appendChild(el('path', { class: 'ai-tube-surface', d: framePath(390, -420, 660, 1740) }));
-  const top = el('text', { class: 'ai-continuation', x: 720, y: 42, 'text-anchor': 'middle' });
-  top.textContent = 'EARLIER CONTEXT CONTINUES ABOVE';
-  const bottom = el('text', { class: 'ai-continuation', x: 720, y: 866, 'text-anchor': 'middle' });
-  bottom.textContent = 'CONVERSATION CONTINUES BELOW';
-  tube.appendChild(top);
-  tube.appendChild(bottom);
+  tube.appendChild(el('path', { class: 'ai-tube-spine', d: 'M 835 132 V 804' }));
+  tube.appendChild(el('path', { class: 'ai-context-window', d: framePath(620, 270, 430, 360) }));
+
+  const top = el('text', { class: 'ai-continuation', x: 835, y: 72, 'text-anchor': 'middle' });
+  top.textContent = 'EARLIER KNOWLEDGE CONTINUES ABOVE';
+  const lostLabel = el('text', { class: 'ai-context-label is-lost', x: 640, y: 122 });
+  lostLabel.textContent = 'OUTSIDE WORKING CONTEXT';
+  const windowLabel = el('text', { class: 'ai-context-label is-current', x: 640, y: 298 });
+  windowLabel.textContent = 'CURRENT CONTEXT WINDOW';
+  const windowStatement = el('text', {
+    class: 'ai-context-statement', x: 835, y: 450, 'text-anchor': 'middle',
+  });
+  windowStatement.textContent = 'Only a narrow present remains usable.';
+  const incomingLabel = el('text', { class: 'ai-context-label is-incoming', x: 640, y: 696 });
+  incomingLabel.textContent = 'NEW MESSAGES KEEP ARRIVING';
+  const bottom = el('text', { class: 'ai-continuation', x: 835, y: 838, 'text-anchor': 'middle' });
+  bottom.textContent = 'THE THREAD CONTINUES BELOW';
+  tube.append(top, lostLabel, windowLabel, windowStatement, incomingLabel, bottom);
+
+  const memory = el('g', { class: 'ai-memory-traces' });
+  ([
+    ['DECISION / preserve the original source', 164],
+    ['CONSTRAINT / comments remain addressable', 205],
+    ['SOURCE / research and editorial context', 246],
+    ['QUESTION / what did we already decide?', 752],
+    ['REVISION / another answer enters the stream', 792],
+  ] as const).forEach(([copy, y]) => {
+    const trace = el('g', { class: 'ai-memory-trace' });
+    trace.appendChild(el('path', { d: `M 640 ${Number(y) - 5} H 672` }));
+    const label = el('text', { x: 686, y });
+    label.textContent = String(copy);
+    trace.appendChild(label);
+    memory.appendChild(trace);
+  });
+  tube.appendChild(memory);
   g.appendChild(tube);
   return g as SVGGElement;
 }
@@ -1098,13 +1232,29 @@ export function buildRecovery(): SVGGElement {
     d: 'M 330 180 H 1110',
   }));
   const title = el('text', { class: 'recovery-title', x: 330, y: 151 });
-  title.textContent = 'RESOLVED STRETCH / DECISION AND CONTEXT';
+  title.textContent = 'DELTA / THREAD AS CANVAS';
   const folio = el('text', {
     class: 'recovery-folio', x: 1110, y: 151, 'text-anchor': 'end',
   });
-  folio.textContent = 'SEGMENT 01 / 16';
+  folio.textContent = 'THREAD / CHECKOUT 01';
   segment.appendChild(title);
   segment.appendChild(folio);
+  const shift = el('text', { class: 'recovery-paradigm', x: 330, y: 207 });
+  shift.textContent = 'PARADIGM SHIFT 01 / THE THREAD IS A TYPING SURFACE';
+  segment.appendChild(shift);
+  const cursors = el('g', { class: 'recovery-cursors' });
+  ([
+    ['Add a decision beside this claim', 560, 330],
+    ['Write a review here', 930, 432],
+  ] as const).forEach(([copy, x, y]) => {
+    const cursor = el('g', { class: 'recovery-cursor' });
+    cursor.appendChild(el('path', { d: `M ${x} ${y - 18} V ${y + 8}` }));
+    const cursorText = el('text', { x: x + 12, y });
+    cursorText.textContent = copy;
+    cursor.appendChild(cursorText);
+    cursors.appendChild(cursor);
+  });
+  segment.appendChild(cursors);
   g.appendChild(segment);
 
   const apparatus = el('g', { id: 'recovery-tool-apparatus' });
@@ -1113,9 +1263,9 @@ export function buildRecovery(): SVGGElement {
     d: 'M 860 204 V 748',
   }));
   const apparatusTitle = el('text', { class: 'recovery-apparatus-title', x: 900, y: 224 });
-  apparatusTitle.textContent = 'TOOLS / APPARATUS';
+  apparatusTitle.textContent = 'TYPE ANYWHERE / ANCHORED WORK';
   const apparatusNote = el('text', { class: 'recovery-apparatus-note', x: 900, y: 246 });
-  apparatusNote.textContent = 'supports the argument / no longer the argument';
+  apparatusNote.textContent = 'attached to the work / subordinate when resolved';
   apparatus.appendChild(apparatusTitle);
   apparatus.appendChild(apparatusNote);
   g.appendChild(apparatus);
@@ -1157,9 +1307,33 @@ export function buildRecovery(): SVGGElement {
   return g as SVGGElement;
 }
 
-/** Latent annotations for the cost of an unsolicited projection change. */
+/** The proposed extension and the constraints on a dynamic projection change. */
 export function buildCost(): SVGGElement {
   const g = el('g', { id: 'cost-annotations', opacity: '0' });
+
+  const concept = el('g', { class: 'cost-concept' });
+  const conceptTitle = el('text', {
+    class: 'cost-concept-title', x: 720, y: 104, 'text-anchor': 'middle',
+  });
+  conceptTitle.textContent = 'PROPOSED EXTENSION / VIRTUALIZE THE INTERFACE, TOO';
+  concept.appendChild(conceptTitle);
+  ([
+    ['DELTA DB STATE', 'CHECKOUT VIEWS', 144],
+    ['THREAD / CANVAS STATE', 'DYNAMIC UI VIEWS', 178],
+  ] as const).forEach(([source, view, y]) => {
+    const sourceLabel = el('text', {
+      class: 'cost-concept-node', x: 500, y, 'text-anchor': 'end',
+    });
+    sourceLabel.textContent = String(source);
+    concept.appendChild(sourceLabel);
+    concept.appendChild(el('path', {
+      class: 'cost-concept-arrow', d: `M 530 ${Number(y) - 4} H 880 M 870 ${Number(y) - 10} L 880 ${Number(y) - 4} L 870 ${Number(y) + 2}`,
+    }));
+    const viewLabel = el('text', { class: 'cost-concept-node', x: 910, y });
+    viewLabel.textContent = String(view);
+    concept.appendChild(viewLabel);
+  });
+  g.appendChild(concept);
 
   const tracked = el('g', { id: 'cost-tracked-reference' });
   tracked.appendChild(el('path', {
@@ -1172,14 +1346,14 @@ export function buildCost(): SVGGElement {
   g.appendChild(tracked);
 
   const selected = el('text', { id: 'cost-selected-view', class: 'cost-selected-view', x: 260, y: 112 });
-  selected.textContent = 'VIEW CHANGED / ENGINEERING RELEVANCE';
+  selected.textContent = 'DYNAMIC UI / SPEC VIEW PROPOSED';
   g.appendChild(selected);
 
   const consequences = el('g', { id: 'cost-consequences' });
   const lines = [
-    'THE POSITION IS NOT A CITATION',
-    'TWO READERS MAY NOT SHARE THIS VIEW',
-    'THE FRAME WAS SELECTED ON YOUR BEHALF',
+    'THE VIEW MAY ADAPT TO THE WORK',
+    'THE USER MUST KEEP ORIENTATION',
+    'EVERY TRANSFORMATION MUST BE REVERSIBLE',
   ];
   lines.forEach((copy, i) => {
     const line = el('text', { class: 'cost-consequence', x: 850, y: 690 + i * 24 });
@@ -1197,7 +1371,7 @@ export function buildOpen(): SVGGElement {
   const question = el('text', {
     class: 'open-question-text', x: 720, y: 118, 'text-anchor': 'middle',
   });
-  question.textContent = 'Which frame now?';
+  question.textContent = 'What should this thread become?';
   g.appendChild(question);
   return g as SVGGElement;
 }

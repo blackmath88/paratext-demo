@@ -22,8 +22,12 @@ cost of unsolicited framing, and ends with the viewer choosing the frame.
 The larger conceptual revision is documented in
 [`docs/animation-paradigm-structure.md`](./docs/animation-paradigm-structure.md).
 The material-to-digital shift is now implemented through Magazine → Hypertext
-→ Application / State / Metatext; the later regime changes remain intentionally
-unchanged.
+→ Application / State / Metatext, followed by the AI conversation, Delta
+canvas, collaborative-state, and dynamic-framing sequence.
+
+The product argument behind the AI and Delta movement is developed separately
+in [`docs/future-of-ai-ui.md`](./docs/future-of-ai-ui.md): a concept for
+conversations that grow into task-specific, collaborative interfaces.
 
 ## Develop
 

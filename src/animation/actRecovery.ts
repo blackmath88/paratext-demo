@@ -25,7 +25,13 @@ export function actRecovery(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
     stagger: 0.08,
     ease: 'power2.out',
   }, 0.42);
-  tl.to(refs.aiConversation, { opacity: 0.12, duration: 0.65 }, 0.08);
+  tl.from(refs.recoverySegment.querySelector('.recovery-paradigm'), {
+    opacity: 0, x: -8, duration: 0.45, ease: 'power2.out',
+  }, 0.55);
+  tl.from(refs.recoverySegment.querySelectorAll('.recovery-cursor'), {
+    opacity: 0, scaleX: 0, transformOrigin: 'left', duration: 0.5, stagger: 0.18,
+  }, 0.92);
+  tl.to(refs.aiConversation, { opacity: 0.025, duration: 0.65 }, 0.08);
   tl.to(refs.page, { opacity: 0, duration: 0.55 }, 0.08);
 
   let primary = 0;

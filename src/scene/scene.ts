@@ -125,8 +125,6 @@ export type SceneRefs = {
   conversationOrphan: SVGGElement;
   reframe: SVGGElement;
   reframeOverview: SVGGElement;
-  reframeRelations: SVGGElement;
-  projectionPorts: SVGGElement[];
   frameFurniture: SVGGElement[];
   reframeCurrent: SVGTextElement;
   aiConversation: SVGGElement;
@@ -204,7 +202,7 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'recovers segmentation, apparatus, stable addresses and explicit supersession before the ' +
     'same operations recompose into several coherent projections. One projection then changes ' +
     'without the reader asking, displacing a tracked claim and its shared pointing position. ' +
-    'The operation field remains visible under the final question: Which frame now?';
+    'The operation field remains visible under the final question: What should this thread become?';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -317,8 +315,6 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     conversationOrphan: must(svg, '#conversation-orphan'),
     reframe: must(svg, '#reframe'),
     reframeOverview: must(svg, '#reframe-overview'),
-    reframeRelations: must(svg, '#reframe-relations'),
-    projectionPorts: [...svg.querySelectorAll<SVGGElement>('.projection-port')],
     frameFurniture: [...svg.querySelectorAll<SVGGElement>('.frame-layout-furniture')],
     reframeCurrent: must(svg, '#reframe-current'),
     aiConversation: must(svg, '#ai-conversation'),
@@ -466,9 +462,9 @@ export function resetScene(refs: SceneRefs): void {
   refs.screenGrid.style.opacity = '0';
   refs.dust.style.opacity = '0.5';
   refs.vignette.style.opacity = '1';
-  refs.chatClipRect.setAttribute('x', '390');
-  refs.chatClipRect.setAttribute('width', '660');
-  refs.aiScrollThumb.setAttribute('d', 'M 1058 172 V 310');
+  refs.chatClipRect.setAttribute('x', '540');
+  refs.chatClipRect.setAttribute('width', '570');
+  refs.aiScrollThumb.setAttribute('d', 'M 1142 152 V 290');
   refs.operationNodes.forEach((node, i) => {
     node.removeAttribute('transform');
     node.style.opacity = '0';

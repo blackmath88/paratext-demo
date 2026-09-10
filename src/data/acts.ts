@@ -29,6 +29,16 @@ export type ActId =
 
 export type SegmentId = 'written' | 'networked' | 'computational' | 'ai';
 
+export type EraId = 'paper' | 'computer' | 'ai' | 'delta' | 'vision';
+
+export type ExperienceEra = {
+  id: EraId;
+  number: string;
+  title: string;
+  description: string;
+  actIds: readonly ActId[];
+};
+
 export type Chapter = {
   id: SegmentId;
   number: string;
@@ -43,6 +53,13 @@ export type Act = {
   segment: SegmentId;
   /** Marks the first act in a major regime so the runtime can plate it. */
   chapterIntro?: boolean;
+  /** A full-field pause before a paradigm shift becomes visible. */
+  threshold?: {
+    title: string;
+    turn: string;
+    until: number;
+    variant: 'ai' | 'delta' | 'question';
+  };
   /** Two-digit label shown in the margin navigator. */
   number: string;
   title: string;
@@ -274,17 +291,23 @@ export const acts: Act[] = [
     id: 'conversation',
     segment: 'ai',
     chapterIntro: true,
+    threshold: {
+      title: 'Then AI enters the space.',
+      turn: 'The intelligence is new. The form is not.',
+      until: 0.48,
+      variant: 'ai',
+    },
     number: '09',
-    title: 'AI / Conversation',
+    title: 'AI enters the space',
     shortTitle: 'AI',
-    thesis: 'Then the interface collapses back into language.',
+    thesis: 'We gave the newest intelligence the oldest interface we had.',
     // Child 2.17s, settle 0.60 (local = t × 0.276). Not at act start: scored to
     // the convergence — window titles and rules dissolve 0.033–0.192, the six
     // frames merge into one 0–0.422, the calm surface appears 0.415–0.559 and
     // the input lands 0.600. Cleared just after, so the whole plateau
     // (0.60–1.00, 40% of the act) holds the resolved state in silence.
     thesisAt: { from: 0.1, to: 0.66 },
-    body: 'Specialized software frames converge on one calm conversational surface. Intent, response and action meet in a radically simpler interface, and at first the reduction feels powerful and liberating.',
+    body: 'The intelligence is new; the form is not. Specialized software collapses into a familiar chat window with conversations, projects, search and a little navigation around one chronological stream.',
     start: 0.634995296,
     end: 0.710253998,
     settle: 0.6,
@@ -296,7 +319,7 @@ export const acts: Act[] = [
     number: '10',
     title: 'The tube',
     shortTitle: 'The tube',
-    thesis: 'Chronology becomes the dominant structure.',
+    thesis: 'The chat grows. Its usable knowledge shrinks.',
     // The abstract statement stays in the static carrier; the cinematic act is
     // narrated by two concrete beats instead.
     foreground: false,
@@ -305,13 +328,13 @@ export const acts: Act[] = [
       // begin travelling at 0.014, the viewport narrows 0.027–0.207 and the
       // scrollbar thumb shrinks 0.027–0.243. The reader senses the problem
       // before seeing the tube.
-      { text: 'But language brings an old structure with it.', from: 0.02, to: 0.285 },
+      { text: 'A useful exchange becomes a longer and longer chat.', from: 0.02, to: 0.285 },
       // The reveal: the clip is removed and the tube appears at t 2.0–2.05 →
       // 0.361, the surface fades up to 0.478 and the continuations above and
       // below arrive 0.400–0.521. The line lands just ahead of it.
-      { text: 'Everything still arrives in time.', from: 0.355, to: 0.74 },
+      { text: 'As new context arrives, earlier knowledge disappears.', from: 0.355, to: 0.74 },
     ],
-    body: 'The exchanges accumulate until the viewport is only a small window onto a much longer stream. Pulled back, the apparently new interface reveals the structural logic of a scroll: chronology becomes the dominant structure, with sequential access and little global overview.',
+    body: 'Each answer may be useful, but every new turn pushes sources, constraints and decisions farther away. The viewport becomes a narrow working-context window onto a much longer stream: the conversation remembers chronologically while the user loses practical access to what it already knows.',
     start: 0.710253998,
     end: 0.766698024,
     settle: 0.64,
@@ -320,22 +343,28 @@ export const acts: Act[] = [
   {
     id: 'recovery',
     segment: 'ai',
+    threshold: {
+      title: 'Delta.dev changes the game.',
+      turn: 'Not a better chat. Two changes to the underlying model.',
+      until: 0.3,
+      variant: 'delta',
+    },
     number: '11',
-    title: 'Recovery',
-    shortTitle: 'Recovery',
-    thesis: 'So the apparatus comes back.',
+    title: 'Delta / Type anywhere',
+    shortTitle: 'Delta canvas',
+    thesis: 'Delta turns the thread into a surface where you can type anywhere.',
     // Child 2.68s, settle 0.78 (local = t × 0.291). Scored to the segment
     // gaining a boundary and title rule (0–0.242) and then its title and folio
     // (0.122–0.276).
-    thesisAt: { from: 0.01, to: 0.3 },
+    thesisAt: { from: 0.3, to: 0.62 },
     beats: [
       // A deliberate silence over the tool apparatus (0.256–0.573) and the
       // identifiers (0.402–0.613): both are legible without being named. The
       // one idea the picture cannot state is supersession — strike 0.553–0.699,
       // relation 0.597–0.757, label 0.664–0.780.
-      { text: 'Old states can remain visible without remaining current.', from: 0.55, to: 0.95 },
+      { text: 'Write beside the work. Comment at the exact place. The thread becomes a canvas.', from: 0.62, to: 0.95 },
     ],
-    body: 'A resolved stretch gains a boundary and title. Tool results become subordinate apparatus without disappearing, operations acquire stable addresses, and an obsolete claim remains visible through a named relation to the decision that supersedes it.',
+    body: 'A thread becomes a canvas: type anywhere, write beside the work, and attach comments to exact passages. Resolved stretches can close, while old states remain visible without remaining current.',
     start: 0.766698024,
     end: 0.828786453,
     settle: 0.78,
@@ -345,16 +374,20 @@ export const acts: Act[] = [
     id: 'projections',
     segment: 'ai',
     number: '12',
-    title: 'Projections',
-    shortTitle: 'Projections',
-    thesis: 'The same source can compose several frames.',
+    title: 'Delta / Virtualized state',
+    shortTitle: 'Checkouts',
+    thesis: 'In the conventional workflow, code happens locally and conversation gathers later in a pull request.',
     // Child 3.16s, settle 0.82 (local = t × 0.259). Not when Structure first
     // appears (0.021–0.270) — the claim is only meaningful at the first
     // identity-preserving transformation, so the line enters just before the
     // same operations travel into Spec (0.272–0.532) and leaves as Read begins
     // (0.540). Read then proves the claim, and settles at 0.820, unnarrated.
-    thesisAt: { from: 0.24, to: 0.56 },
-    body: 'The operations leave chronology and travel through structural, specification and reading arrangements without changing identity. State belongs to the thing; form belongs to the projection. The first digitalization virtualized the page. The next may virtualize the frame.',
+    thesisAt: { from: 0.02, to: 0.34 },
+    beats: [
+      { text: 'Delta DB makes shared file state the source of truth. Checkouts become coherent working views.', from: 0.34, to: 0.66 },
+      { text: 'The development conversation happens in threads—beside the changing work, not later at the pull request.', from: 0.64, to: 0.98 },
+    ],
+    body: 'VS Code ordinarily edits a local worktree; commits are pushed and a pull request becomes the place where review conversation reconstructs the work. Delta changes both sides of that model: Delta DB holds shared file state while checkouts provide coherent views, and threads become the development room where people and agents discuss and change the project together. A pull request can remain a delivery mechanism without having to contain the development conversation.',
     start: 0.828786453,
     end: 0.91533396,
     settle: 0.82,
@@ -363,17 +396,26 @@ export const acts: Act[] = [
   {
     id: 'cost',
     segment: 'ai',
+    threshold: {
+      title: 'What now?',
+      turn: 'If file state can have coherent views… the interface should do this as well.',
+      until: 0.34,
+      variant: 'question',
+    },
     number: '13',
-    title: 'The cost',
-    shortTitle: 'Cost',
-    thesis: 'If every view can change, what remains shared?',
+    title: 'The proposed extension',
+    shortTitle: 'Dynamic UI',
+    thesis: 'Virtualize the interface, too.',
     // Child 2.22s, settle 0.68 (local = t × 0.306). The tracked reference
     // establishes what the reader believes they are pointing at (0–0.138)
     // before anything is said. The line arrives with the violation: the
     // unrequested move into Spec begins 0.190, "VIEW CHANGED" 0.239, "SELECTED
     // FOR YOU" 0.276. The consequence list (0.496–0.680) then answers it.
-    thesisAt: { from: 0.21, to: 0.66 },
-    body: 'A view changes without the reader asking. The operation remains, but the place used to track and discuss it no longer points to the same thing. Dynamic framing weakens mental models, shared pointing and citation, while giving the selector of the frame consequential power.',
+    thesisAt: { from: 0.34, to: 0.62 },
+    beats: [
+      { text: 'Let the UI develop with the work: from conversation into document, review, project or code.', from: 0.62, to: 0.96 },
+    ],
+    body: 'If checkouts are coherent views into file state, interfaces could become coherent views into thread state. A conversation could develop into the document, project, review or code frame the work needs—provided every transformation remains legible, reversible and under user control.',
     start: 0.91533396,
     end: 0.966133584,
     settle: 0.68,
@@ -383,20 +425,98 @@ export const acts: Act[] = [
     id: 'open',
     segment: 'ai',
     number: '14',
-    title: 'Which frame now?',
+    title: 'The interface grows with the thread',
     shortTitle: 'Open',
-    thesis: 'Which frame now?',
+    thesis: 'A thread may begin as conversation. It does not have to remain one.',
     // The scene asks the question itself (`openQuestion`, child 0.25–1.0 →
     // 0.088–0.350). A foreground cue would print it twice, so the act ends with
     // one question and no narrator.
     foreground: false,
-    body: 'The operations remain visible and no final arrangement is declared authoritative. The question is now available as an action: read, thread, structure or specification.',
+    body: 'As work develops, its apparatus can develop with it: comments, addresses, indexes, links, decisions, files, timelines and project-specific views. The thread can compose the interface it needs without declaring one frame permanently authoritative.',
     start: 0.966133584,
     end: 1,
     settle: 0.35,
     implemented: true,
   },
 ];
+
+export type ActAnnotation = {
+  text: string;
+  label: string;
+  placement: 'upper-right' | 'middle-right' | 'lower-right' | 'lower-middle';
+};
+
+/**
+ * These notes are spatial commentary. Placement and pointer direction are
+ * authored per scene so the note belongs to the visual evidence it explains.
+ */
+export const actAnnotations: Partial<Record<ActId, ActAnnotation>> = {
+  bare: {
+    text: 'Even “plain” text already has position, measure and a point of view.',
+    label: 'Look at the field',
+    placement: 'upper-right',
+  },
+  page: {
+    text: 'A boundary makes the presentation portable. The field becomes a page.',
+    label: 'The edge matters',
+    placement: 'middle-right',
+  },
+  glosses: {
+    text: 'The reader writes back. The margin has to become semantic space.',
+    label: 'A second voice appears',
+    placement: 'lower-right',
+  },
+  print: {
+    text: 'Improvised marks become repeatable apparatus: references, notes, hierarchy.',
+    label: 'Pattern becomes system',
+    placement: 'upper-right',
+  },
+  editorial: {
+    text: 'Once apparatus is stable, composition can begin to direct attention.',
+    label: 'Follow the hierarchy',
+    placement: 'lower-middle',
+  },
+  magazine: {
+    text: 'One surface now coordinates text, image, caption and source.',
+    label: 'The frame composes',
+    placement: 'lower-right',
+  },
+  hypertext: {
+    text: 'A reference becomes an address. Reading can now jump beyond the page.',
+    label: 'The link breaks the edge',
+    placement: 'upper-right',
+  },
+  application: {
+    text: 'The frame is no longer only read. It is a live view onto persistent state.',
+    label: 'Watch the state survive',
+    placement: 'middle-right',
+  },
+  fragments: {
+    text: 'Each tool is powerful locally. Their relationships disappear into the gaps.',
+    label: 'Look between the windows',
+    placement: 'lower-middle',
+  },
+  conversation: {
+    text: 'New intelligence enters through the interface already at hand: chat.',
+    label: 'Old container, new power',
+    placement: 'upper-right',
+  },
+  tube: {
+    text: 'The scrollbar grows smaller. Earlier decisions still exist—but leave working view.',
+    label: 'Watch usable context',
+    placement: 'middle-right',
+  },
+  recovery: {
+    text: 'Type here—not only at the bottom. The thread becomes an authorable surface.',
+    label: 'Delta shift 01',
+    placement: 'upper-right',
+  },
+  cost: {
+    text: 'Apply the checkout idea to UI: one thread state, many useful interface views.',
+    label: 'The proposed leap',
+    placement: 'lower-middle',
+  },
+};
 
 export const chapters: Chapter[] = [
   {
@@ -427,11 +547,60 @@ export const chapters: Chapter[] = [
     id: 'ai',
     number: '04',
     title: 'AI AGE',
-    subtitle: 'Then the interface collapses back into language.',
-    support: 'DYNAMIC FRAMING',
+    subtitle: 'Then AI enters the space.',
+    support: 'The intelligence is new. The conversational form is not.',
     introActId: 'conversation',
   },
 ];
+
+/**
+ * The five audience-facing regimes. These are intentionally more specific than
+ * the four structural animation segments: the final AI segment contains the
+ * inherited chat form, Delta's present direction, and the speculative extension.
+ */
+export const experienceEras: ExperienceEra[] = [
+  {
+    id: 'paper',
+    number: '01',
+    title: 'PAPER AGE',
+    description: 'Page, margin, apparatus and composition',
+    actIds: ['bare', 'page', 'glosses', 'print', 'editorial', 'magazine'],
+  },
+  {
+    id: 'computer',
+    number: '02',
+    title: 'COMPUTER AGE',
+    description: 'Networks, applications and specialized frames',
+    actIds: ['hypertext', 'application', 'fragments'],
+  },
+  {
+    id: 'ai',
+    number: '03',
+    title: 'AI AGE',
+    description: 'New intelligence inside the inherited chat form',
+    actIds: ['conversation', 'tube'],
+  },
+  {
+    id: 'delta',
+    number: '04',
+    title: 'DELTA',
+    description: 'Thread as canvas and checkout as projection',
+    actIds: ['recovery', 'projections'],
+  },
+  {
+    id: 'vision',
+    number: '05',
+    title: 'EXPANDED VISION',
+    description: 'Virtualized interfaces that grow with the thread',
+    actIds: ['cost', 'open'],
+  },
+];
+
+export function eraForAct(act: Act): ExperienceEra {
+  const era = experienceEras.find((item) => item.actIds.includes(act.id));
+  if (!era) throw new Error(`Missing experience era for act: ${act.id}`);
+  return era;
+}
 
 export function chapterBySegment(segment: SegmentId): Chapter {
   const chapter = chapters.find((item) => item.id === segment);

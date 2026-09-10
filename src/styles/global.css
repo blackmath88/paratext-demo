@@ -1,10 +1,5 @@
-/*
-  Palette and page shell.
-
-  Cream paper against a very dark field, with four restrained accents that only
-  ever appear as ink — never as a surface, a glow or a gradient. If a colour is
-  filling a large area here, something has gone wrong.
-*/
+/* Palette and page shell. The animation keeps one continuous field, while
+   restrained background temperature changes mark its five historical regimes. */
 
 :root {
   --field: #0b0d10;
@@ -149,10 +144,47 @@ body {
    -------------------------------------------------------------------------- */
 
 .stage {
+  --era-accent: var(--amber);
+  --era-background:
+    radial-gradient(circle at 68% 42%, rgba(126, 91, 49, 0.13), transparent 42%),
+    #0d0c09;
   position: relative;
   height: 100vh;
   height: 100svh;
   overflow: hidden;
+  background: var(--era-background);
+  transition: background 1.2s ease;
+}
+
+.stage[data-era='computer'] {
+  --era-accent: #73a9c5;
+  --era-background:
+    linear-gradient(rgba(81, 135, 163, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(81, 135, 163, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 68% 42%, rgba(37, 91, 119, 0.2), transparent 45%),
+    #081016;
+  background-size: 32px 32px, 32px 32px, auto, auto;
+}
+
+.stage[data-era='ai'] {
+  --era-accent: #b9c2c7;
+  --era-background:
+    radial-gradient(circle at 68% 42%, rgba(197, 208, 213, 0.1), transparent 38%),
+    #050708;
+}
+
+.stage[data-era='delta'] {
+  --era-accent: #65c4b3;
+  --era-background:
+    radial-gradient(circle at 70% 45%, rgba(45, 145, 132, 0.19), transparent 43%),
+    linear-gradient(135deg, #07110f, #090d14 72%);
+}
+
+.stage[data-era='vision'] {
+  --era-accent: #c39bd3;
+  --era-background:
+    radial-gradient(circle at 70% 42%, rgba(151, 92, 174, 0.2), transparent 44%),
+    linear-gradient(145deg, #100b15, #080b10 72%);
 }
 
 body[data-mode='compact'] .stage {
@@ -184,10 +216,23 @@ body[data-mode='static'] .stage__scene {
   transition: transform 700ms ease;
 }
 
-/* The fragmented workspace deliberately fills the field. Pull it toward the
-   right to preserve a real narration rail rather than covering its first tool. */
-.stage[data-act='fragments'] .stage__scene {
-  transform: translateX(4vw) scale(0.72);
+/* Desktop uses a true narration column. The artifact field is reduced and
+   shifted into the remaining space instead of sitting beneath the overlay. */
+body:not([data-mode='compact']):not([data-mode='static']) .stage__scene {
+  transform: translateX(8vw) scale(0.82);
+  transform-origin: center;
+}
+
+body:not([data-mode='compact']):not([data-mode='static'])
+  .stage[data-act='fragments']
+  .stage__scene {
+  transform: translateX(8vw) scale(0.7);
+}
+
+body:not([data-mode='compact']):not([data-mode='static'])
+  .stage:is([data-act='conversation'], [data-act='tube'])
+  .stage__scene {
+  transform: translateX(8vw) scale(0.78);
   transform-origin: center;
 }
 
@@ -207,16 +252,104 @@ body[data-mode='static'] .stage__scene {
   z-index: 2;
 }
 
+.paradigm-threshold {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  background: #020303;
+  color: var(--paper);
+}
+
+.paradigm-threshold[hidden] {
+  display: none;
+}
+
+.paradigm-threshold__monolith {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: clamp(5rem, 8vw, 7.5rem);
+  height: min(52vh, 29rem);
+  transform-origin: center;
+  background: linear-gradient(100deg, #050607, #15181b 48%, #030404);
+  border: 1px solid rgba(239, 230, 210, 0.2);
+  box-shadow: 0 0 5rem rgba(205, 196, 178, 0.08);
+}
+
+.paradigm-threshold[data-variant='delta'] {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(199, 164, 215, 0.09), transparent 24rem),
+    #030305;
+}
+
+.paradigm-threshold[data-variant='delta'] .paradigm-threshold__monolith {
+  width: clamp(0.35rem, 0.55vw, 0.6rem);
+  background: #d2addf;
+  border: 0;
+  box-shadow: 0 0 4rem rgba(199, 164, 215, 0.42);
+}
+
+.paradigm-threshold[data-variant='question'] {
+  background:
+    linear-gradient(90deg, transparent 49.9%, rgba(199, 164, 215, 0.18) 50%, transparent 50.1%),
+    #07050a;
+}
+
+.paradigm-threshold[data-variant='question'] .paradigm-threshold__monolith {
+  width: min(58vw, 48rem);
+  height: 1px;
+  background: #c7a4d7;
+  border: 0;
+  box-shadow: 0 0 3rem rgba(199, 164, 215, 0.28);
+}
+
+.paradigm-threshold__title,
+.paradigm-threshold__turn {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  width: min(42rem, calc(100vw - 2 * var(--gutter)));
+  transform: translateX(-50%);
+  margin: 0;
+  text-align: center;
+  text-shadow: 0 2px 18px #000;
+}
+
+.paradigm-threshold__title {
+  bottom: 12vh;
+  font-family: var(--sans);
+  font-size: clamp(1.9rem, 4.5vw, 4.4rem);
+  font-weight: 560;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.paradigm-threshold__turn {
+  bottom: 10vh;
+  color: var(--on-field);
+  font-size: clamp(1.2rem, 2vw, 1.75rem);
+  line-height: 1.35;
+}
+
+.paradigm-threshold[data-variant='delta'] .paradigm-threshold__title,
+.paradigm-threshold[data-variant='question'] .paradigm-threshold__title {
+  color: #d7b7e4;
+}
+
 .story-station {
   position: absolute;
   left: var(--gutter);
-  top: clamp(5.5rem, 10vh, 8rem);
-  width: min(22rem, calc(100vw - 2 * var(--gutter)));
+  top: clamp(7.5rem, 14vh, 10rem);
+  width: min(20rem, calc(100vw - 2 * var(--gutter)));
   color: var(--paper);
   font-family: var(--sans);
-  padding: 1.15rem 2rem 1.25rem 1.25rem;
-  background: linear-gradient(90deg, rgba(6, 7, 9, 0.97) 0%, rgba(6, 7, 9, 0.86) 76%, transparent 100%);
-  border-left: 3px solid var(--amber);
+  padding: 1.15rem 1.25rem 1.25rem;
+  background: rgba(5, 7, 9, 0.88);
+  border: 1px solid color-mix(in srgb, var(--era-accent) 28%, transparent);
+  border-left: 3px solid var(--era-accent);
+  box-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
   text-shadow: 0 1px 12px var(--field), 0 1px 3px var(--field);
 }
 
@@ -271,7 +404,7 @@ body[data-mode='static'] .stage__scene {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  background: var(--amber);
+  background: var(--era-accent);
   box-shadow: 0 0 0 0 rgba(217, 164, 65, 0.5);
 }
 
@@ -291,7 +424,7 @@ body[data-mode='static'] .stage__scene {
 
 .story-station__chapter {
   margin: 0 0 0.55rem;
-  color: var(--amber);
+  color: var(--era-accent);
   font-size: 0.74rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -309,7 +442,7 @@ body[data-mode='static'] .stage__scene {
 .story-station__copy {
   margin: 0;
   max-width: 25rem;
-  color: var(--amber);
+  color: var(--era-accent);
   font-size: clamp(1.08rem, 1.6vw, 1.35rem);
   line-height: 1.28;
 }
@@ -335,6 +468,70 @@ body[data-mode='static'] .stage__scene {
   line-height: 1.45;
 }
 
+.story-annotation {
+  position: absolute;
+  width: min(18rem, 24vw);
+  transform: rotate(-2deg);
+  color: color-mix(in srgb, var(--era-accent) 84%, white);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.72));
+}
+
+.story-annotation[data-placement='upper-right'] {
+  top: clamp(8rem, 20vh, 12rem);
+  right: clamp(2rem, 6vw, 6rem);
+}
+
+.story-annotation[data-placement='middle-right'] {
+  top: 42%;
+  right: clamp(1.5rem, 4vw, 4rem);
+}
+
+.story-annotation[data-placement='lower-right'] {
+  right: clamp(1.5rem, 5vw, 5rem);
+  bottom: clamp(7rem, 14vh, 9rem);
+}
+
+.story-annotation[data-placement='lower-middle'] {
+  left: clamp(38rem, 48vw, 50rem);
+  bottom: clamp(7rem, 13vh, 8.5rem);
+}
+
+.story-annotation__label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-family: var(--sans);
+  font-size: 0.58rem;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.story-annotation__copy {
+  margin: 0;
+  padding: 0.15rem 0.28rem;
+  background: rgba(3, 5, 7, 0.58);
+  box-decoration-break: clone;
+  font-family: var(--hand);
+  font-size: clamp(1.3rem, 2vw, 1.85rem);
+  line-height: 1.05;
+}
+
+.story-annotation.is-entering {
+  animation: annotation-enter 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes annotation-enter {
+  from {
+    opacity: 0;
+    transform: translate(0.8rem, 0.5rem) rotate(1deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(-2deg);
+  }
+}
+
 body[data-mode='compact'] .story-station {
   top: 4.6rem;
   bottom: auto;
@@ -353,6 +550,18 @@ body[data-mode='compact'] .story-station__title {
 body[data-mode='compact'] .story-station__body {
   max-width: 23rem;
   font-size: 0.88rem;
+}
+
+body[data-mode='compact'] .story-annotation {
+  top: auto;
+  left: auto;
+  right: var(--gutter);
+  bottom: 6.5rem;
+  width: min(14rem, 62vw);
+}
+
+body[data-mode='compact'] .story-annotation__copy {
+  font-size: 1.15rem;
 }
 
 .fragment {
@@ -442,132 +651,187 @@ body[data-mode='static'] .stage__foreground {
 }
 
 /* --------------------------------------------------------------------------
-   Margin navigator — an editorial annotation, not a stepper
+   Era navigator — five independent progress tracks
    -------------------------------------------------------------------------- */
 
 .stage__nav {
   position: absolute;
-  right: var(--gutter);
-  top: 50%;
-  transform: translateY(-50%);
+  z-index: 6;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem var(--gutter) 0.9rem;
+  background: linear-gradient(to bottom, rgba(4, 6, 8, 0.94), rgba(4, 6, 8, 0.72) 72%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .actnav {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(9rem, 13rem);
+  align-items: end;
+  gap: clamp(1rem, 3vw, 3rem);
 }
 
 .actnav__header {
-  max-width: 12rem;
-}
-
-.actnav__chapter {
-  margin: 0 0 0.45rem;
-  color: var(--on-field-dim);
-  font-size: 0.68rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  min-width: 0;
+  text-align: right;
 }
 
 .actnav__station {
-  margin: 0 0 0.3rem;
+  overflow: hidden;
+  margin: 0 0 0.05rem;
   color: var(--paper);
-  font-size: 1.05rem;
-  line-height: 1.1;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .actnav__list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(5.5rem, 1fr));
+  gap: clamp(0.6rem, 1.5vw, 1.5rem);
   margin: 0;
   padding: 0;
   list-style: none;
-  display: grid;
-  gap: 0.55rem;
 }
 
 .actnav__link {
-  display: grid;
-  grid-template-columns: 1.6rem 0.75rem auto;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
+  display: block;
   color: var(--on-field-dim);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  text-decoration: none;
   transition: color 300ms ease;
 }
 
+.actnav__item {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.actnav__label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.actnav__num,
+.actnav__title {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .actnav__num {
+  flex: none;
   font-variant-numeric: tabular-nums;
 }
 
-.actnav__dot {
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
-  transition: opacity 300ms ease, transform 300ms ease;
+.actnav__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.actnav__title {
-  opacity: 0;
-  transition: opacity 300ms ease;
+.actnav__track {
+  position: relative;
+  display: block;
+  height: 3px;
+  background: rgba(205, 196, 178, 0.16);
+}
+
+.actnav__fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: currentColor;
+  transition: transform 120ms linear;
+}
+
+.actnav__stations {
+  position: absolute;
+  inset: -0.45rem 0;
+  display: grid;
+}
+
+.actnav__station-link {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.actnav__station-link::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.32rem;
+  height: 0.32rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(239, 230, 210, 0.52);
+  border-radius: 50%;
+  background: #080b0d;
+  transition: width 180ms ease, height 180ms ease, background 180ms ease;
+}
+
+.actnav__station-link:hover::after,
+.actnav__station-link:focus-visible::after,
+.actnav__station-link.is-current::after {
+  width: 0.62rem;
+  height: 0.62rem;
+  background: var(--era-accent);
+}
+
+.actnav__station-link:focus-visible {
+  outline: none;
 }
 
 .actnav__link:hover,
-.actnav__link:focus-visible {
-  color: var(--paper);
+.actnav__link:focus-visible,
+.actnav__link.is-complete {
+  color: var(--on-field);
 }
 
 .actnav__link.is-current {
-  color: var(--paper);
+  color: var(--era-accent);
 }
 
-.actnav__link.is-current .actnav__dot {
-  opacity: 1;
-  transform: scale(1.7);
-}
-
-.actnav__link.is-current .actnav__title {
-  opacity: 1;
-}
-
-.actnav__item--planned .actnav__link {
-  color: rgba(205, 196, 178, 0.22);
-  cursor: default;
+.actnav__link.is-current + .actnav__track .actnav__fill {
+  background: var(--era-accent);
 }
 
 body[data-mode='compact'] .stage__nav {
-  position: absolute;
-  right: auto;
-  left: 0;
-  bottom: 0;
-  top: auto;
-  transform: none;
-  width: 100%;
-  padding: 0.6rem var(--gutter);
-  background: linear-gradient(to top, var(--field), transparent);
+  padding-right: 0;
+  padding-left: 0;
+}
+
+body[data-mode='compact'] .actnav {
+  display: block;
 }
 
 body[data-mode='compact'] .actnav__list {
-  grid-auto-flow: column;
-  justify-content: start;
-  gap: 0.9rem;
+  grid-template-columns: repeat(5, 8.5rem);
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0 var(--gutter) 0.25rem;
+  scrollbar-width: none;
+}
+
+body[data-mode='compact'] .actnav__list::-webkit-scrollbar {
+  display: none;
 }
 
 body[data-mode='compact'] .actnav__header {
-  max-width: none;
-  padding: 0 0 var(--gutter);
-}
-
-body[data-mode='compact'] .actnav__station {
-  font-size: 0.98rem;
-}
-
-body[data-mode='compact'] .actnav__title,
-body[data-mode='compact'] .actnav__dot {
   display: none;
+}
+
+body[data-mode='compact'] .story-station {
+  top: 7rem;
 }
 
 body[data-mode='static'] .stage__nav {

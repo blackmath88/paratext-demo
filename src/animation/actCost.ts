@@ -11,6 +11,11 @@ export function actCost(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
 
   // Establish a shared pointing position before the system changes the frame.
   tl.set(refs.cost, { opacity: 1 }, 0);
+  tl.to(refs.operations, { opacity: 1, duration: 0.45 }, 0);
+  tl.to(refs.reframeOverview, { opacity: 0.18, duration: 0.45 }, 0);
+  tl.from(refs.cost.querySelector('.cost-concept'), {
+    opacity: 0, y: -8, duration: 0.65, ease: 'power2.out',
+  }, 0);
   tl.from(refs.costTrackedReference, { opacity: 0, duration: 0.45 }, 0);
 
   // The reader does not initiate this transition. claim-presentation travels
@@ -22,7 +27,7 @@ export function actCost(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
   refs.frameFurniture.forEach((group) => {
     tl.set(group, { opacity: group.dataset.frame === 'spec' ? 1 : 0 }, 0.9);
   });
-  tl.set(refs.reframeCurrent, { textContent: 'FRAME / SPEC / SELECTED FOR YOU' }, 0.9);
+  tl.set(refs.reframeCurrent, { textContent: 'DYNAMIC UI / SPEC / PROPOSED' }, 0.9);
   tl.from(refs.costSelectedView, { opacity: 0, y: -5, duration: 0.45 }, 0.78);
 
   // The empty marker stays at the prior coordinate: identity survived, shared

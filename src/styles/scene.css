@@ -740,35 +740,106 @@ text.gloss--ink {
 .ai-input-line,
 .ai-scroll-track,
 .ai-scroll-thumb,
-.ai-tube-surface {
+.ai-tube-spine {
   fill: none;
   stroke: #66717c;
   stroke-width: 0.9;
 }
 
 .ai-screen-frame {
-  fill: rgba(10, 13, 17, 0.78);
-  stroke: #8a949e;
+  fill: #212121;
+  stroke: #4b4b4b;
+}
+
+.ai-sidebar-surface {
+  fill: #171717;
+  stroke: #333;
+  stroke-width: 0.8;
 }
 
 .ai-screen-title,
 .ai-screen-status,
 .ai-input-text,
-.ai-continuation {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+.ai-continuation,
+.ai-sidebar-brand,
+.ai-sidebar-label,
+.ai-sidebar-icon,
+.ai-sidebar-menu,
+.ai-sidebar-section,
+.ai-sidebar-account,
+.ai-input-send-mark {
+  font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
 .ai-screen-title,
 .ai-screen-status {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
+  fill: #ececec;
+}
+
+.ai-screen-status {
+  font-weight: 400;
+  fill: #9b9b9b;
+}
+
+.ai-sidebar-brand {
+  font-size: 16px;
+  font-weight: 650;
+  fill: #f0f0f0;
+}
+
+.ai-sidebar-label,
+.ai-sidebar-icon,
+.ai-sidebar-menu,
+.ai-sidebar-account {
+  font-size: 12px;
+  fill: #d7d7d7;
+}
+
+.ai-sidebar-icon {
+  fill: #aaa;
+}
+
+.ai-sidebar-menu {
+  font-size: 9px;
+  letter-spacing: 0.05em;
+}
+
+.ai-sidebar-section {
+  font-size: 8px;
+  font-weight: 650;
   letter-spacing: 0.14em;
-  fill: #9ba6b0;
+  fill: #777;
+}
+
+.ai-sidebar-item.is-active .ai-sidebar-label {
+  fill: #fff;
+  font-weight: 600;
+}
+
+.ai-sidebar-account {
+  font-weight: 550;
 }
 
 .ai-input-text {
-  font-size: 12px;
-  fill: #69737d;
+  font-size: 13px;
+  fill: #a2a2a2;
+}
+
+.ai-input-line {
+  fill: #2f2f2f;
+  stroke: #555;
+}
+
+.ai-input-send {
+  fill: #ececec;
+}
+
+.ai-input-send-mark {
+  font-size: 15px;
+  font-weight: 700;
+  fill: #202020;
 }
 
 .ai-scroll-track {
@@ -780,10 +851,63 @@ text.gloss--ink {
   stroke-width: 2;
 }
 
-.ai-tube-surface {
-  fill: rgba(8, 11, 15, 0.64);
-  stroke: #4e5862;
-  stroke-width: 0.8;
+.ai-tube-spine {
+  stroke: #66747c;
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+}
+
+.ai-context-window {
+  fill: rgba(21, 30, 35, 0.82);
+  stroke: #c5d0d5;
+  stroke-width: 1.4;
+}
+
+.ai-context-label,
+.ai-context-statement,
+.ai-memory-trace text {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.ai-context-label {
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  fill: #87959d;
+}
+
+.ai-context-label.is-current {
+  fill: #dce4e6;
+}
+
+.ai-context-label.is-lost {
+  fill: #9b6762;
+}
+
+.ai-context-label.is-incoming {
+  fill: #89a99f;
+}
+
+.ai-context-statement {
+  font-size: 18px;
+  font-weight: 520;
+  fill: #eef0eb;
+}
+
+.ai-memory-trace path {
+  fill: none;
+  stroke: #66747c;
+  stroke-width: 1;
+}
+
+.ai-memory-trace text {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  fill: #8e999e;
+}
+
+.ai-memory-trace:nth-child(-n + 3) {
+  opacity: 0.34;
 }
 
 .ai-continuation {
@@ -832,7 +956,9 @@ text.gloss--ink {
 .recovery-apparatus-title,
 .recovery-apparatus-note,
 .recovery-identifier,
-.recovery-supersession-label {
+.recovery-supersession-label,
+.recovery-paradigm,
+.recovery-cursor text {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -853,6 +979,24 @@ text.gloss--ink {
 .recovery-apparatus-note {
   font-size: 9px;
   fill: #68737d;
+}
+
+.recovery-paradigm {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  fill: #65c4b3;
+}
+
+.recovery-cursor path {
+  fill: none;
+  stroke: #65c4b3;
+  stroke-width: 1.5;
+}
+
+.recovery-cursor text {
+  font-size: 11px;
+  fill: #b8d8d1;
 }
 
 .recovery-identifier {
@@ -884,10 +1028,28 @@ text.gloss--ink {
 
 .cost-tracking-label,
 .cost-selected-view,
-.cost-consequence {
+.cost-consequence,
+.cost-concept-title,
+.cost-concept-node {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 9px;
   letter-spacing: 0.11em;
+}
+
+.cost-concept-title {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #c39bd3;
+}
+
+.cost-concept-node {
+  fill: #c7bccb;
+}
+
+.cost-concept-arrow {
+  fill: none;
+  stroke: #8d7298;
+  stroke-width: 1;
 }
 
 .cost-tracking-label {
@@ -957,6 +1119,146 @@ text.gloss--ink {
   font-weight: 700;
   letter-spacing: 0.14em;
   fill: #d0cabd;
+}
+
+.delta-model-panel {
+  fill: rgba(8, 11, 13, 0.9);
+  stroke-width: 1;
+}
+
+.delta-model-panel--before {
+  stroke: #635f5a;
+}
+
+.delta-model-panel--after {
+  fill: rgba(13, 10, 16, 0.94);
+  stroke: #a783b6;
+}
+
+.delta-model-kicker,
+.delta-step-number,
+.delta-step-title,
+.delta-pivot-label,
+.delta-db-title,
+.delta-checkout-title,
+.delta-thread-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.delta-model-kicker {
+  font-size: 10px;
+  fill: #b3aaa0;
+}
+
+.delta-after .delta-model-kicker {
+  fill: #cda8dc;
+}
+
+.delta-model-title {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  fill: #e3ddd0;
+}
+
+.delta-step-number {
+  font-size: 9px;
+  fill: #77736e;
+}
+
+.delta-step-title {
+  font-size: 11px;
+  fill: #c4bdb2;
+}
+
+.delta-step-note,
+.delta-db-note,
+.delta-checkout-note,
+.delta-thread-note {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  fill: #8f8b84;
+}
+
+.delta-step-line,
+.delta-pivot-arrow,
+.delta-model-relation {
+  fill: none;
+  stroke-width: 1;
+}
+
+.delta-step-line {
+  stroke: #56534f;
+}
+
+.delta-pivot-arrow {
+  stroke: #c19bd0;
+  stroke-width: 1.5;
+}
+
+.delta-pivot-label {
+  font-size: 8px;
+  fill: #aa89b7;
+}
+
+.delta-db-node {
+  fill: rgba(174, 128, 195, 0.14);
+  stroke: #b68bc8;
+  stroke-width: 1.2;
+}
+
+.delta-db-title {
+  font-size: 13px;
+  fill: #dec0ea;
+}
+
+.delta-db-note {
+  fill: #bda9c4;
+}
+
+.delta-model-relation {
+  stroke: #8d7298;
+}
+
+.delta-checkout-node {
+  fill: rgba(255, 255, 255, 0.025);
+  stroke: #76677c;
+}
+
+.delta-checkout-title {
+  font-size: 9px;
+  fill: #d0c4d4;
+}
+
+.delta-thread-node {
+  fill: rgba(174, 128, 195, 0.08);
+  stroke: #9a74aa;
+  stroke-width: 1.2;
+}
+
+.delta-thread-title {
+  font-size: 11px;
+  fill: #dcbde8;
+}
+
+.delta-thread-note {
+  fill: #bdb4c0;
+}
+
+.delta-model-warning,
+.delta-model-success {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+}
+
+.delta-model-warning {
+  fill: #b97b72;
+}
+
+.delta-model-success {
+  fill: #c6a6d2;
 }
 
 /* --------------------------------------------------------------------------
