@@ -20,7 +20,6 @@ import './styles/scene.css';
 import { buildMaster, type Master } from './animation/master';
 import { acts, actAnnotations, actAt, settlePoints, eraForAct, type Act } from './data/acts';
 import { buildNavigation, type Navigation } from './navigation/actNavigation';
-import { buildFrameSwitcher, type FrameSwitcher } from './navigation/frameSwitcher';
 import { buildScene, type SceneRefs } from './scene/scene';
 import { detectMode, onModeChange, type Mode } from './utils/env';
 
@@ -28,7 +27,6 @@ const stage = document.querySelector<HTMLElement>('#stage');
 const sceneMount = document.querySelector<HTMLElement>('#scene-mount');
 const navMount = document.querySelector<HTMLElement>('#nav-mount');
 const foreground = document.querySelector<HTMLElement>('#foreground');
-const frameSwitcherMount = document.querySelector<HTMLElement>('#frame-switcher');
 const enterButton = document.querySelector<HTMLButtonElement>('#enter-animation');
 const transport = document.querySelector<HTMLElement>('#transport');
 const backButton = document.querySelector<HTMLButtonElement>('#transport-back');
@@ -38,8 +36,8 @@ const transportStatus = document.querySelector<HTMLElement>('#transport-status')
 const transportPrompt = document.querySelector<HTMLElement>('#transport-prompt');
 
 if (
-  !stage || !sceneMount || !navMount || !foreground || !frameSwitcherMount
-  || !enterButton || !transport || !backButton || !playButton || !nextButton
+  !stage || !sceneMount || !navMount || !foreground || !enterButton
+  || !transport || !backButton || !playButton || !nextButton
   || !transportStatus || !transportPrompt
 ) {
   throw new Error('main: required mount points are missing from the document');
@@ -58,14 +56,6 @@ let mode: Mode = detectMode();
 document.body.dataset.mode = mode;
 
 const refs: SceneRefs = buildScene(sceneMount);
-const projections = acts.find((act) => act.id === 'projections');
-const projectionsSettle = projections
-  ? projections.start + (projections.end - projections.start) * projections.settle
-  : 1;
-const cost = acts.find((act) => act.id === 'cost');
-const costSettle = cost
-  ? cost.start + (cost.end - cost.start) * cost.settle
-  : 1;
 
 // ---------------------------------------------------------------------------
 // Foreground story layer
@@ -220,7 +210,6 @@ function buildStoryOverlay(mount: HTMLElement): StoryOverlay {
 
 let master: Master | undefined;
 let navigation: Navigation | undefined;
-let frameSwitcher: FrameSwitcher | undefined;
 let staticObserver: IntersectionObserver | undefined;
 let storyOverlay: StoryOverlay | undefined;
 let renderedProgress = 0;
@@ -431,14 +420,6 @@ function onProgress(progress: number): void {
   // stays clickable — and shows a pointer cursor — for the whole piece.
   refs.appAction.style.pointerEvents = actionAvailable ? 'auto' : 'none';
   navigation?.update(progress);
-  const costIsMoving = Boolean(
-    cost && progress >= cost.start - 0.001 && progress < costSettle - 0.001,
-  );
-  const authoredFrame = cost && progress >= costSettle - 0.001 ? 'spec' : 'essay';
-  frameSwitcher?.setEnabled(
-    progress >= projectionsSettle - 0.001 && !costIsMoving,
-    authoredFrame,
-  );
   updateTransport();
 }
 
@@ -489,7 +470,6 @@ function attachStaticObserver(current: Master): void {
 
 function boot(initialProgress = 0): void {
   master = buildMaster(refs, mode, onProgress);
-  frameSwitcher = buildFrameSwitcher(frameSwitcherMount!, refs, mode);
   storyOverlay = buildStoryOverlay(foreground!);
   navigation = buildNavigation(navMount!, requestAct, startupActId);
   startupActId = undefined;
@@ -518,8 +498,6 @@ function teardown(): void {
   window.removeEventListener('keydown', handleKeydown);
   navigation?.destroy();
   navigation = undefined;
-  frameSwitcher?.destroy();
-  frameSwitcher = undefined;
   storyOverlay?.destroy();
   storyOverlay = undefined;
   master?.destroy();

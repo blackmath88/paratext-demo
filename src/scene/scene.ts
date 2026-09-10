@@ -137,14 +137,13 @@ export type SceneRefs = {
   recovery: SVGGElement;
   recoverySegment: SVGGElement;
   recoveryToolApparatus: SVGGElement;
-  recoveryIdentifiers: SVGGElement;
-  recoverySupersession: SVGGElement;
+  recoveryAppendInput: SVGGElement;
+  recoveryInsertions: SVGGElement[];
   cost: SVGGElement;
-  costTrackedReference: SVGGElement;
-  costSelectedView: SVGTextElement;
-  costConsequences: SVGGElement;
+  costProjectionStages: SVGGElement[];
   open: SVGGElement;
   openQuestion: SVGTextElement;
+  openSupport: SVGTextElement;
   materialState: MaterialState;
   /** Live geometry shared by every act that transforms the material leaf. */
   leafState: LeafFrameState;
@@ -199,10 +198,10 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     'That application separates into specialized tool windows. ' +
     'Those frames then converge on a calm AI conversation whose turns accumulate until the screen ' +
     'is revealed as a small viewport onto a much longer chronological stream. The stream then ' +
-    'recovers segmentation, apparatus, stable addresses and explicit supersession before the ' +
-    'same operations recompose into several coherent projections. One projection then changes ' +
-    'without the reader asking, displacing a tracked claim and its shared pointing position. ' +
-    'The operation field remains visible under the final question: What should this thread become?';
+    'becomes a spatially authorable canvas, with writing attached beside paragraphs, code and artifacts. ' +
+    'Delta DB then holds shared file state while coherent checkout views support development in threads. ' +
+    'The same durable operations finally move through thread, document and review projections before ' +
+    'the piece concludes: a thread may begin as conversation; it does not have to remain one.';
 
   svg.appendChild(title);
   svg.appendChild(desc);
@@ -327,14 +326,13 @@ export function buildScene(mount: HTMLElement): SceneRefs {
     recovery: must(svg, '#recovery-apparatus'),
     recoverySegment: must(svg, '#recovery-segment'),
     recoveryToolApparatus: must(svg, '#recovery-tool-apparatus'),
-    recoveryIdentifiers: must(svg, '#recovery-identifiers'),
-    recoverySupersession: must(svg, '#recovery-supersession'),
+    recoveryAppendInput: must(svg, '#recovery-append-input'),
+    recoveryInsertions: [...svg.querySelectorAll<SVGGElement>('.recovery-insertion')],
     cost: must(svg, '#cost-annotations'),
-    costTrackedReference: must(svg, '#cost-tracked-reference'),
-    costSelectedView: must(svg, '#cost-selected-view'),
-    costConsequences: must(svg, '#cost-consequences'),
+    costProjectionStages: [...svg.querySelectorAll<SVGGElement>('.cost-projection-stage')],
     open: must(svg, '#open-question'),
     openQuestion: must(svg, '.open-question-text'),
+    openSupport: must(svg, '.open-support-text'),
     materialState: {
       mode: 'paper',
       fieldColor: '#0b0d10',

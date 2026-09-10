@@ -99,8 +99,8 @@ export function buildMaster(
   gsap.set(refs.page, { x: 0, y: 0, scale: 1, transformOrigin: '50% 46%' });
   gsap.set(refs.surface, { x: 0, y: 0, scale: 1 });
 
-  // Everything downstream — foreground copy, navigator, frame switcher and
-  // transport — reads the progress the scene is actually rendering.
+  // Everything downstream — foreground copy, navigator and transport — reads
+  // the progress the scene is actually rendering.
   const timeline = gsap.timeline({
     paused: true,
     onUpdate: () => onProgress(timeline.progress()),

@@ -4,13 +4,6 @@ export type FrameId = 'essay' | 'thread' | 'structure' | 'spec';
 export type OperationPlacement = { x: number; y: number; scale: number; opacity: number };
 export type OperationLayout = Record<string, OperationPlacement>;
 
-export const FRAME_LABELS: Record<FrameId, string> = {
-  essay: 'Read',
-  thread: 'Thread',
-  structure: 'Structure',
-  spec: 'Spec',
-};
-
 const point = (x: number, y: number, scale = 0.88, opacity = 1): OperationPlacement => ({ x, y, scale, opacity });
 
 export function overviewLayout(): OperationLayout {
@@ -34,17 +27,17 @@ export function overviewLayout(): OperationLayout {
 
 export function frameLayout(frame: FrameId): OperationLayout {
   if (frame === 'thread') {
-    return Object.fromEntries(OPERATIONS.map((operation, i) => [operation.id, point(250, 150 + i * 39, 0.86)]));
+    return Object.fromEntries(OPERATIONS.map((operation, i) => [operation.id, point(430, 230 + i * 34, 0.82)]));
   }
 
   if (frame === 'structure') {
-    const columns: Record<string, number> = { question: 190, open: 190, claim: 470, source: 750, tool: 750, decision: 1010, superseded: 1010, artifact: 750 };
+    const columns: Record<string, number> = { question: 410, open: 410, claim: 650, source: 880, tool: 880, decision: 1100, superseded: 1100, artifact: 880 };
     const counts = new Map<number, number>();
     return Object.fromEntries(OPERATIONS.map((operation) => {
       const x = columns[operation.kind] ?? 750;
       const slot = counts.get(x) ?? 0;
       counts.set(x, slot + 1);
-      return [operation.id, point(x, 190 + slot * 82, 0.78)];
+      return [operation.id, point(x, 250 + slot * 76, 0.76)];
     }));
   }
 
@@ -64,8 +57,8 @@ export function frameLayout(frame: FrameId): OperationLayout {
   let aside = 0;
   return Object.fromEntries(OPERATIONS.map((operation) => {
     const index = order.indexOf(operation.id);
-    if (index >= 0) return [operation.id, point(270, 160 + index * 48, 0.9)];
-    const placement = point(950, 220 + aside++ * 64, 0.72, 0.42);
+    if (index >= 0) return [operation.id, point(430, 250 + index * 43, 0.84)];
+    const placement = point(1010, 280 + aside++ * 62, 0.7, 0.42);
     return [operation.id, placement];
   }));
 }

@@ -51,11 +51,15 @@ universal interface.
   changes the game,” and “What now?”
 - The AI sequence uses a recognizable ChatGPT window and visualizes the
   conversation growing while usable context recedes.
+- Type Anywhere first shows chat’s single bottom input, then replaces it with
+  three insertions anchored beside a paragraph, code output, and an artifact.
 - The Delta DB scene compares a conventional VS Code, Git, and pull-request
   workflow with shared state, coherent checkouts, and a thread as the
   development room.
-- The final scenes clearly distinguish existing Delta ideas from the proposed
-  extension toward virtualized interface views.
+- The proposed extension now uses one operation field moving through only
+  Thread, Document, and Review projections.
+- The final landing clears the explanatory furniture and holds the proposition:
+  “A thread may begin as conversation. It does not have to remain one.”
 
 ## What works well
 
@@ -78,17 +82,10 @@ universal interface.
 - Later digital scenes are denser and lower-contrast than the paper sequence;
   important details can become too small beside the narration rail.
 - Narration is clear but occasionally feels like a slide caption rather than
-  something emerging from the visual field.
-- Handwritten notes should eventually use target-specific SVG leaders anchored
-  to real scene geometry. A note should be omitted when there is no meaningful
-  target.
-- “Type anywhere” needs a larger, more unmistakable visual demonstration of
-  writing in several spatial locations.
-- The proposed-extension scene carries too many simultaneous explanations. One
-  clear morph from a thread into two or three coherent projections would be
-  stronger.
-- The ending is intentionally open, but its visual payoff is quieter than the
-  paper, AI, and Delta transitions.
+  something emerging from the visual field. The finishing pass removes the
+  late annotations where the animation itself now provides the evidence.
+- The final projection still depends on motion to prove object continuity; its
+  settled screenshot documents the Review state rather than the whole claim.
 - A browser smoke test should visit every station. Static builds did not catch a
   stale SVG selector after the Delta scene was redesigned; the screenshot pass
   did.

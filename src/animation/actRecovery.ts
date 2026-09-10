@@ -1,4 +1,4 @@
-/** Recovery. The chronological stream rediscovers framing apparatus. */
+/** Type Anywhere. An append-only stream becomes spatially authorable. */
 
 import gsap from 'gsap';
 import { OPERATIONS } from '../data/operations';
@@ -28,10 +28,10 @@ export function actRecovery(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
   tl.from(refs.recoverySegment.querySelector('.recovery-paradigm'), {
     opacity: 0, x: -8, duration: 0.45, ease: 'power2.out',
   }, 0.55);
-  tl.from(refs.recoverySegment.querySelectorAll('.recovery-cursor'), {
-    opacity: 0, scaleX: 0, transformOrigin: 'left', duration: 0.5, stagger: 0.18,
-  }, 0.92);
-  tl.to(refs.aiConversation, { opacity: 0.025, duration: 0.65 }, 0.08);
+  tl.from(refs.recoveryAppendInput, {
+    opacity: 0, y: 8, duration: 0.5, ease: 'power2.out',
+  }, 0.55);
+  tl.to(refs.aiConversation, { opacity: 0, duration: 0.65 }, 0.08);
   tl.to(refs.page, { opacity: 0, duration: 0.55 }, 0.08);
 
   let primary = 0;
@@ -60,33 +60,36 @@ export function actRecovery(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
     }, { duration: 0.85, ease: 'power3.inOut' }, 0.88 + toolSlot * 0.08);
   });
 
-  // 3. Addressability: folio-like stable identifiers appear in the margin.
-  tl.from(refs.recoveryIdentifiers.querySelectorAll('.recovery-identifier'), {
-    opacity: 0,
-    x: -6,
-    duration: 0.35,
-    stagger: 0.025,
-    ease: 'power2.out',
-  }, 1.38);
-
-  // 4. Supersession: the editorial strike preserves history and names its
-  // relation to the decision that replaced it.
-  tl.from(refs.recoverySupersession.querySelector('.recovery-strike'), {
-    strokeDasharray: 420,
-    strokeDashoffset: 420,
-    duration: 0.5,
-    ease: 'power2.inOut',
-  }, 1.9);
-  tl.from(refs.recoverySupersession.querySelector('.recovery-supersession-relation'), {
-    strokeDasharray: 140,
-    strokeDashoffset: 140,
-    duration: 0.55,
-    ease: 'power2.inOut',
-  }, 2.05);
-  tl.from(refs.recoverySupersession.querySelector('.recovery-supersession-label'), {
-    opacity: 0,
-    duration: 0.4,
-  }, 2.28);
+  // 3. The spatial rule changes. The single append-only input recedes; focus
+  // attaches successively beside a paragraph, tool output and artifact.
+  tl.to(refs.recoveryAppendInput, {
+    opacity: 0, y: 8, duration: 0.4, ease: 'power2.in',
+  }, 1.48);
+  refs.recoveryInsertions.forEach((insertion, index) => {
+    const at = 1.72 + index * 0.62;
+    tl.from(insertion.querySelector('.recovery-focus-ring'), {
+      opacity: 0,
+      scale: 0.35,
+      transformOrigin: 'center',
+      duration: 0.32,
+      ease: 'back.out(2)',
+    }, at);
+    tl.from(insertion.querySelector('.recovery-anchor-line'), {
+      strokeDasharray: 260,
+      strokeDashoffset: 260,
+      duration: 0.42,
+      ease: 'power2.inOut',
+    }, at + 0.12);
+    tl.from(insertion.querySelectorAll(
+      '.recovery-insertion-location, .recovery-insertion-copy, .recovery-insertion-cursor',
+    ), {
+      opacity: 0,
+      x: -6,
+      duration: 0.36,
+      stagger: 0.06,
+      ease: 'power2.out',
+    }, at + 0.34);
+  });
 
   return tl;
 }

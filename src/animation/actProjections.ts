@@ -1,34 +1,8 @@
-/** Projections. One operation field composes several coherent unities. */
+/** Virtualized state. Shared state fans out into coherent checkout views. */
 
 import gsap from 'gsap';
-import { frameLayout, type FrameId } from './operationLayouts';
 import type { SceneRefs } from '../scene/scene';
 import type { Mode } from '../utils/env';
-import { tweenOperationLayout } from './operations';
-
-function arrange(
-  tl: gsap.core.Timeline,
-  refs: SceneRefs,
-  frame: FrameId,
-  position: number,
-  duration: number,
-): void {
-  tweenOperationLayout(tl, refs, frameLayout(frame), {
-    duration,
-    ease: 'power3.inOut',
-  }, position);
-}
-
-function showFurniture(
-  tl: gsap.core.Timeline,
-  refs: SceneRefs,
-  frame: FrameId,
-  position: number,
-): void {
-  refs.frameFurniture.forEach((group) => {
-    tl.set(group, { opacity: group.dataset.frame === frame ? 1 : 0 }, position);
-  });
-}
 
 export function actProjections(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
@@ -43,19 +17,9 @@ export function actProjections(refs: SceneRefs, _mode: Mode): gsap.core.Timeline
   tl.from(after, { opacity: 0, x: 18, duration: 0.7, ease: 'power2.out' }, 0.9);
   tl.to(refs.recovery, { opacity: 0, duration: 0.55 }, 0);
   tl.to(refs.aiConversation, { opacity: 0, duration: 0.35 }, 0);
-  tl.to(refs.operations, { opacity: 0.12, duration: 0.45 }, 0);
-
-  arrange(tl, refs, 'structure', 0.08, 0.78);
-  showFurniture(tl, refs, 'structure', 0.32);
-  tl.set(refs.reframeCurrent, { textContent: 'PARADIGM SHIFT 02 / CHECKOUT AS VIEW' }, 0.32);
-
-  arrange(tl, refs, 'spec', 1.05, 0.82);
-  showFurniture(tl, refs, 'spec', 1.34);
-  tl.set(refs.reframeCurrent, { textContent: 'CHECKOUT / CODE' }, 1.34);
-
-  arrange(tl, refs, 'essay', 2.08, 0.9);
-  showFurniture(tl, refs, 'essay', 2.42);
-  tl.set(refs.reframeCurrent, { textContent: 'CHECKOUT / REVIEW' }, 2.42);
+  tl.to(refs.operations, { opacity: 0, duration: 0.35 }, 0);
+  tl.set(refs.frameFurniture, { opacity: 0 }, 0);
+  tl.set(refs.reframeCurrent, { opacity: 0 }, 0);
 
   return tl;
 }

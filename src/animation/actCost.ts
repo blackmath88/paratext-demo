@@ -1,4 +1,4 @@
-/** The cost. A projection changes while the reader is tracking an operation. */
+/** Proposed extension. One durable operation field changes projection. */
 
 import gsap from 'gsap';
 import { frameLayout } from './operationLayouts';
@@ -9,36 +9,63 @@ import { tweenOperationLayout } from './operations';
 export function actCost(refs: SceneRefs, _mode: Mode): gsap.core.Timeline {
   const tl = gsap.timeline();
 
-  // Establish a shared pointing position before the system changes the frame.
+  const showFurniture = (frame: 'thread' | 'essay' | 'structure', at: number) => {
+    refs.frameFurniture.forEach((group) => {
+      tl.set(group, { opacity: group.dataset.frame === frame ? 1 : 0 }, at);
+    });
+  };
+  const activateStage = (index: number, at: number) => {
+    refs.costProjectionStages.forEach((stage, stageIndex) => {
+      tl.to(stage, {
+        opacity: stageIndex === index ? 1 : 0.28,
+        duration: 0.3,
+      }, at);
+    });
+  };
+
   tl.set(refs.cost, { opacity: 1 }, 0);
+  tl.set(refs.costProjectionStages, { opacity: 0.28 }, 0);
   tl.to(refs.operations, { opacity: 1, duration: 0.45 }, 0);
-  tl.to(refs.reframeOverview, { opacity: 0.18, duration: 0.45 }, 0);
-  tl.from(refs.cost.querySelector('.cost-concept'), {
+  tl.to(refs.reframeOverview, { opacity: 0, duration: 0.35 }, 0);
+  tl.set(refs.reframeCurrent, { opacity: 0 }, 0);
+  tl.from(refs.cost.querySelectorAll(
+    '.cost-projection-title, .cost-projection-rail, .cost-projection-continuity',
+  ), {
     opacity: 0, y: -8, duration: 0.65, ease: 'power2.out',
   }, 0);
-  tl.from(refs.costTrackedReference, { opacity: 0, duration: 0.45 }, 0);
 
-  // The reader does not initiate this transition. claim-presentation travels
-  // from the Read column into Spec's subordinate context; it is never removed.
-  tweenOperationLayout(tl, refs, frameLayout('spec'), {
-    duration: 1.05,
+  // Begin in a chronological thread, then recompose exactly the same operation
+  // nodes as a document and a review surface. Identity belongs to the object;
+  // arrangement belongs to the projection.
+  tweenOperationLayout(tl, refs, frameLayout('thread'), {
+    duration: 0.72,
     ease: 'power3.inOut',
-  }, 0.62);
-  refs.frameFurniture.forEach((group) => {
-    tl.set(group, { opacity: group.dataset.frame === 'spec' ? 1 : 0 }, 0.9);
-  });
-  tl.set(refs.reframeCurrent, { textContent: 'DYNAMIC UI / SPEC / PROPOSED' }, 0.9);
-  tl.from(refs.costSelectedView, { opacity: 0, y: -5, duration: 0.45 }, 0.78);
+  }, 0.08);
+  showFurniture('thread', 0.42);
+  activateStage(0, 0.42);
 
-  // The empty marker stays at the prior coordinate: identity survived, shared
-  // spatial certainty did not.
-  tl.from(refs.costConsequences.querySelectorAll('.cost-consequence'), {
-    opacity: 0,
-    x: 8,
-    duration: 0.4,
-    stagger: 0.1,
-    ease: 'power2.out',
-  }, 1.62);
+  tweenOperationLayout(tl, refs, frameLayout('essay'), {
+    duration: 0.82,
+    ease: 'power3.inOut',
+  }, 1.5);
+  showFurniture('essay', 1.84);
+  activateStage(1, 1.84);
+
+  tweenOperationLayout(tl, refs, frameLayout('structure'), {
+    duration: 0.88,
+    ease: 'power3.inOut',
+  }, 2.72);
+  showFurniture('structure', 3.08);
+  activateStage(2, 3.08);
+
+  refs.costProjectionStages.forEach((stage) => {
+    tl.from(stage.querySelector('.cost-projection-node'), {
+      scale: 0,
+      transformOrigin: 'center',
+      duration: 0.28,
+      ease: 'back.out(2)',
+    }, 0.25);
+  });
 
   return tl;
 }

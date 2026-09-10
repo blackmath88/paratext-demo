@@ -39,15 +39,6 @@ export type ExperienceEra = {
   actIds: readonly ActId[];
 };
 
-export type Chapter = {
-  id: SegmentId;
-  number: string;
-  title: string;
-  subtitle: string;
-  support?: string;
-  introActId: ActId;
-};
-
 export type Act = {
   id: ActId;
   segment: SegmentId;
@@ -346,7 +337,7 @@ export const acts: Act[] = [
     threshold: {
       title: 'Delta.dev changes the game.',
       turn: 'Not a better chat. Two changes to the underlying model.',
-      until: 0.3,
+      until: 0.2,
       variant: 'delta',
     },
     number: '11',
@@ -356,15 +347,11 @@ export const acts: Act[] = [
     // Child 2.68s, settle 0.78 (local = t × 0.291). Scored to the segment
     // gaining a boundary and title rule (0–0.242) and then its title and folio
     // (0.122–0.276).
-    thesisAt: { from: 0.3, to: 0.62 },
+    thesisAt: { from: 0.2, to: 0.48 },
     beats: [
-      // A deliberate silence over the tool apparatus (0.256–0.573) and the
-      // identifiers (0.402–0.613): both are legible without being named. The
-      // one idea the picture cannot state is supersession — strike 0.553–0.699,
-      // relation 0.597–0.757, label 0.664–0.780.
-      { text: 'Write beside the work. Comment at the exact place. The thread becomes a canvas.', from: 0.62, to: 0.95 },
+      { text: 'Chat appends. A canvas attaches.', from: 0.48, to: 0.95 },
     ],
-    body: 'A thread becomes a canvas: type anywhere, write beside the work, and attach comments to exact passages. Resolved stretches can close, while old states remain visible without remaining current.',
+    body: 'A conventional chat has one insertion point at the bottom. Delta turns the thread into a canvas: focus beside a paragraph, code result or artifact and write at the exact place where the new contribution belongs.',
     start: 0.766698024,
     end: 0.828786453,
     settle: 0.78,
@@ -399,23 +386,18 @@ export const acts: Act[] = [
     threshold: {
       title: 'What now?',
       turn: 'If file state can have coherent views… the interface should do this as well.',
-      until: 0.34,
+      until: 0.2,
       variant: 'question',
     },
     number: '13',
     title: 'The proposed extension',
     shortTitle: 'Dynamic UI',
-    thesis: 'Virtualize the interface, too.',
-    // Child 2.22s, settle 0.68 (local = t × 0.306). The tracked reference
-    // establishes what the reader believes they are pointing at (0–0.138)
-    // before anything is said. The line arrives with the violation: the
-    // unrequested move into Spec begins 0.190, "VIEW CHANGED" 0.239, "SELECTED
-    // FOR YOU" 0.276. The consequence list (0.496–0.680) then answers it.
-    thesisAt: { from: 0.34, to: 0.62 },
+    thesis: 'The thread does not need one canonical interface.',
+    thesisAt: { from: 0.2, to: 0.52 },
     beats: [
-      { text: 'Let the UI develop with the work: from conversation into document, review, project or code.', from: 0.62, to: 0.96 },
+      { text: 'Same objects. Same identities. Thread, document, review.', from: 0.52, to: 0.96 },
     ],
-    body: 'If checkouts are coherent views into file state, interfaces could become coherent views into thread state. A conversation could develop into the document, project, review or code frame the work needs—provided every transformation remains legible, reversible and under user control.',
+    body: 'If checkouts are coherent views into file state, interfaces could become coherent views into thread state. The same durable objects can move from a chronological thread into document and review projections without being copied or losing identity.',
     start: 0.91533396,
     end: 0.966133584,
     settle: 0.68,
@@ -446,10 +428,7 @@ export type ActAnnotation = {
   placement: 'upper-right' | 'middle-right' | 'lower-right' | 'lower-middle';
 };
 
-/**
- * These notes are spatial commentary. Placement and pointer direction are
- * authored per scene so the note belongs to the visual evidence it explains.
- */
+/** Spatial commentary, used only where a note explains visible scene evidence. */
 export const actAnnotations: Partial<Record<ActId, ActAnnotation>> = {
   bare: {
     text: 'Even “plain” text already has position, measure and a point of view.',
@@ -506,52 +485,7 @@ export const actAnnotations: Partial<Record<ActId, ActAnnotation>> = {
     label: 'Watch usable context',
     placement: 'middle-right',
   },
-  recovery: {
-    text: 'Type here—not only at the bottom. The thread becomes an authorable surface.',
-    label: 'Delta shift 01',
-    placement: 'upper-right',
-  },
-  cost: {
-    text: 'Apply the checkout idea to UI: one thread state, many useful interface views.',
-    label: 'The proposed leap',
-    placement: 'lower-middle',
-  },
 };
-
-export const chapters: Chapter[] = [
-  {
-    id: 'written',
-    number: '01',
-    title: 'WRITTEN',
-    subtitle: 'Text is never just there.',
-    support: 'It is somewhere. Separated from the world around it. Framed.',
-    introActId: 'bare',
-  },
-  {
-    id: 'networked',
-    number: '02',
-    title: 'NETWORKED',
-    subtitle: 'The page stops being the container.',
-    support: 'Text acquires addresses, links and virtual adjacency.',
-    introActId: 'hypertext',
-  },
-  {
-    id: 'computational',
-    number: '03',
-    title: 'COMPUTATIONAL',
-    subtitle: 'The frame changes nature.',
-    support: 'It can now hold state, action and behaviour.',
-    introActId: 'application',
-  },
-  {
-    id: 'ai',
-    number: '04',
-    title: 'AI AGE',
-    subtitle: 'Then AI enters the space.',
-    support: 'The intelligence is new. The conversational form is not.',
-    introActId: 'conversation',
-  },
-];
 
 /**
  * The five audience-facing regimes. These are intentionally more specific than
@@ -562,21 +496,21 @@ export const experienceEras: ExperienceEra[] = [
   {
     id: 'paper',
     number: '01',
-    title: 'PAPER AGE',
+    title: 'PAPER',
     description: 'Page, margin, apparatus and composition',
     actIds: ['bare', 'page', 'glosses', 'print', 'editorial', 'magazine'],
   },
   {
     id: 'computer',
     number: '02',
-    title: 'COMPUTER AGE',
+    title: 'COMPUTER',
     description: 'Networks, applications and specialized frames',
     actIds: ['hypertext', 'application', 'fragments'],
   },
   {
     id: 'ai',
     number: '03',
-    title: 'AI AGE',
+    title: 'AI',
     description: 'New intelligence inside the inherited chat form',
     actIds: ['conversation', 'tube'],
   },
@@ -600,16 +534,6 @@ export function eraForAct(act: Act): ExperienceEra {
   const era = experienceEras.find((item) => item.actIds.includes(act.id));
   if (!era) throw new Error(`Missing experience era for act: ${act.id}`);
   return era;
-}
-
-export function chapterBySegment(segment: SegmentId): Chapter {
-  const chapter = chapters.find((item) => item.id === segment);
-  if (!chapter) throw new Error(`Missing chapter for segment: ${segment}`);
-  return chapter;
-}
-
-export function chapterForAct(act: Act): Chapter {
-  return chapterBySegment(act.segment);
 }
 
 export const plannedActs: Pick<Act, 'id' | 'number' | 'title' | 'shortTitle'>[] = [];

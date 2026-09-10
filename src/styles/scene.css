@@ -935,8 +935,10 @@ text.gloss--ink {
 .recovery-boundary,
 .recovery-title-rule,
 .recovery-apparatus-rule,
-.recovery-strike,
-.recovery-supersession-relation {
+.recovery-append-frame,
+.recovery-append-cursor,
+.recovery-anchor-line,
+.recovery-insertion-cursor {
   fill: none;
   stroke: #77828c;
   stroke-width: 0.85;
@@ -955,10 +957,11 @@ text.gloss--ink {
 .recovery-folio,
 .recovery-apparatus-title,
 .recovery-apparatus-note,
-.recovery-identifier,
-.recovery-supersession-label,
 .recovery-paradigm,
-.recovery-cursor text {
+.recovery-append-label,
+.recovery-append-placeholder,
+.recovery-insertion-location,
+.recovery-insertion-copy {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -971,8 +974,7 @@ text.gloss--ink {
   fill: #aab3bb;
 }
 
-.recovery-folio,
-.recovery-identifier {
+.recovery-folio {
   fill: #7e8993;
 }
 
@@ -988,81 +990,95 @@ text.gloss--ink {
   fill: #65c4b3;
 }
 
-.recovery-cursor path {
-  fill: none;
+.recovery-append-label,
+.recovery-insertion-location {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  fill: #65c4b3;
+}
+
+.recovery-append-frame {
+  fill: rgba(12, 17, 21, 0.82);
+  stroke: #65727a;
+  stroke-width: 1;
+}
+
+.recovery-append-placeholder {
+  font-size: 11px;
+  fill: #879198;
+}
+
+.recovery-append-cursor,
+.recovery-insertion-cursor {
   stroke: #65c4b3;
   stroke-width: 1.5;
 }
 
-.recovery-cursor text {
-  font-size: 11px;
-  fill: #b8d8d1;
+.recovery-focus-ring {
+  fill: rgba(101, 196, 179, 0.12);
+  stroke: #65c4b3;
+  stroke-width: 1.4;
 }
 
-.recovery-identifier {
-  font-size: 9px;
-  letter-spacing: 0.08em;
+.recovery-anchor-line {
+  stroke: #65c4b3;
+  stroke-width: 1.1;
 }
 
-.recovery-strike,
-.recovery-supersession-relation {
-  stroke: #ad6f69;
-  stroke-width: 1.2;
-}
-
-.recovery-supersession-label {
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  fill: #a97670;
+.recovery-insertion-copy {
+  font-size: 12px;
+  fill: #d0e5df;
 }
 
 /* --------------------------------------------------------------------------
-   Cost — a stable marker outlives its projection position
+   Proposed extension — one durable field, three coherent projections
    -------------------------------------------------------------------------- */
 
-.cost-tracking-bracket {
+.cost-projection-rail {
   fill: none;
-  stroke: #d0a04e;
-  stroke-width: 1.2;
+  stroke: #6e6173;
+  stroke-width: 1;
 }
 
-.cost-tracking-label,
-.cost-selected-view,
-.cost-consequence,
-.cost-concept-title,
-.cost-concept-node {
+.cost-projection-title,
+.cost-projection-label,
+.cost-projection-continuity {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 9px;
   letter-spacing: 0.11em;
 }
 
-.cost-concept-title {
-  font-size: 10px;
+.cost-projection-title {
+  font-size: 12px;
   font-weight: 700;
   fill: #c39bd3;
 }
 
-.cost-concept-node {
-  fill: #c7bccb;
-}
-
-.cost-concept-arrow {
-  fill: none;
-  stroke: #8d7298;
-  stroke-width: 1;
-}
-
-.cost-tracking-label {
-  fill: #c89a4d;
-}
-
-.cost-selected-view {
-  fill: #a66f69;
+.cost-projection-label {
+  font-size: 10px;
   font-weight: 600;
+  fill: #d4c7d9;
 }
 
-.cost-consequence {
-  fill: #9a736e;
+.cost-projection-node {
+  fill: #c39bd3;
+  stroke: #151019;
+  stroke-width: 2;
+}
+
+.cost-projection-continuity {
+  font-size: 9.5px;
+  fill: #897c8e;
+}
+
+.stage[data-act='recovery'] .operation-label,
+.stage[data-act='cost'] .operation-label {
+  font-size: 12.5px;
+}
+
+.stage[data-act='recovery'] .operation-kind,
+.stage[data-act='cost'] .operation-kind {
+  font-size: 8px;
 }
 
 /* --------------------------------------------------------------------------
@@ -1071,9 +1087,16 @@ text.gloss--ink {
 
 .open-question-text {
   font-family: var(--sans);
-  font-size: 34px;
+  font-size: 42px;
   font-weight: 400;
   fill: #ded7c9;
+}
+
+.open-support-text {
+  font-family: var(--sans);
+  font-size: 15px;
+  letter-spacing: 0.035em;
+  fill: #8f918e;
 }
 
 .reframe-cluster-label,

@@ -1098,9 +1098,9 @@ export function buildReframe(): SVGGElement {
     });
     furniture.appendChild(group);
   };
-  frameGroup('essay', [['CHECKOUT / REVIEW', 270, 118], ['SHARED FILE STATE', 950, 178]]);
-  frameGroup('thread', [['CHECKOUT / THREAD AND WORK', 250, 112]]);
-  frameGroup('structure', [['QUESTIONS', 190, 140], ['CLAIMS', 470, 140], ['FILES', 750, 140], ['DECISIONS', 1010, 140]]);
+  frameGroup('essay', [['DOCUMENT / ARGUMENT', 410, 226], ['SOURCES / CONTEXT', 1010, 256]]);
+  frameGroup('thread', [['THREAD / CHRONOLOGY', 410, 206]]);
+  frameGroup('structure', [['QUESTIONS', 410, 226], ['CLAIMS', 650, 226], ['FILES', 880, 226], ['DECISIONS', 1100, 226]]);
   frameGroup('spec', [['CHECKOUT / CODE', 260, 138], ['DELTA DB / SOURCE OF TRUTH', 850, 158]]);
   g.appendChild(furniture);
 
@@ -1242,19 +1242,86 @@ export function buildRecovery(): SVGGElement {
   const shift = el('text', { class: 'recovery-paradigm', x: 330, y: 207 });
   shift.textContent = 'PARADIGM SHIFT 01 / THE THREAD IS A TYPING SURFACE';
   segment.appendChild(shift);
-  const cursors = el('g', { class: 'recovery-cursors' });
+
+  const append = el('g', { id: 'recovery-append-input' });
+  const appendLabel = el('text', { class: 'recovery-append-label', x: 360, y: 715 });
+  appendLabel.textContent = 'CHAT / ONE INPUT LOCATION';
+  append.appendChild(appendLabel);
+  append.appendChild(el('path', {
+    class: 'recovery-append-frame',
+    d: 'M 360 730 H 1080 V 782 H 360 Z',
+  }));
+  const appendPlaceholder = el('text', { class: 'recovery-append-placeholder', x: 390, y: 762 });
+  appendPlaceholder.textContent = 'Message thread';
+  append.appendChild(appendPlaceholder);
+  append.appendChild(el('path', {
+    class: 'recovery-append-cursor',
+    d: 'M 504 744 V 768',
+  }));
+  segment.appendChild(append);
+
+  const insertions = el('g', { id: 'recovery-insertions' });
   ([
-    ['Add a decision beside this claim', 560, 330],
-    ['Write a review here', 930, 432],
-  ] as const).forEach(([copy, x, y]) => {
-    const cursor = el('g', { class: 'recovery-cursor' });
-    cursor.appendChild(el('path', { d: `M ${x} ${y - 18} V ${y + 8}` }));
-    const cursorText = el('text', { x: x + 12, y });
-    cursorText.textContent = copy;
-    cursor.appendChild(cursorText);
-    cursors.appendChild(cursor);
+    {
+      location: 'BESIDE A PARAGRAPH',
+      copy: 'Add the decision at this claim.',
+      anchorX: 400,
+      anchorY: 350,
+      textX: 610,
+      textY: 376,
+      path: 'M 410 350 C 476 350 528 372 594 372',
+    },
+    {
+      location: 'BESIDE CODE / TOOL OUTPUT',
+      copy: 'Review this result here.',
+      anchorX: 900,
+      anchorY: 380,
+      textX: 944,
+      textY: 430,
+      path: 'M 906 390 C 918 404 926 414 936 420',
+    },
+    {
+      location: 'BESIDE AN ARTIFACT',
+      copy: 'Keep the note with the artifact.',
+      anchorX: 400,
+      anchorY: 670,
+      textX: 610,
+      textY: 696,
+      path: 'M 410 670 C 476 670 528 692 594 692',
+    },
+  ] as const).forEach(({ location, copy, anchorX, anchorY, textX, textY, path }) => {
+    const insertion = el('g', { class: 'recovery-insertion' });
+    insertion.appendChild(el('circle', {
+      class: 'recovery-focus-ring',
+      cx: anchorX,
+      cy: anchorY,
+      r: 11,
+    }));
+    insertion.appendChild(el('path', {
+      class: 'recovery-anchor-line',
+      d: path,
+    }));
+    const locationLabel = el('text', {
+      class: 'recovery-insertion-location',
+      x: textX,
+      y: textY - 18,
+    });
+    locationLabel.textContent = location;
+    const insertionCopy = el('text', {
+      class: 'recovery-insertion-copy',
+      x: textX,
+      y: textY,
+    });
+    insertionCopy.textContent = copy;
+    insertion.appendChild(locationLabel);
+    insertion.appendChild(insertionCopy);
+    insertion.appendChild(el('path', {
+      class: 'recovery-insertion-cursor',
+      d: `M ${textX + 190} ${textY - 17} V ${textY + 5}`,
+    }));
+    insertions.appendChild(insertion);
   });
-  segment.appendChild(cursors);
+  segment.appendChild(insertions);
   g.appendChild(segment);
 
   const apparatus = el('g', { id: 'recovery-tool-apparatus' });
@@ -1270,108 +1337,75 @@ export function buildRecovery(): SVGGElement {
   apparatus.appendChild(apparatusNote);
   g.appendChild(apparatus);
 
-  const identifiers = el('g', { id: 'recovery-identifiers' });
-  let primary = 0;
-  let tool = 0;
-  OPERATIONS.forEach((operation, i) => {
-    const isTool = operation.kind === 'tool';
-    const y = isTool ? 292 + tool++ * 88 : 230 + primary++ * 40;
-    const label = el('text', {
-      class: 'recovery-identifier',
-      x: isTool ? 880 : 380,
-      y: y - 5,
-      'text-anchor': 'end',
-      'data-operation': operation.id,
-    });
-    label.textContent = `§${String(i + 1).padStart(2, '0')}`;
-    identifiers.appendChild(label);
-  });
-  g.appendChild(identifiers);
-
-  const supersession = el('g', { id: 'recovery-supersession' });
-  supersession.appendChild(el('path', {
-    class: 'recovery-strike',
-    d: 'M 410 592 H 812',
-  }));
-  supersession.appendChild(el('path', {
-    class: 'recovery-supersession-relation',
-    d: 'M 820 590 C 842 590 842 630 820 630 M 820 630 l 8 -5 M 820 630 l 8 5',
-  }));
-  const relationLabel = el('text', {
-    class: 'recovery-supersession-label', x: 842, y: 614,
-  });
-  relationLabel.textContent = 'SUPERSEDED BY';
-  supersession.appendChild(relationLabel);
-  g.appendChild(supersession);
-
   return g as SVGGElement;
 }
 
-/** The proposed extension and the constraints on a dynamic projection change. */
+/** The proposed extension: one thread state, shown through three projections. */
 export function buildCost(): SVGGElement {
   const g = el('g', { id: 'cost-annotations', opacity: '0' });
 
-  const concept = el('g', { class: 'cost-concept' });
-  const conceptTitle = el('text', {
-    class: 'cost-concept-title', x: 720, y: 104, 'text-anchor': 'middle',
+  const title = el('text', {
+    class: 'cost-projection-title', x: 720, y: 106, 'text-anchor': 'middle',
   });
-  conceptTitle.textContent = 'PROPOSED EXTENSION / VIRTUALIZE THE INTERFACE, TOO';
-  concept.appendChild(conceptTitle);
-  ([
-    ['DELTA DB STATE', 'CHECKOUT VIEWS', 144],
-    ['THREAD / CANVAS STATE', 'DYNAMIC UI VIEWS', 178],
-  ] as const).forEach(([source, view, y]) => {
-    const sourceLabel = el('text', {
-      class: 'cost-concept-node', x: 500, y, 'text-anchor': 'end',
-    });
-    sourceLabel.textContent = String(source);
-    concept.appendChild(sourceLabel);
-    concept.appendChild(el('path', {
-      class: 'cost-concept-arrow', d: `M 530 ${Number(y) - 4} H 880 M 870 ${Number(y) - 10} L 880 ${Number(y) - 4} L 870 ${Number(y) + 2}`,
-    }));
-    const viewLabel = el('text', { class: 'cost-concept-node', x: 910, y });
-    viewLabel.textContent = String(view);
-    concept.appendChild(viewLabel);
-  });
-  g.appendChild(concept);
+  title.textContent = 'ONE THREAD / NO CANONICAL INTERFACE';
+  g.appendChild(title);
 
-  const tracked = el('g', { id: 'cost-tracked-reference' });
-  tracked.appendChild(el('path', {
-    class: 'cost-tracking-bracket',
-    d: 'M 252 232 h -14 v 44 h 14',
+  g.appendChild(el('path', {
+    class: 'cost-projection-rail',
+    d: 'M 470 152 H 970',
   }));
-  const trackedLabel = el('text', { class: 'cost-tracking-label', x: 238, y: 220 });
-  trackedLabel.textContent = 'TRACKED / §03';
-  tracked.appendChild(trackedLabel);
-  g.appendChild(tracked);
-
-  const selected = el('text', { id: 'cost-selected-view', class: 'cost-selected-view', x: 260, y: 112 });
-  selected.textContent = 'DYNAMIC UI / SPEC VIEW PROPOSED';
-  g.appendChild(selected);
-
-  const consequences = el('g', { id: 'cost-consequences' });
-  const lines = [
-    'THE VIEW MAY ADAPT TO THE WORK',
-    'THE USER MUST KEEP ORIENTATION',
-    'EVERY TRANSFORMATION MUST BE REVERSIBLE',
-  ];
-  lines.forEach((copy, i) => {
-    const line = el('text', { class: 'cost-consequence', x: 850, y: 690 + i * 24 });
-    line.textContent = copy;
-    consequences.appendChild(line);
+  ([
+    ['THREAD', 470],
+    ['DOCUMENT', 720],
+    ['REVIEW', 970],
+  ] as const).forEach(([copy, x]) => {
+    const stage = el('g', { class: 'cost-projection-stage' });
+    stage.appendChild(el('circle', {
+      class: 'cost-projection-node',
+      cx: x,
+      cy: 152,
+      r: 5,
+    }));
+    const label = el('text', {
+      class: 'cost-projection-label',
+      x,
+      y: 180,
+      'text-anchor': 'middle',
+    });
+    label.textContent = copy;
+    stage.appendChild(label);
+    g.appendChild(stage);
   });
-  g.appendChild(consequences);
+
+  const continuity = el('text', {
+    class: 'cost-projection-continuity',
+    x: 720,
+    y: 210,
+    'text-anchor': 'middle',
+  });
+  continuity.textContent = 'SAME OBJECTS · SAME IDENTITIES · SAME UNDERLYING THREAD';
+  g.appendChild(continuity);
 
   return g as SVGGElement;
 }
 
-/** Final question. The operation field remains the material under discussion. */
+/** Final landing. The historical argument resolves into one proposition. */
 export function buildOpen(): SVGGElement {
   const g = el('g', { id: 'open-question', opacity: '0' });
   const question = el('text', {
-    class: 'open-question-text', x: 720, y: 118, 'text-anchor': 'middle',
+    class: 'open-question-text', x: 720, y: 390, 'text-anchor': 'middle',
   });
-  question.textContent = 'What should this thread become?';
+  const firstLine = el('tspan', { x: 720, dy: 0 });
+  firstLine.textContent = 'A thread may begin as conversation.';
+  const secondLine = el('tspan', { x: 720, dy: 58 });
+  secondLine.textContent = 'It does not have to remain one.';
+  question.appendChild(firstLine);
+  question.appendChild(secondLine);
   g.appendChild(question);
+  const support = el('text', {
+    class: 'open-support-text', x: 720, y: 520, 'text-anchor': 'middle',
+  });
+  support.textContent = 'Language can remain the input. The interface can grow with the work.';
+  g.appendChild(support);
   return g as SVGGElement;
 }
