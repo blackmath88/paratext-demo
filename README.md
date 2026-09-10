@@ -29,6 +29,11 @@ The product argument behind the AI and Delta movement is developed separately
 in [`docs/future-of-ai-ui.md`](./docs/future-of-ai-ui.md): a concept for
 conversations that grow into task-specific, collaborative interfaces.
 
+The completed experience is assessed in the
+[`retrospective`](./docs/retrospective.md). Its
+[`finished-state screenshots`](./docs/screenshots/) are also available as a
+single [`ZIP download`](./docs/paratext-scenes-finished.zip).
+
 ## Develop
 
 ```bash
